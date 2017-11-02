@@ -1,0 +1,76 @@
+# Tables for simple user management
+staff:
+  descr: people
+  table:
+    staffid: VARCHAR(255)
+    email: VARCHAR(255)
+  indexes:
+    - "CREATE UNIQUE INDEX staff1 on staff (staffid)"
+
+staffgroup:
+  table:
+    staffid: VARCHAR(255)
+    groupid: VARCHAR(255)
+  indexes:
+    - "CREATE UNIQUE INDEX staffgroup1 on staffgroup (groupid, staffid)"
+    - "CREATE INDEX staffgroup2 on staffgroup (staffid)"
+
+course:
+  table:
+    # Short custom course id, e.g. vwl_einf
+    courseid: VARCHAR(30)
+    # Semester as integer: 20171 for SOSE17 and 20172 for WS1718
+    semester: INTEGER
+    active: BOOLEAN
+    coursename: VARCHAR(1024)
+    # en or de
+    language: CHARACTER(2)
+    # SWS
+    hours_lecture: INTEGER
+    hours_class: INTEGER
+    # next semester in which course is planned again
+    plan_next_sem: INTEGER
+    # typical cycle in which course takes place
+    plan_cycle: INTEGER
+  indexes:
+    - "CREATE UNIQUE INDEX courses1 on courses (courseid, semester)"
+
+coursestaff:
+  table:
+    courseid: VARCHAR(30)
+    semester: INTEGER
+    staffid: VARCHAR(255)
+    # LE, TA
+    role: VARCHAR(2)
+    # Lehrauftrag: no, nopay, travel, travelpay, pay 
+    commission: VARCHAR(20)
+  indexes:
+    - "CREATE UNIQUE INDEX coursestaff1 on coursestaff (courseid, semester, staffid)"
+    - "CREATE INDEX coursestaff2 on coursestaff (staffid, semester)"
+
+
+module:
+  table:
+    moduleid: INTEGER UNIQUE PRIMARY KEY
+    courseid: VARCHAR(30)
+    semester: INTEGER
+    # Official module number as in HIS
+    modulenum: VARCHAR(30)
+    modulename: VARCHAR(1024)
+    # BA or MA or BM for both
+    bama: CHARACTER(2)
+    credits: INTEGER
+  indexes:
+    - "CREATE UNIQUE INDEX module1 on module (courseid, semester, modulenum)"
+
+# Schwerpunkt
+modulearea:
+  table:
+    moduleid: INTEGER
+    area: VARCHAR(30)
+
+# Subjects for which module is open
+modulesubject:
+  table:
+    moduleid: INTEGER
+    subject: VARCHAR(30)
