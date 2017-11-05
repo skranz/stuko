@@ -1,3 +1,5 @@
+
+
 # Tables for simple user management
 staff:
   descr: people
@@ -48,17 +50,20 @@ course:
     # typical cycle in which course takes place
     plan_cycle: INTEGER
   indexes:
-    - "CREATE UNIQUE INDEX courses1 on courses (courseid, semester)"
+    - "CREATE UNIQUE INDEX courses1 on course (courseid, semester)"
 
 coursestaff:
   table:
     courseid: VARCHAR(30)
     semester: INTEGER
     staffid: VARCHAR(255)
-    # LE, TA
-    role: VARCHAR(2)
+    # LE, TA, NO
+    teaching_role: VARCHAR(2)
     # Lehrauftrag: no, nopay, travel, travelpay, pay
     commission: VARCHAR(20)
+    # Each course should have a responsible person who
+    # is a professor or permanent lecturer in Ulm
+    responsible: BOOLEAN
   indexes:
     - "CREATE UNIQUE INDEX coursestaff1 on coursestaff (courseid, semester, staffid)"
     - "CREATE INDEX coursestaff2 on coursestaff (staffid, semester)"

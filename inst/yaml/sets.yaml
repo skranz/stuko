@@ -1,0 +1,12 @@
+lang_de:
+  teaching_role:
+    'Dozent': LE
+    'Übungsleiter': TA
+    'Ansprechpartner': NO
+  commission:
+    # Lehrauftrag: no, nopay, travel, travelpay, pay
+    '-': no
+    'Ohne Vergütung': nopay
+    'Nur Reisekosten': travel
+    'Nur Vergütung': pay
+    'Vergütung + Reisekosten': travelpay
