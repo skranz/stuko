@@ -1,96 +1,127 @@
-
-
-# Tables for simple user management
-staff:
-  descr: people
+commit:
   table:
-    staffid: VARCHAR(255)
-    email: VARCHAR(255)
-    name: VARCHAR(255)
-    jobber: BOOLEAN
-    mainadmin: BOOLEAN
-  indexes:
-    - "CREATE UNIQUE INDEX staff1 on staff (staffid)"
+    commitid: CHAR(20)
+    time: DATETIME
+    userid: VARCHAR(50)
+    # mo, ku, pe
+    type: CHAR(2)
+    descr_auto: TEXT
+    descr_manu: TEXT
 
-# Deputies can see and finish jobs for jobbers
-# A jobber is somebody who officially gets
-# assigned administrative jobs (usually a professor)
-# A jobber can have general deputies who can deal with
-# all of her jobs
-deputy:
-  table:
-    deputyid: VARCHAR(255)
-    jobberid: VARCHAR(255)
 
-staffgroup:
+snapshot:
   table:
-    staffid: VARCHAR(255)
-    groupid: VARCHAR(30)
-    groupadmin: BOOLEAN
-  indexes:
-    - "CREATE UNIQUE INDEX staffgroup1 on staffgroup (groupid, staffid)"
-    - "CREATE INDEX staffgroup2 on staffgroup (staffid)"
+    time: DATETIME
+    userid: VARCHAR(50)
+    label: TEXT
+    descr: TEXT
+    # Die aktuellen commitid
+    commit_mo:
+    commit_ku:
+    commit_pe:
 
-course:
+modul:
+  descr: Module
   table:
-    # Short custom course id, e.g. vwl_einf
-    courseid: VARCHAR(30)
-    # Semester as integer: 20171 for SOSE17 and 20172 for WS1718
+    modulid: INTEGER
     semester: INTEGER
-    groupid: VARCHAR(30)
-    active: BOOLEAN
-    coursename: VARCHAR(1024)
-    # en or de
-    language: CHARACTER(2)
-    # SWS
-    hours_lecture: INTEGER
-    hours_class: INTEGER
-    # next semester in which course is planned again
-    plan_next_sem: INTEGER
-    # typical cycle in which course takes place
-    plan_cycle: INTEGER
+    # Extern modules do not require detailed info
+    # as we wont generate templates for updating
+    # the module for the Studiensekretariat
+    extern: BOOLEAN
+    titel: VARCHAR(255)
+    handbuch: VARCHAR(255)
+    code: CHARACTER(5)
+    ects: INTEGER
+    sws: INTEGER
+    sprache: VARCHAR(20)
+    dauer: INTEGER
+    turnus_num: INTEGER
+    turnus: CHARACTER(50)
+    vorkenntnisse: TEXT
+    lernergebnisse: TEXT
+    inhalt: TEXT
+    literatur: TEXT
+    lehrform: TEXT
+    arbeitsaufwand: TEXT
+    bewertungsmethode: VARCHAR(50)
+    notenbildung: TEXT
+    grundlage_fuer: TEXT
+    modulkoordinator: TEXT
+    dozent: TEXT
+    studiengang: TEXT
+    zuordnung: TEXT
   indexes:
-    - "CREATE UNIQUE INDEX courses1 on course (courseid, semester)"
 
-coursestaff:
+modulstudiengang:
+  descr: |
+    Hier nur die Studiengaenge, fuer welche die WiWi Stuko,
+    ein Lehrprogramm verabschieden muss
   table:
-    courseid: VARCHAR(30)
+    modulid: INTEGER
     semester: INTEGER
-    staffid: VARCHAR(255)
-    # LE, TA, NO
-    teaching_role: VARCHAR(2)
-    # Lehrauftrag: no, nopay, travel, travelpay, pay
-    commission: VARCHAR(20)
-    # Each course should have a responsible person who
-    # is a professor or permanent lecturer in Ulm
-    responsible: BOOLEAN
-  indexes:
-    - "CREATE UNIQUE INDEX coursestaff1 on coursestaff (courseid, semester, staffid)"
-    - "CREATE INDEX coursestaff2 on coursestaff (staffid, semester)"
+    studiengang: VARCHAR(50)
 
-
-module:
+modulschwerpunkt:
+  descr: |
+    WiWi Schwerpunkte
   table:
-    moduleid: INTEGER UNIQUE PRIMARY KEY
-    courseid: VARCHAR(30)
+    modulid: INTEGER
     semester: INTEGER
-    # Official module number as in HIS
-    modulenum: VARCHAR(30)
-    modulename: VARCHAR(1024)
-    # BA or MA or BM for both
-    bama: CHARACTER(2)
-    credits: INTEGER
+    schwerpunkt: VARCHAR(50)
+
+modulzuordnung:
+  descr: |
+    Weitere fuer StuKo relevante Zuordnungen, z. B.
+    WiWi Pflicht 2. Semester
+  table:
+    modulid: INTEGER
+    semester: INTEGER
+    zuordnung: VARCHAR(50)
+
+kurs:
+  descr:
+  table:
+    kursid: INTEGER
+    semester: INTEGER
+    aktiv: BOOLEAN
+    vnum: VARCHAR(50)
+    kursname: VARCHAR(255)
+    sws_kurs: INTEGER
+    sws_uebung: INTEGER
+    # vorlesung, ASQ, seminar
+    kursform: VARCHAR(50)
+    zukunft_sem: INTEGER
+    zukunft_sem2: INTEGER
   indexes:
-    - "CREATE UNIQUE INDEX module1 on module (courseid, semester, modulenum)"
 
-# Schwerpunkt
-modulearea:
+kursperson:
   table:
-    moduleid: INTEGER
-    area: VARCHAR(30)
+    kursid: INTEGER
+    semester: INTEGER
+    personid: VARCHAR(50)
+    nachname: VARCHAR(50)
+    vorname: VARCHAR(50)
+    # DK, DO, UL, KO
+    rolle: VARCHAR(2)
+    # nein, ohne, rk, rk_vg, vg
+    lehrauftrag: VARCHAR(20)
+    # Fuer Lehrauftrag: wieviel SWS werden zugeordnet?
+    dozent_sws: INTEGER
 
-# Subjects for which module is open
-modulesubject:
+person:
   table:
-    moduleid: INTEGER
-    subject: VARCHAR(30)
+    personid: VARCHAR(100)
+    email: VARCHAR(100)
+    nachname: VARCHAR(50)
+    vorname: VARCHAR(50)
+  indexes:
+    - "CREATE UNIQUE INDEX person1 on person (personid)"
+
+# Vertreter der Jobs anstelle des Boss
+# erledigen kann.
+# vertrerid und bossid sind beides personid
+vertreter:
+  table:
+    vertreterid: VARCHAR(255)
+    bossid: VARCHAR(255)

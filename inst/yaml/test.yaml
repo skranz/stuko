@@ -1,0 +1,10 @@
+fields:
+  modulenum:
+    optional: TRUE
+    lang_de:
+      label: Veranstaltungsnummer (Modulhandbuch)
+  bama:
+    choice_set: bama
+    multiple: TRUE
+    lang_de:
+      label: 'BA / MA'

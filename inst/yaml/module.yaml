@@ -1,0 +1,37 @@
+fields:
+  modulenum:
+    optional: TRUE
+    lang_de:
+      label: Veranstaltungsnummer (Modulhandbuch)
+  modulename:
+    optional: TRUE
+    lang_de:
+      label: Modulname (leer = Kursname)
+  bama:
+    choice_set: bama
+    lang_de:
+      label: 'BA / MA'
+  credits:
+    type: numeric
+    lang_de:
+      label: Kreditpunkte
+      help: |
+        Falls sich Kreditpunkte zwischen BA und MA unterscheiden,
+        legen Sie bitte zwei verschiedene Module an.
+  subjects:
+    choice_set: subject
+    multiple: TRUE
+    lang_de:
+      label: 'Fächer'
+  specs:
+    choice_set: spec
+    multiple: TRUE
+    lang_de:
+      label: 'Schwerpunkt(e)'
+  tags:
+    choice_set: moduletag
+    multiple: TRUE
+    lang_de:
+      label: 'Weitere Attribute des Moduls'
+
+

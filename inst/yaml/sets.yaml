@@ -1,12 +1,54 @@
 lang_de:
-  teaching_role:
-    'Dozent': LE
-    'Übungsleiter': TA
-    'Ansprechpartner': NO
-  commission:
+  semester:
+    WS1718: 20172
+    SoSe18: 20181
+    WS1819: 20182
+    SoSe19: 20191
+    WS1920: 20192
+    SoSe20: 20201
+    WS2021: 20202
+    SoSe21: 20211
+    WS2122: 20212
+    SoSe22: 20221
+    WS2223: 20222
+    SoSe23: 20231
+    WS2324: 20232
+    SoSe24: 20241
+    WS2425: 20242
+  rolle:
+    'Dozent (und Koordinator)': DO
+    'Dozent (kein Koordinator)': DK
+    'Übungsleiter': UL
+    'Koordinator': KO
+  lehrauftrag:
     # Lehrauftrag: no, nopay, travel, travelpay, pay
     '-': no
-    'Ohne Vergütung': nopay
-    'Nur Reisekosten': travel
-    'Nur Vergütung': pay
-    'Vergütung + Reisekosten': travelpay
+    'Ohne Vergütung': ohne
+    'Nur Reisekosten': rk
+    'Nur Vergütung': vg
+    'Reisekosten + Vergütung': rk_vg
+  bama:
+    'Bachelor': BA
+    'Master': MA
+    'BA & MA': BM
+  studiengang:
+    ['WiWi','MaWi','NUF', 'Finance', 'WiPhy', 'WiChem', 'Lehramt']
+  schwerpunkt:
+   - 'BA Econ'
+   - 'BA Fi&Ver'
+   - 'BA Inf'
+   - 'BA RW&WP'
+   - 'BA TPM'
+   - 'BA UF&Co'
+   - 'MA Econ'
+   - 'MA FiWi'
+   - 'MA Vers'
+   - 'MA Inf'
+   - 'MA RW&WP'
+   - 'MA TPM'
+   - 'MA UF&Co'
+  moduletag:
+    ['Pflicht WiWi', 'Pflicht NUF',
+     'Wahlpflicht VWL', 'Wahlpflicht BWL',
+     'Wahlpflicht Informatik', 'Wahlpflicht Mathe'
+    ]

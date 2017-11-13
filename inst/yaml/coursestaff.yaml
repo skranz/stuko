@@ -2,15 +2,24 @@ fields:
   staffid:
     optional: TRUE
     lang_de:
-      label: Mitarbeiter
+      label: Mitarbeiter (aus Liste)
       help: 'Eine Person aus der festen Liste von Mitarbeitern'
     lang_en:
       label: Staff
       help: 'Example: Mustermann, F.'
     choice_set: staff
+  staffname:
+    optional: TRUE
+    lang_de:
+      label: Mitarbeiter (nicht aus Liste)
+      help: 'Eine Person nicht aus der Liste der Mitarbeiter'
+    lang_en:
+      label: Staff
+      help: 'Example: Mustermann, F.'
   teaching_role:
     choice_set: teaching_role
     lang_de:
+      size: 11
       label: Rolle
       help: 'Die Lehraufgabe im Kurs'
     lang_en:
@@ -21,16 +30,18 @@ fields:
     lang_de:
       label: Lehrauftrag?
       help: 'Ein Lehrauftrag?'
+      size: 16
     lang_en:
       label: Commission?
       help: 'Ein Lehrauftrag?'
   responsible:
     lang_de:
-      label: Verantwortlich
+      size: 10
+      label: Administrator
       help: 'Festangestellter verantwortlicher Ansprechpartner'
       choices:
         '-': FALSE
-        'veantwortlich': TRUE
+        'ja': TRUE
     lang_en:
       label: Responsible
       help: 'Resonsible person'
