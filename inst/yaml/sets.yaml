@@ -1,25 +1,28 @@
 lang_de:
   semester:
-    WS1718: 20172
-    SoSe18: 20181
-    WS1819: 20182
-    SoSe19: 20191
-    WS1920: 20192
-    SoSe20: 20201
-    WS2021: 20202
-    SoSe21: 20211
-    WS2122: 20212
-    SoSe22: 20221
-    WS2223: 20222
-    SoSe23: 20231
-    WS2324: 20232
-    SoSe24: 20241
-    WS2425: 20242
+    SoSe16: 160
+    WS1617: 165
+    SoSe17: 170
+    WS1718: 175
+    SoSe18: 180
+    WS1819: 185
+    SoSe19: 190
+    WS1920: 195
+    SoSe20: 200
+    WS2021: 205
+    SoSe21: 210
+    WS2122: 215
+    SoSe22: 220
+    WS2223: 225
+    SoSe23: 230
+    WS2324: 235
+    SoSe24: 240
+    WS2425: 245
   rolle:
-    'Dozent (und Koordinator)': DO
-    'Dozent (kein Koordinator)': DK
-    'Übungsleiter': UL
-    'Koordinator': KO
+    'Dozent (und Koordinator)': dk
+    'Dozent (kein Koordinator)': do
+    'Übungsleiter': ul
+    'Koordinator': ko
   lehrauftrag:
     # Lehrauftrag: no, nopay, travel, travelpay, pay
     '-': no
@@ -52,3 +55,27 @@ lang_de:
      'Wahlpflicht VWL', 'Wahlpflicht BWL',
      'Wahlpflicht Informatik', 'Wahlpflicht Mathe'
     ]
+  zeitform:
+    'Wöchentlich': w
+    'Block': b
+    'Mehrere Termine im Semester': m
+    'Semesterferien': sf
+    'Wöchentlich mit Unterbrechungen': wu
+    'Nur Prüfung': np
+    'Keine Angabe': '-'
+  kursform:
+    'Vorlesung mit Übung': vu
+    'Vorlesung ohne Übung': v
+    'Seminar': se
+    'ASQ': asq
+    'Übung ohne Vorlesung': u
+    'Tutorium': tut
+    'Kolloquium': kol
+    'Begleitseminar': bse
+  pruefungsform:
+    'Klausur': k
+    'Mündliche Prüfung': m
+    'Klausur oder Mündlich': km
+    'Seminar': se
+    'keine Angaben': '-'
+    'sonstige': so

@@ -1,12 +1,48 @@
-combine.modules = function() {
+refine.scraped.modules = function() {
   setwd("D:/libraries/stuko")
-  library(readr)
-  df1 = read_csv("Module BA WiWI 2017_utf8.csv")
-  df2 = read_csv("Module MA WiWI 2017_utf8.csv")
-  df1$bama = "BA"
-  df2$bama = "MA"
-  df = bind_rows(df1, df2)
-  write_csv(df,"modules.csv")
+
+  mo = read_csv("modules_with_extern.csv", col_types=cols(code=col_character()))
+
+  sp = read_csv("sprache.csv")
+  mo$sprache_org = mo$sprache
+  mo$sprache = match.to.table(mo$sprache, sp)
+
+
+  # Find Module whose Modulbeschreibung differs
+  # for different subjects
+  differ = function(x) n_distinct(x) > 1
+
+  mo$code_kurz = ifelse(nchar(mo$code)>5,substring(mo$code, 6), mo$code)
+  mos = mo %>% group_by(code_kurz) %>%
+    summarise_all(differ) %>%
+    select(-code, -id, -handbuch)
+
+  mo.mat = as.matrix(mos[,-1])
+  any.differ = rowSums(mo.mat)>1
+  dmo = mos[any.differ,]
+
+  write_csv()
+  mo
+
+
+  if (FALSE) {
+    sprache = unique(mo$sprache)
+    df = unify.words.table(sprache, c("-", "Deutsch","Englisch", "Deutsch oder English"), file="sprache.csv")
+  }
+
+
+
+}
+
+make.module.with.extern.template = function() {
+  setwd("D:/libraries/stuko")
+  mo = readr::read_csv("module.csv", col_types=cols(code=col_character()))
+
+  mo = arrange(mo,zuordnung, modulkoordinator)
+  mo$extern = 0
+  mo = select(mo, titel,zuordnung, extern, everything())
+  write_excel_csv(mo,"modules_with_extern.csv")
+
 }
 
 examples.scrap_all.modulhandbuch = function() {
@@ -143,7 +179,7 @@ clean.scraped.module.info.df = function(df) {
 
 
   if ("Studiengänge" %in% colnames(df)) {
-    df$Studiengang = paste0(df$Studiengang," ", df$Studiengänge)
+    df$Studiengang = paste0(df$Studiengang," ", df[["Studiengänge"]])
     df = df[,setdiff(colnames(df,"Studiengänge"))]
   }
 

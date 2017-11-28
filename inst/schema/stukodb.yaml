@@ -1,50 +1,73 @@
-commit:
+commits:
   table:
     commitid: CHAR(20)
     time: DATETIME
     userid: VARCHAR(50)
-    # mo, ku, pe
-    type: CHAR(2)
+    # mo, ku, pe, mhb
+    type: CHAR(3)
     descr_auto: TEXT
     descr_manu: TEXT
 
-
+# Snapshots will be saved in an extra database
 snapshot:
   table:
     time: DATETIME
     userid: VARCHAR(50)
     label: TEXT
     descr: TEXT
-    # Die aktuellen commitid
-    commit_mo:
-    commit_ku:
-    commit_pe:
+    snapshotid: CHAR(20)
+
+# All commits belonging to a snapshot
+snapshot_commit:
+  table:
+    snapshotid: CHAR(20)
+    commitid: CHAR(20)
 
 modul:
-  descr: Module
+  descr: |
+    Strukturierte Infos für ein Modul
   table:
-    modulid: INTEGER
+    modulid: CHARACTER(20)
     semester: INTEGER
+    code: CHARACTER(5)
     # Extern modules do not require detailed info
     # as we wont generate templates for updating
     # the module for the Studiensekretariat
     extern: BOOLEAN
     titel: VARCHAR(255)
-    handbuch: VARCHAR(255)
-    code: CHARACTER(5)
     ects: INTEGER
-    sws: INTEGER
-    sprache: VARCHAR(20)
-    dauer: INTEGER
-    turnus_num: INTEGER
-    turnus: CHARACTER(50)
+    # k, m, km, a, -
+    pruefungsform: CHARACTER(2)
+  indexes:
+    - "CREATE INDEX modul1 on modul (modulid,semester)"
+    - "CREATE INDEX modul2 on modul (semester, modulid)"
+
+
+mhb:
+  descr: |
+   Modulhandbuch. Alle Infos werden zunaechst noch
+   als reine Textfelder gespeichert.
+   Daten wurden direkt aus
+   den existierenden Modulhandbuch importiert.
+  table:
+    modulid: CHARACTER(20)
+    titel: TEXT
+    handbuch: VARCHAR(255)
+    # 5 letzten Stellen des Codes
+    # aus dem Modulhandbuch
+    code: CHARACTER(5)
+    ects: TEXT
+    sws: TEXT
+    sprache: TEXT
+    dauer: TEXT
+    turnus: TEXT
     vorkenntnisse: TEXT
     lernergebnisse: TEXT
     inhalt: TEXT
     literatur: TEXT
     lehrform: TEXT
     arbeitsaufwand: TEXT
-    bewertungsmethode: VARCHAR(50)
+    bewertungsmethode: TEXT
     notenbildung: TEXT
     grundlage_fuer: TEXT
     modulkoordinator: TEXT
@@ -52,13 +75,16 @@ modul:
     studiengang: TEXT
     zuordnung: TEXT
   indexes:
+    - "CREATE INDEX modulid on mhb (modulid)"
+    - "CREATE INDEX code on mhb (code)"
+
 
 modulstudiengang:
   descr: |
     Hier nur die Studiengaenge, fuer welche die WiWi Stuko,
     ein Lehrprogramm verabschieden muss
   table:
-    modulid: INTEGER
+    modulid: CHARACTER(20)
     semester: INTEGER
     studiengang: VARCHAR(50)
 
@@ -66,7 +92,7 @@ modulschwerpunkt:
   descr: |
     WiWi Schwerpunkte
   table:
-    modulid: INTEGER
+    modulid: CHARACTER(20)
     semester: INTEGER
     schwerpunkt: VARCHAR(50)
 
@@ -75,29 +101,48 @@ modulzuordnung:
     Weitere fuer StuKo relevante Zuordnungen, z. B.
     WiWi Pflicht 2. Semester
   table:
-    modulid: INTEGER
+    modulid: CHARACTER(20)
     semester: INTEGER
     zuordnung: VARCHAR(50)
 
 kurs:
   descr:
   table:
-    kursid: INTEGER
+    kursid: CHARACTER(20)
     semester: INTEGER
     aktiv: BOOLEAN
-    vnum: VARCHAR(50)
+    # Veranstaltungsnummer wie im Vorlesungsverzeichnis
+    vnum: VARCHAR(30)
     kursname: VARCHAR(255)
     sws_kurs: INTEGER
     sws_uebung: INTEGER
     # vorlesung, ASQ, seminar
-    kursform: VARCHAR(50)
+    kursform: VARCHAR(3)
+    # w, b, np
+    zeitform: CHARACTER(2)
+    # de, en, de_en, -
+    sprache: VARCHAR(5)
+    # Standardturnus der Veranstaltung
+    # in Semestern
+    turnus: INTEGER
     zukunft_sem: INTEGER
     zukunft_sem2: INTEGER
   indexes:
 
+kursmodul:
+  descr:
+  table:
+    kursid: CHARACTER(20)
+    semester: INTEGER
+    modulid: CHARACTER(20)
+  indexes:
+    - "CREATE INDEX kursmodul1 on kursmodul (semester, kursid)"
+    - "CREATE INDEX kursmodul2 on kursmodul (semester, modulid)"
+
+
 kursperson:
   table:
-    kursid: INTEGER
+    kursid: CHARACTER(20)
     semester: INTEGER
     personid: VARCHAR(50)
     nachname: VARCHAR(50)
@@ -106,7 +151,7 @@ kursperson:
     rolle: VARCHAR(2)
     # nein, ohne, rk, rk_vg, vg
     lehrauftrag: VARCHAR(20)
-    # Fuer Lehrauftrag: wieviel SWS werden zugeordnet?
+    # Nur fuer Lehrauftrag: wieviel SWS werden zugeordnet?
     dozent_sws: INTEGER
 
 person:
@@ -115,6 +160,8 @@ person:
     email: VARCHAR(100)
     nachname: VARCHAR(50)
     vorname: VARCHAR(50)
+    titel: CHARACTER(10)
+    kursadmin: BOOLEAN
   indexes:
     - "CREATE UNIQUE INDEX person1 on person (personid)"
 
@@ -123,5 +170,5 @@ person:
 # vertrerid und bossid sind beides personid
 vertreter:
   table:
-    vertreterid: VARCHAR(255)
-    bossid: VARCHAR(255)
+    vertreterid: VARCHAR(100)
+    bossid: VARCHAR(100)
