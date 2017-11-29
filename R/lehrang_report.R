@@ -1,6 +1,6 @@
 examples.lehrangebot.report = function() {
   sem_label = "Sommersemester 2018"
-  date_label = format(Sys.Date(),"%d.%m.%Y")
+  date_label = lang_datum(Sys.Date())
 
   setwd("D:/libraries/stuko")
   db = get.stukodb()
@@ -33,7 +33,7 @@ examples.lehrangebot.report = function() {
   }
 
   kurse$sp[is.na(kurse$sp)] = ""
-  vorl = filter(kurse, kursform %in% c("vu","v"))
+  vorl = filter(kurse, kursform %in% c("vu","v")) %>% arrange(kursname)
 
   key = "wiwi_ba_pflicht"
   dat  = filter(vorl,ba_pflicht)
@@ -52,9 +52,23 @@ examples.lehrangebot.report = function() {
   dat  = filter(vorl,ma_wp & !bama_wp)
   doc = add.ft(key,dat, show.sp=TRUE)
 
-  key = "kein_modul"
-  nomo = anti_join(kurse, kumo, by="kursid")
-  doc = add.ft(key,nomo, show.sp=FALSE)
+  key = "nuf_pflicht"
+  dat  = filter(vorl,nuf_pflicht)
+  doc = add.ft(key,dat, show.sp=FALSE)
+
+  key = "nuf_wp"
+  dat  = filter(vorl,nuf_wp)
+  doc = add.ft(key,dat, show.sp=FALSE)
+
+  key = "sem_ba"
+  dat  = filter(kurse,kursform=="se", ba) %>% arrange(kursname)
+  doc = add.ft(key,dat, show.sp=FALSE)
+
+  key = "sem_ma"
+  dat  = filter(kurse,kursform=="se", ma) %>% arrange(kursname)
+  doc = add.ft(key,dat, show.sp=FALSE)
+
+
 
   print(doc, target = "lehrangebot.docx")
 }
@@ -142,6 +156,10 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb()) {
   nuf.ids = kust$kursid[kust$studiengang=="WiWi_NUF"]
   nuf.pflicht.ids = kuzu$kursid[str.starts.with(kuzu$zuordnung, "NUF Pflicht")]
 
+  kurse$ba = kurse$kursid %in% ba.ids
+  kurse$ma = kurse$kursid %in% c(ma.ids, nuf.ids)
+
+
   kurse$ba_wp = kurse$kursid %in% intersect(ba.ids, wp.ids)
   kurse$ba_pflicht = kurse$kursid %in% setdiff(ba.ids, wp.ids)
 
@@ -189,7 +207,16 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb()) {
     rename(dozent=do)
 
   kurse = left_join(kurse, kudo, by="kursid")
+
+  kumo.ids = unique(kumo$kursid)
+  kurse$has.modul = kurse$kursid %in% kumo.ids
+
+  kurse$sp[is.na(kurse$sp)] = ""
+  kurse$dozent[is.na(kurse$dozent)] = "NN"
+
+
   kurse = kurse[!duplicated(kurse),]
+
   kurse
 }
 
