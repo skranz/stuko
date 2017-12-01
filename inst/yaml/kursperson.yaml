@@ -1,0 +1,29 @@
+fields:
+  personid:
+    lang_de:
+      size: 12
+      label: 'Person aus Liste'
+      choice_set: person
+  nachname:
+    lang_de:
+      size: 12
+      label: 'Nachname'
+  vorname:
+    lang_de:
+      size: 12
+      label: 'Vorname'
+  rolle:
+    lang_de:
+      size: 16
+      label: 'Rolle'
+      choice_set: rolle
+  lehrauftrag:
+    lang_de:
+      size: 16
+      label: 'Lehrauftrag'
+      choice_set: lehrauftrag
+  dozent_sws:
+    lang_de:
+      size: 4
+      label: 'SWS'
+      choices: ["",0,1,2,3,4,5,6,7,8]

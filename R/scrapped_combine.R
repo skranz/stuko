@@ -40,7 +40,7 @@ scrapped.kurs.to.db.csv = function() {
     sws_uebung = 0
   )
 
-  cat(paste0('"',unique(dat$art),'" = ""', collapse=",\n"))
+  #cat(paste0('"',unique(dat$art),'" = ""', collapse=",\n"))
   dat$kursform = recode(dat$art,
     "Vorlesung/ Übung" = "vu",
     "Vorlesung" = "v",
@@ -61,12 +61,44 @@ scrapped.kurs.to.db.csv = function() {
     "tut" = "w"
   )
 
+
+
+
   # Default Turnus: Jedes zweite Semester
   dat$turnus = 2
   dat$zukunft_sem = add.semester(dat$semester, dat$turnus)
   dat$zukunft_sem2 = add.semester(dat$semester, dat$turnus*2)
 
+  dat = dat[!duplicated(dat),]
+  # Merge Vorlesung / Übung
+  adapt.uebung = function(df) {
+    if (NROW(df)<=1) return(df)
+    u.rows = which(df$kursform == "u")
+    v.rows = which(df$kursform %in% c("v","vu"))
+    if (length(u.rows)==0 & length(v.rows)==0) {
+      return(df)
+    }
+    if (length(u.rows)==0) {
+      return(df[v.rows,])
+    }
+    v.row = v.rows[1]
+    u.row = u.rows[1]
+    df$kursform[v.row] = "vu"
+    df$sws_uebung[v.row] = df$sws_kurs[u.row]
+    df$dozenten[v.row] = paste0(df$dozenten[v.row],";",df$dozenten[u.row])
+
+    df[-u.rows,]
+  }
+
+  dat = dat %>% group_by(kursname, semester) %>%
+    do(adapt.uebung(.)) %>%
+    ungroup()
+
   kurs = select(dat,kursid, semester, aktiv, vnum, kursname, sws_kurs, sws_uebung, kursform, zeitform, sprache, turnus, zukunft_sem, zukunft_sem2)
+
+
+
+  kurs = kurs[!duplicated(kurs),]
 
   write_csv(kurs, "kurs_db.csv")
 
@@ -75,6 +107,8 @@ scrapped.kurs.to.db.csv = function() {
   d = select(dat, kursid, semester,kursform, dozenten) %>%
     mutate(dozent = strsplit(dozenten,";",fixed=TRUE)) %>%
     tidyr::unnest(dozent)
+
+  d = d[!duplicated(d),]
 
   d = mutate(d,
     nachname = str.trim(str.left.of(d$dozent,",")),
@@ -98,7 +132,7 @@ scrapped.kurs.to.db.csv = function() {
 
 
 
-  d = group_by(d, kursid) %>%
+  d = group_by(d, kursid, semester) %>%
     mutate(rolle = ifelse(1:n()==1, "do","ul")) %>%
     ungroup()
   d$rolle[d$personid != ""] = "dk"

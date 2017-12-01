@@ -1,9 +1,6 @@
 # Diagnosen zum Lehrangebot
 
 examples.diagnose.lehrangebot = function() {
-  sem_label = "Sommersemester 2017"
-  date_label = format(Sys.Date(),"%d.%m.%Y")
-
   setwd("D:/libraries/stuko")
   db = get.stukodb()
   #copy.modules.to.semester(175,170)
@@ -14,6 +11,7 @@ examples.diagnose.lehrangebot = function() {
   semp = semester -10
   sem_lab = semester_name(semester)
   semp_lab = semester_name(semp)
+  date_label = format(Sys.Date(),"%d.%m.%Y")
 
   kup = load.kurse.for.lehrangebot(semester=semp, db=db)
   kup = mutate(kup, Kurs=kursname, Dozent=dozent, SWS=sws_kurs+sws_uebung)
@@ -50,6 +48,14 @@ examples.diagnose.lehrangebot = function() {
   doc = add.lad.comments(doc, dat=dat, "Ggf. sind dies Kurse bei denen noch Einstellungen fehlen.")
 
   doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent"))
+
+
+  doc = doc %>% body_add_par("Kurse mit Übungen mit 0 SWS Übung", style = "heading 1")
+  dat = filter(ku,kursform=="vu", sws_uebung==0)
+  doc = add.lad.comments(doc, dat=dat, "Hier wurde noch keine SWS Aufteilung zwischen Kurs und Übung angegeben")
+
+  doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent","SWS"))
+
 
   # Statistiken
   staku = c(Kurse=NROW(ku),"BA-Pflicht"=sum(ku$ba_pflicht),"BA-WP"=sum(ku$ba_wp), "MA WiWi"=sum(ku$ma_wp),"NUF"=sum(ku$nuf_wp | ku$nuf_pflicht),"Nicht Zugeordnet"=sum(!ku$has.modul))

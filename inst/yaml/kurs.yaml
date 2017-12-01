@@ -1,0 +1,50 @@
+fields:
+  kursname:
+#    input: textarea
+    size: 60
+    lang_de:
+      label: 'Name des Kurses'
+  aktiv:
+    lang_de:
+      label: 'Aktiviert'
+      choices:
+        Ja: TRUE
+        Nein: FALSE
+  kursid:
+    lang_de:
+      label: 'Interne ID'
+  vnum:
+    lang_de:
+      label: 'Kurs-Nr Vorlesungsverzeichnis'
+  kursform:
+    lang_de:
+      label: 'Form des Kurses'
+      choice_set: kursform
+  zeitform:
+    lang_de:
+      label: 'Rhytmus'
+      choice_set: zeitform
+  sprache:
+    lang_de:
+      label: 'Sprache'
+      choice_set: sprache
+  sws_kurs:
+    lang_de:
+      label: 'SWS Kurs'
+      choices: [0,1,2,3,4,5,6,7,8,9]
+  sws_uebung:
+    lang_de:
+      label: 'SWS Übung'
+    choices: [0,1,2,3,4,5,6,7,8,9]
+  turnus:
+    lang_de:
+      label: "Geplanter Turnus (jedes x'te Semester)"
+      choices:  {'Einmalig': 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}
+  zukunft_sem:
+    lang_de:
+      label: 'Plan: nächster Termin'
+      choice_set: semester
+  zukunft_sem2:
+    lang_de:
+      label: 'Plan: übernächster Termin'
+      choice_set: semester

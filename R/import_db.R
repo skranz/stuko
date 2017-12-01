@@ -5,8 +5,10 @@ examples.import.db = function() {
   fill.stukodb.from.csv(db=db)
 }
 
-get.stukodb = function(db.dir=getwd(), db.name="stukodb.sqlite") {
-  db = getOption("stuko.db.connection")
+get.stukodb = function(db.dir=getwd(), db.name="stukodb.sqlite", app=getApp()) {
+  db = app$glob$db
+
+  if (is.null(db)) db = getOption("stuko.db.connection")
 
   if (!is.null(db)) {
     if (!dbIsValid(db)) db = NULL

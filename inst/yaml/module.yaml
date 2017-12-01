@@ -29,7 +29,7 @@ fields:
     lang_de:
       label: 'Schwerpunkt(e)'
   tags:
-    choice_set: moduletag
+    choice_set: modultag
     multiple: TRUE
     lang_de:
       label: 'Weitere Attribute des Moduls'

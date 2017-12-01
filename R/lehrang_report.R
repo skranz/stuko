@@ -1,11 +1,11 @@
 examples.lehrangebot.report = function() {
-  sem_label = "Sommersemester 2018"
-  date_label = lang_datum(Sys.Date())
 
   setwd("D:/libraries/stuko")
   db = get.stukodb()
 
   semester = 160
+  sem_label = semester_name(semester, kurz=FALSE)
+  date_label = lang_datum(Sys.Date())
   #copy.modules.to.semester(175, 160)
 
   kurse = load.kurse.for.lehrangebot(semester=semester, db=db)
@@ -134,7 +134,7 @@ adapt.kurs.for.lehrangebot = function(kurs, show.sp=FALSE) {
 
 }
 
-load.kurse.for.lehrangebot = function(semester, db=get.stukodb()) {
+load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplicated = TRUE, add.zuordnung=FALSE) {
   restore.point("load.kurse.for.lehrangebot")
 
   kurse = dbGet(db,"kurs",params = list(semester=semester), schemas=stukodb.schemas())
@@ -215,7 +215,15 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb()) {
   kurse$dozent[is.na(kurse$dozent)] = "NN"
 
 
+  if (add.zuordnung) {
+    kurse = left_join(kurse, kuzu, by=c("kursid","semester")) %>%
+      group_by(kursid, semester) %>%
+      mutate(zuordnung=paste0(sort(zuordnung), collapse=", ")) %>%
+      ungroup()
+  }
   kurse = kurse[!duplicated(kurse),]
+
+  kuzu
 
   kurse
 }

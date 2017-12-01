@@ -1,81 +1,87 @@
-lang_de:
-  semester:
-    SoSe16: 160
-    WS1617: 165
-    SoSe17: 170
-    WS1718: 175
-    SoSe18: 180
-    WS1819: 185
-    SoSe19: 190
-    WS1920: 195
-    SoSe20: 200
-    WS2021: 205
-    SoSe21: 210
-    WS2122: 215
-    SoSe22: 220
-    WS2223: 225
-    SoSe23: 230
-    WS2324: 235
-    SoSe24: 240
-    WS2425: 245
-  rolle:
-    'Dozent (und Koordinator)': dk
-    'Dozent (kein Koordinator)': do
-    'Übungsleiter': ul
-    'Koordinator': ko
-  lehrauftrag:
-    # Lehrauftrag: no, nopay, travel, travelpay, pay
-    '-': no
-    'Ohne Vergütung': ohne
-    'Nur Reisekosten': rk
-    'Nur Vergütung': vg
-    'Reisekosten + Vergütung': rk_vg
-  bama:
-    'Bachelor': BA
-    'Master': MA
-    'BA & MA': BM
-  studiengang:
-    ['WiWi','MaWi','NUF', 'Finance', 'WiPhy', 'WiChem', 'Lehramt']
-  schwerpunkt:
-   - 'BA Econ'
-   - 'BA Fi&Ver'
-   - 'BA Inf'
-   - 'BA RW&WP'
-   - 'BA TPM'
-   - 'BA UF&Co'
-   - 'MA Econ'
-   - 'MA FiWi'
-   - 'MA Vers'
-   - 'MA Inf'
-   - 'MA RW&WP'
-   - 'MA TPM'
-   - 'MA UF&Co'
-  moduletag:
-    ['Pflicht WiWi', 'Pflicht NUF',
-     'Wahlpflicht VWL', 'Wahlpflicht BWL',
-     'Wahlpflicht Informatik', 'Wahlpflicht Mathe'
-    ]
-  zeitform:
-    'Wöchentlich': w
-    'Block': b
-    'Mehrere Termine im Semester': m
-    'Semesterferien': sf
-    'Wöchentlich mit Unterbrechungen': wu
-    'Nur Prüfung': np
-    'Keine Angabe': '-'
-  kursform:
-    'Vorlesung mit Übung': vu
-    'Vorlesung ohne Übung': v
-    'Seminar': se
-    'ASQ': asq
-    'Übung ohne Vorlesung': u
-    'Tutorium': tut
-    'Kolloquium': kol
-    'Begleitseminar': bse
-  pruefungsform:
-    'Klausur': k
-    'Mündliche Prüfung': m
-    'Klausur oder Mündlich': km
-    'Seminar': se
-    'keine Angaben': '-'
-    'sonstige': so
+semester:
+  SoSe16: 160
+  WS1617: 165
+  SoSe17: 170
+  WS1718: 175
+  SoSe18: 180
+  WS1819: 185
+  SoSe19: 190
+  WS1920: 195
+  SoSe20: 200
+  WS2021: 205
+  SoSe21: 210
+  WS2122: 215
+  SoSe22: 220
+  WS2223: 225
+  SoSe23: 230
+  WS2324: 235
+  SoSe24: 240
+  WS2425: 245
+
+sprache:
+  Deutsch: de
+  Englisch: en
+  'Deutsch / English': de_en
+  'Unbekannt': '-'
+
+rolle:
+  'Dozent (und Koordinator)': dk
+  'Dozent (kein Koordinator)': do
+  'Übungsleiter': ul
+  'Koordinator': ko
+lehrauftrag:
+  # Lehrauftrag: no, nopay, travel, travelpay, pay
+  '-': no
+  'Ohne Vergütung': ohne
+  'Nur Reisekosten': rk
+  'Nur Vergütung': vg
+  'Reisekosten + Vergütung': rk_vg
+bama:
+  'Bachelor': BA
+  'Master': MA
+  'BA & MA': BM
+studiengang:
+  ['WiWi','MaWi','NUF', 'Finance', 'WiPhy', 'WiChem', 'Lehramt']
+schwerpunkt:
+ - 'BA Econ'
+ - 'BA Fi&Ver'
+ - 'BA Inf'
+ - 'BA RW&WP'
+ - 'BA TPM'
+ - 'BA UF&Co'
+ - 'MA Econ'
+ - 'MA FiWi'
+ - 'MA Vers'
+ - 'MA Inf'
+ - 'MA RW&WP'
+ - 'MA TPM'
+ - 'MA UF&Co'
+modultag:
+  ['Pflicht WiWi', 'Pflicht NUF',
+   'Wahlpflicht VWL', 'Wahlpflicht BWL',
+   'Wahlpflicht Informatik', 'Wahlpflicht Mathe'
+  ]
+zeitform:
+  'Wöchentlich': w
+  'Block': b
+  'Mehrere Termine im Semester': m
+  'Semesterferien': sf
+  'Wöchentlich mit Unterbrechungen': wu
+  'Nur Prüfung': np
+  'Keine Angabe': '-'
+kursform:
+  'Vorlesung mit Übung': vu
+  'Vorlesung ohne Übung': v
+  'Seminar': se
+  'ASQ': asq
+  'Übung ohne Vorlesung': u
+  'Tutorium': tut
+  'Kolloquium': kol
+  'Begleitseminar': bse
+pruefungsform:
+  'Klausur': k
+  'Mündliche Prüfung': m
+  'Klausur oder Mündlich': km
+  'Seminar': se
+  'keine Angaben': '-'
+  'sonstige': so
