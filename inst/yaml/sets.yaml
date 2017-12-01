@@ -31,8 +31,8 @@ rolle:
   'Koordinator': ko
 lehrauftrag:
   # Lehrauftrag: no, nopay, travel, travelpay, pay
-  '-': no
-  'Ohne Vergütung': ohne
+  '-': '-'
+  'Ohne Vergütung': ov
   'Nur Reisekosten': rk
   'Nur Vergütung': vg
   'Reisekosten + Vergütung': rk_vg

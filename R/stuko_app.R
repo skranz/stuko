@@ -40,10 +40,23 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
   fields = rmdtools::read.yaml(paste0(glob$yaml.dir,"/", form, ".yaml"))$fields
   glob$forms[["kursperson"]] = tableform(id="kursperson", fields=fields, lang="de",sets=glob$sets)
 
+  glob$info = list()
+  glob$rmd.dir = system.file("rmd", package = "stuko")
+  glob$info$kurse = markdown_html(readUtf8(file.path(glob$rmd.dir,"kurse_info.Rmd")))
+
+
+
   app$sem =  sem
 
   app$ui = fluidPage(
     selectizeHeaders(),
+    tags$head(tags$style(HTML(
+    '
+.table.dataTable tbody td.active, .table.dataTable tbody tr.active td {
+    background-color: #eeeeee;
+    color: black;
+}'
+    ))),
     htmlDependency("font-awesome", "4.7.0", c(href = "shared/font-awesome"), stylesheet = "css/font-awesome.min.css"),
     tags$head(tags$style(form.table.default.css())),
     tags$style(HTML(
@@ -80,7 +93,10 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
       tabPanel("Kurse",
         dataTableOutput("kurseTable"),
         simpleButton("addKursBtn","Neuen Kurs anlegen"),
-        uiOutput("editKursUI")
+        uiOutput("editKursUI"),
+        br(),
+        slimCollapsePanel("Hintergrundinformationen",HTML(glob$info$kurse))
+
       ),
       tabPanel("Module", uiOutput("moduleUI")),
       tabPanel("Reports", uiOutput("reportsUI"))
@@ -111,14 +127,11 @@ update.kurse.ui = function(app=getApp(), glob=app$glob) {
 
   bama = paste0(ifelse(sd$kurse$ba,"BA",""), " ", ifelse(sd$kurse$ma,"MA",""))
 
-  df = transmute(sd$kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=sp, Kursform=to.label(sd$kurse$kursform, glob$sets$kursform), Sprache=sprache, Turnus=turnus, Aktiv=ifelse(aktiv,"Ja","Nein"))
-
-  df$Zuordnung = gsub("NUF WP 35 LP, NUF WP 42 LP, NUF WP 49 LP", "NUF WP", fixed=TRUE, df$Zuordnung)
-
+  df = transmute(sd$kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(sd$kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus, Aktiv=ifelse(aktiv,"Ja","Nein"), Prüfung=pruefungsform)
 
   dt = datatable(df,escape=-1,rownames = FALSE, filter=list(position="top", clear=FALSE, plain=TRUE), style="bootstrap", autoHideNavigation = TRUE, extensions = c('FixedColumns','ColReorder','Select'),options = list(
-    select = list(style="api"),
-    columnDefs = list(list(width="20em", targets=1),list(width="3em", targets=3)),
+    select = FALSE,
+    columnDefs = list(list(width="20em", targets=c(1)),list(width="3em", targets=3)),
     autoWidth=TRUE,
     scrollX=TRUE,colReorder = TRUE,fixedColumns = list(leftColumns = 2)))
 
@@ -135,25 +148,25 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
   restore.point("show.edit.kurs")
 
   form = glob$forms$kurs
+  sd = get.sem.data(kurs$semester)
+
   widgets = lapply(names(form$fields), function(name) {
       fieldInput(name=name,form=form, value = kurs[[name]], lang="de",sets = glob$sets)
   })
 
-  kp = dbGet(glob$db,"kursperson",list(semester=kurs$semester, kursid=kurs$kursid))
-  kp.ui = tableform.ui(form=glob$forms$kursperson, data=select(kp,-semester, -kursid))
+  kp = filter(sd$kupe,kursid==kurs$kursid)
+  kp.ui = tableform.ui(form=glob$forms$kursperson, data=select(kp,-semester, -kursid, -name))
 
   #view.ui(kp.ui)
 
-  sd = get.sem.data(kurs$semester)
 
-  mymodul = sd$kursmodul %>% filter(kursid == kurs$kursid, semester==kurs$semester)
-  mymodul = mymodule$modulid
-  #%>%left_join(sd$modul, by=c("modulid","semester"))
+  mymodul = sd$kumo %>% filter(kursid == kurs$kursid, semester==kurs$semester)
+  mymodul = mymodul$modulid
 
-  module = sd$modul$modulid
-  names(module) = paste0(sd$modul$titel,", ",sd$modul$ects, " ECTS,",to.label(sd$modul$pruefungsform,glob$sets$pruefungsform),", ", ifelse(sd$modul$extern,"extern","intern"))
+  mods = sd$module$modulid
+  names(mods) = sd$module$label
 
-  modSel = selectInput("kurseditModul", "Module", choices=module, selected=mymodule, multiple=TRUE, width="60em")
+  modSel = selectInput("kurseditModul", "Module", choices=mods, selected=mymodul, multiple=TRUE, width="80em")
 
 
   ui = tagList(
@@ -183,6 +196,11 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
   evalJS("$('html, body').animate({scrollTop: $('#addKursBtn').offset().top + 'px'}, 'fast');")
 }
 
+save.kurs.click = function(kurs = app$kurs, formValues,..., app=getApp(), glob=app$glob) {
+
+
+}
+
 layout.widgets.as.fluid.grid = function(widgets, ncol=2, byrow=TRUE, width=floor(12/ncol)) {
   restore.point("layout.widgets.as.fluid.grid")
 
@@ -204,6 +222,7 @@ layout.widgets.as.fluid.grid = function(widgets, ncol=2, byrow=TRUE, width=floor
 
 to.label = function(val, keys, labels = names(keys)) {
   restore.point("to.label")
+  if (is.null(keys)) return(val)
   ind = match(val, unlist(keys))
   labels[ind]
 }

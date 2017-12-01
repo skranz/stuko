@@ -1,3 +1,5 @@
+
+
 example.replace.umlaute = function() {
   str = c("üßan","Äüfffnö")
   replace.umlaute(str)

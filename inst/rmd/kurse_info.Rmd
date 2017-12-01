@@ -1,0 +1,33 @@
+## Kurse und Module
+
+- Die relevanten Daten für einen Kurs sind aufgeteilt in Daten des Kurses und Daten des Moduls.
+
+- Für jede physikalisch gehaltene Veranstaltung sollte im Prinzip nur ein Kurs hier angelegt werden. Es kann aber mehr als ein Modul pro Kurs geben, auch wenn dies eher die Ausnahme ist.
+
+- Zwei Module können in Ausnahmefällen erforderlich sein, wenn ein der Kurs für verschiedene Studiengänge zu unterschiedlichen Konditionen / Prüfungsformen angeboten wird. Allein die Tatsache, dass ein Kurs für mehrere Studiengänge angeboten wird, erfordert jedoch noch nicht mehrere Module.
+
+- Es gibt auch Module, die über mehr als ein Semester laufen und denen dann zwei Kurse zugeordnet werden, z. B. das Pflichtmodul Rechnungswesen.
+
+- Die Tabelle `modul` in unserer Software speichert viel weniger Informationen, als in den Modulhandbüchern. Die gespeicherten Infos sind dafür strukturierter als die Freitexteinträge des Modulhandbuchs. Die Modulhandbücher werden noch nicht über diese Software verwaltet, dies kann aber in Zukunft eingebaut werden.
+
+## Interne und Externe Kurse
+
+- Bei internen Kurse werden die detailierten Modulbeschreibungen, eventuelle Lehraufträge, und Kursevaluationen direkt von der WiWi-StuKo verwaltet. Bei externen Kursen verwaltet dies eine andere StuKo. Typischerweise werden externe Kurse importiert, z. B. aus der Mathematik oder der Informatik. 
+
+- Auch wenn die Modulhandbücher von externen Kursen nicht von uns verwaltet werden, muss trotzdem ein Modul in unserer Software angelegt werden, welches essentielle Daten, wie ECTS, Schwerpunkte und zugeordnete WiWi Studiengänge beinhaltet.
+
+- Wenn interne Kurse nicht von einem Prof. oder anderen festangestellten Mitarbeiter gehalten werden, ist typischerweise ein Lehraufrag erforderlich. Lehraufträge werden bei den Kursmitarbeitern vermerkt.
+
+## Koordinatoren
+
+- Koordinatoren sind WiWi Professoren + Festangestellte die für einige Kurse verantwortlich sind. Vor allem die Kurse, die Sie selber halten, aber auch Kurse von Lehrbeauftragten in ihrem Schwerpunkt. Ziel ist es, dass ein Koordinator primär dafür verantwortlich ist jedes Semester bei der Erstellung des Lehrprogramms die Kursdaten zu überprüfen und zu aktualisieren. Die Software versucht aber sinnvolle Defaults zu liefern. Auch weitere Jobs wie Bestellung von Evaluationsbögen gehen an die Kursverantwortlichen.
+
+- Jeder Kursverantwortliche kann auch Vertreter anlegen (z. B. Mitarbeiter des Instituts), die Jobs für ihn erledigen können.
+
+- Ist kein Koordinator für einen Kurs bestimmt, sind die StuKo Mitarbeiter direkt für den Kurs verantwortlich.
+
+- Es kann auch mehr als einen Koordinator für einen Kurs geben.
+
+- Interne Kurse sollten typischerweise einen Koordinator haben. Externe Kurse werden typischerweise keinen Koordinator haben und direkt von den StuKo Mitarbeitern gemanaget.
+
+

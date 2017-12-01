@@ -46,13 +46,21 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
     left_join(mosp, by=c("modulid","semester")) %>%
     group_by(modulid, semester) %>%
     mutate(schwerpunkt = paste0(sort(unique(schwerpunkt)), collapse=", ")) %>%
-    dplyr::distinct(modulid, semester, .keep_all=TRUE)
+    dplyr::distinct(modulid, semester, .keep_all=TRUE) %>%
+    ungroup()
+
+  module = module %>%
+    change.df.na() %>%
+    mutate(label = paste0(titel,", ",ects, " ECTS,", bama,", ", ifelse(extern,"extern,",""), zuordnung, ",", schwerpunkt, ", ", to.label(pruefungsform,glob$sets$pruefungsform))) %>%
+    ungroup()
+
 
   ## Kurse
 
 
   # Dozenten und Koordinator
-  kupe = kupe %>% mutate(name = paste0(substring(vorname,1,1), ". ", nachname))
+  kupe = kupe %>% mutate(name = paste0(substring(vorname,1,1), ". ", nachname)) %>% replace_na(list(lehrauftrag="-"))
+
 
   kudo = kupe %>% filter(rolle %in% c("do","dk"))
   kuko = kupe %>% filter(rolle %in% c("dk","ko"))
@@ -79,11 +87,18 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
     select(-name) %>%
     dplyr::distinct(kursid, semester, .keep_all=TRUE)
 
+  kurse = kurse %>%
+    left_join(select(kupe, kursid,semester,lehrauftrag), by=c("kursid","semester")) %>%
+    group_by(kursid, semester) %>%
+    mutate(lehrauftrag = paste0(sort(unique(lehrauftrag)), collapse=", ")) %>%
+    dplyr::distinct(kursid, semester, .keep_all=TRUE)
+
+
   # Add modulinfo to kurse
   kumos = left_join(module, kumo, by=c("modulid","semester"))
 
 
-  kurse = kurse %>%
+  kurse = kurse %>% ungroup() %>%
     left_join(kumos, by=c("kursid","semester")) %>%
     group_by(kursid, semester) %>%
     mutate(
@@ -97,12 +112,16 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
       pruefungsform = paste0(unique(pruefungsform), collapse=", "),
       zuordnung = paste0(unique(zuordnung), collapse=", "),
     ) %>%
-    dplyr::distinct(kursid, semester, .keep_all=TRUE)
+    dplyr::distinct(kursid, semester, .keep_all=TRUE) %>%
+    ungroup() %>%
+    change.df.na()
+
+
 
   sd = nlist(
     module,
     kurse,
-    ku, kupe,
+    ku, kupe, kumo,
     mo, most,mosp, mozu
   )
   if (!is.null(glob))
@@ -110,3 +129,26 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
   sd
 }
 
+change.df.na = function(df, char.value="", num.value=NA, logical.value=NA) {
+  restore.point("change.df.na")
+
+  li = lapply(df, function(vals) {
+    na.rows = is.na(vals)
+    if (is.character(vals)) {
+      vals[na.rows] = char.value
+    } else if (is.numeric(vals)) {
+      vals[na.rows] = num.value
+    } else if (is.logical(vals)) {
+      vals[na.rows] = logical.value
+    }
+    vals
+  })
+  if (is(df,"tbl_df")) {
+    as_data_frame(li)
+  } else if (is.data.frame(df)) {
+    as.data.frame(li)
+  } else {
+    as(li, class(df))
+  }
+
+}
