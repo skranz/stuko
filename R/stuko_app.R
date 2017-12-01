@@ -207,27 +207,3 @@ to.label = function(val, keys, labels = names(keys)) {
   ind = match(val, unlist(keys))
   labels[ind]
 }
-
-get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) {
-  restore.point("get.sem.data")
-  sem.key = as.character(sem)
-  if (!update & !is.null(glob$sem.dat[[sem.key]])) {
-    return(glob$sem.dat[[sem.key]])
-  }
-
-
-
-  kurse = load.kurse.for.lehrangebot(semester = sem, remove.duplicated=FALSE,add.zuordnung = TRUE)
-
-  kursmodul = dbGet(glob$db, "kursmodul", schemas=glob$schemas)
-  modul = dbGet(glob$db, "modul", schemas=glob$schemas)
-
-  sd = nlist(
-    kurse,
-    kursmodul,
-    modul
-  )
-  glob$sem.dat[[sem.key]] = sd
-  sd
-
-}
