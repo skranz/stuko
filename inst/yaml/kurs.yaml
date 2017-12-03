@@ -16,6 +16,10 @@ fields:
   vnum:
     lang_de:
       label: 'Kurs-Nr Vorlesungsverzeichnis'
+  codeshare:
+    lang_de:
+      label: 'Codesharing mit Kurs'
+      choice_set: codeshare
   kursform:
     lang_de:
       label: 'Form des Kurses'

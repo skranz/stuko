@@ -51,6 +51,16 @@ scrapped.kurs.to.db.csv = function() {
     "Tutorium" = "tut",
     "Übung/Seminar" = "se"
   )
+  dat$kursform = str.trim(dat$kursform)
+  rows = str.starts.with(dat$kursform,"Vorlesung/")
+  dat$kursform[rows] = "vu"
+  rows = str.ends.with(dat$kursform,"bung")
+  dat$kursform[rows] = "u"
+  rows = str.ends.with(dat$kursform,"Seminar")
+  dat$kursform[rows] = "se"
+
+
+
   dat$zeitform = recode(dat$kursform,
     "vu" = "w",
     "v" = "w",
@@ -68,6 +78,8 @@ scrapped.kurs.to.db.csv = function() {
   dat$turnus = 2
   dat$zukunft_sem = add.semester(dat$semester, dat$turnus)
   dat$zukunft_sem2 = add.semester(dat$semester, dat$turnus*2)
+  dat$codeshare = ""
+
 
   dat = dat[!duplicated(dat),]
   # Merge Vorlesung / Übung
@@ -94,7 +106,7 @@ scrapped.kurs.to.db.csv = function() {
     do(adapt.uebung(.)) %>%
     ungroup()
 
-  kurs = select(dat,kursid, semester, aktiv, vnum, kursname, sws_kurs, sws_uebung, kursform, zeitform, sprache, turnus, zukunft_sem, zukunft_sem2)
+  kurs = select(dat,kursid, semester, aktiv, vnum, kursname, sws_kurs, sws_uebung, kursform, zeitform, sprache, turnus, zukunft_sem, zukunft_sem2,codeshare)
 
 
 
@@ -128,9 +140,10 @@ scrapped.kurs.to.db.csv = function() {
     select(-m.vorname, -m.nachname)
   d$personid[!is.match | is.na(d$personid)] = ""
 
-
-
-
+  rows = has.substr(d$nachname,"Klier") & has.substr(d$vorname,"Mat")
+  d$personid[rows] = "klier_mathias"
+  d$nachname[rows] = "Klier"
+  d$vorname[rows] = "Mathias"
 
   d = group_by(d, kursid, semester) %>%
     mutate(rolle = ifelse(1:n()==1, "do","ul")) %>%
@@ -181,8 +194,13 @@ scrapped.person.to.db.csv = function() {
 
 
 
-  dat$kursadmin = TRUE
-  dat = select(dat, personid, email, vorname, nachname, titel, kursadmin)
+  dat$koordinator = TRUE
+  dat$admin = FALSE
+  admins = c("Kranz","Rieber","Gebhardt","Studiendekan WiWi")
+  rows = dat$nachname %in% admins
+  dat$stuko[rows] = dat$admin[rows] = TRUE
+
+  dat = select(dat, personid, email, vorname, nachname, titel, koordinator, admin)
 
   dupl = duplicated(dat[,"personid"])
   dat = dat[!dupl,]

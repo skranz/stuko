@@ -52,7 +52,8 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
   module = module %>%
     change.df.na() %>%
     mutate(label = paste0(titel,", ",ects, " ECTS,", bama,", ", ifelse(extern,"extern,",""), zuordnung, ",", schwerpunkt, ", ", to.label(pruefungsform,glob$sets$pruefungsform))) %>%
-    ungroup()
+    ungroup() %>%
+    arrange(titel)
 
 
   ## Kurse
@@ -95,14 +96,15 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
 
 
   # Add modulinfo to kurse
-  kumos = left_join(module, kumo, by=c("modulid","semester"))
+  kumos = left_join(select(module,-modify_time,-modify_user), kumo, by=c("modulid","semester"))
 
 
   kurse = kurse %>% ungroup() %>%
     left_join(kumos, by=c("kursid","semester")) %>%
+    change.df.na() %>%
     group_by(kursid, semester) %>%
     mutate(
-      num_modul = n(),
+      num_modul = sum(is.true(nchar(modulid)>0)),
       titel = paste0(unique(titel), collapse=", "),
       extern = first(extern),
       studiengang = paste0(unique(studiengang), collapse=", "),
@@ -114,8 +116,23 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
     ) %>%
     dplyr::distinct(kursid, semester, .keep_all=TRUE) %>%
     ungroup() %>%
-    change.df.na()
+    arrange(kursname)
 
+  # Add modulinfo to kurse
+  mokus = left_join(select(kurse,kursid, semester, kursname, dozent), kumo, by=c("kursid","semester"))
+
+  module = module %>% ungroup() %>%
+    left_join(mokus, by=c("modulid","semester")) %>%
+    change.df.na() %>%
+    group_by(modulid, semester) %>%
+    mutate(
+      num_kurs = sum(is.true(nchar(kursid)>0)),
+      kurs = paste0(unique(kursname), collapse="; "),
+      dozent = paste0(unique(dozent), collapse=", ")
+    ) %>%
+    dplyr::distinct(modulid, semester, .keep_all=TRUE) %>%
+    ungroup() %>%
+    arrange(titel)
 
 
   sd = nlist(
@@ -129,7 +146,7 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
   sd
 }
 
-change.df.na = function(df, char.value="", num.value=NA, logical.value=NA) {
+change.df.na = function(df, char.value="", num.value=NA, logical.value=NA, else.value = "") {
   restore.point("change.df.na")
 
   li = lapply(df, function(vals) {
@@ -140,6 +157,9 @@ change.df.na = function(df, char.value="", num.value=NA, logical.value=NA) {
       vals[na.rows] = num.value
     } else if (is.logical(vals)) {
       vals[na.rows] = logical.value
+    } else if (is.POSIXct(vals) | is.Date(vals)) {
+    } else {
+      vals[na.rows] = else.value
     }
     vals
   })

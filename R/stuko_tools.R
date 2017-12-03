@@ -48,3 +48,22 @@ semester_name = function(semester, kurz=TRUE) {
   paste0(sem," ", jahr)
 
 }
+
+
+tables.diff = function(df1, df2, by=colnames(df1)) {
+  restore.point("tables.diff")
+  if (is.null(df1) & is.null(df2)) {
+    return(list(same=NULL, added=NULL, removed=NULL))
+  } else if (is.null(df1)) {
+    return(list(same=NULL, added=NULL, removed=df2))
+  } else if (is.null(df2)) {
+    return(list(same=NULL, added=df1, removed=NULL))
+  }
+  key1 = do.call(paste, df1[by])
+  key2 = do.call(paste, df2[by])
+  same = df1[key1 %in% intersect(key1,key2),]
+  removed = df2[!key2 %in% key1,]
+  added = df1[!key1 %in% key2,]
+  nlist(same, added, removed)
+}
+

@@ -1,19 +1,20 @@
 examples.lehrangebot.report = function() {
-
   setwd("D:/libraries/stuko")
   db = get.stukodb()
-
   semester = 160
+  lehrangebot.report(semester, db)
+
+}
+
+lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), out.dir = getwd(), out.file = paste0(out.dir,"/lehrangebot_", semester,".docx")) {
+  restore.point("lehrangebot.report")
+
   sem_label = semester_name(semester, kurz=FALSE)
   date_label = lang_datum(Sys.Date())
-  #copy.modules.to.semester(175, 160)
 
   kurse = load.kurse.for.lehrangebot(semester=semester, db=db)
 
-
-  tpl.file = "lehrangebot_tpl.docx"
-  library(officer)
-  library(flextable)
+  tpl.file = file.path(tpl.dir,"lehrangebot_tpl.docx")
 
   doc = read_docx(tpl.file)
   #ds = docx_summary(doc)
@@ -68,9 +69,8 @@ examples.lehrangebot.report = function() {
   dat  = filter(kurse,kursform=="se", ma) %>% arrange(kursname)
   doc = add.ft(key,dat, show.sp=FALSE)
 
-
-
-  print(doc, target = "lehrangebot.docx")
+  print(doc, target = out.file)
+  invisible(doc)
 }
 
 cursor_bookmark_or_stay = function(x,id) {
@@ -123,7 +123,7 @@ adapt.kurs.for.lehrangebot = function(kurs, show.sp=FALSE) {
   if (has_u) {
     if (is.na(kurs$ul) | is.true(kurs$ul==""))
       kurs$ul = "NN"
-    res_u = transmute(kurs, Vorlesung="  - Übung", SWS=sws_uebung, Dozent=ul, Schwerpunkt="")
+    res_u = transmute(kurs, Vorlesung="  - ?bung", SWS=sws_uebung, Dozent=ul, Schwerpunkt="")
     res = rbind(res,res_u)
   }
 

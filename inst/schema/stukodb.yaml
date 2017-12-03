@@ -1,14 +1,4 @@
-commits:
-  table:
-    commitid: CHAR(20)
-    time: DATETIME
-    userid: VARCHAR(50)
-    # mo, ku, pe, mhb
-    type: CHAR(3)
-    descr_auto: TEXT
-    descr_manu: TEXT
-
-# Snapshots will be saved in an extra database
+# Snapshots are a copy of our database
 snapshot:
   table:
     time: DATETIME
@@ -16,12 +6,24 @@ snapshot:
     label: TEXT
     descr: TEXT
     snapshotid: CHAR(20)
+    # auto, manual, before_csv, before_bulk
+    type: CHAR(12)
+  indexes:
+    - "CREATE INDEX snapshot1 on snapshot (time)"
+    - "CREATE INDEX snapshot2 on snapshot (snapshotid)"
+    - "CREATE INDEX snapshot3 on snapshot (type)"
 
-# All commits belonging to a snapshot
-snapshot_commit:
+log:
   table:
-    snapshotid: CHAR(20)
-    commitid: CHAR(20)
+    logtime: DATETIME
+    userid: VARCHAR(50)
+    # kurs, modul, person, snapshot, kurs_csv, modul_csv
+    logtype: CHARACTER(20)
+    logtext: TEXT
+  indexes:
+    - "CREATE INDEX log1 on log (logtime)"
+    - "CREATE INDEX log2 on log (logtype)"
+    - "CREATE INDEX log3 on log (userid)"
 
 modul:
   descr: |
@@ -29,6 +31,8 @@ modul:
   table:
     modulid: CHARACTER(20)
     semester: INTEGER
+    modify_time: DATETIME
+    modify_user: VARCHAR(50)
     code: CHARACTER(5)
     # Extern modules do not require detailed info
     # as we wont generate templates for updating
@@ -87,6 +91,10 @@ modulstudiengang:
     modulid: CHARACTER(20)
     semester: INTEGER
     studiengang: VARCHAR(50)
+  indexes:
+    - "CREATE INDEX modulstudiengang1 on modulstudiengang (semester, modulid)"
+
+
 
 modulschwerpunkt:
   descr: |
@@ -95,6 +103,8 @@ modulschwerpunkt:
     modulid: CHARACTER(20)
     semester: INTEGER
     schwerpunkt: VARCHAR(50)
+  indexes:
+    - "CREATE INDEX modulschwerpunkt1 on modulschwerpunkt (semester, modulid)"
 
 modulzuordnung:
   descr: |
@@ -104,12 +114,16 @@ modulzuordnung:
     modulid: CHARACTER(20)
     semester: INTEGER
     zuordnung: VARCHAR(50)
+  indexes:
+    - "CREATE INDEX modulzuordnung1 on modulzuordnung (semester, modulid)"
 
 kurs:
   descr:
   table:
     kursid: CHARACTER(20)
     semester: INTEGER
+    modify_time: DATETIME
+    modify_user: VARCHAR(50)
     aktiv: BOOLEAN
     # Veranstaltungsnummer wie im Vorlesungsverzeichnis
     vnum: VARCHAR(30)
@@ -127,7 +141,11 @@ kurs:
     turnus: INTEGER
     zukunft_sem: INTEGER
     zukunft_sem2: INTEGER
+    # Gleicher realer Kurs der aber hier
+    # zwei verschiedene Eintraege hat
+    codeshare: CHARACTER(20)
   indexes:
+    - "CREATE INDEX kurs1 on kurs (semester, kursid)"
 
 kursmodul:
   descr:
@@ -153,6 +171,8 @@ kursperson:
     lehrauftrag: VARCHAR(20)
     # Nur fuer Lehrauftrag: wieviel SWS werden zugeordnet?
     dozent_sws: INTEGER
+  indexes:
+    - "CREATE INDEX kursperson1 on kursperson (semester, kursid)"
 
 person:
   table:
@@ -161,7 +181,9 @@ person:
     nachname: VARCHAR(50)
     vorname: VARCHAR(50)
     titel: CHARACTER(10)
-    kursadmin: BOOLEAN
+    koordinator: BOOLEAN
+    stuko: BOOLEAN
+    admin: BOOLEAN
   indexes:
     - "CREATE UNIQUE INDEX person1 on person (personid)"
 
@@ -172,3 +194,6 @@ vertreter:
   table:
     vertreterid: VARCHAR(100)
     bossid: VARCHAR(100)
+  indexes:
+    - "CREATE UNIQUE INDEX vertreter1 on vertreter (vertreterid, bossid)"
+
