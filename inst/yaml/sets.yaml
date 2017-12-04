@@ -40,8 +40,7 @@ bama:
   'Bachelor': BA
   'Master': MA
   'BA & MA': BM
-studiengang:
-  ['WiWi','MaWi','NUF', 'Finance', 'WiPhy', 'WiChem', 'Lehramt']
+studiengang: [WiWi_BA,WiWi_MA,NUF_MA]
 schwerpunkt:
  - 'BA Econ'
  - 'BA Fi&Ver'
@@ -56,11 +55,18 @@ schwerpunkt:
  - 'MA RW&WP'
  - 'MA TPM'
  - 'MA UF&Co'
-modultag:
-  ['Pflicht WiWi', 'Pflicht NUF',
-   'Wahlpflicht VWL', 'Wahlpflicht BWL',
-   'Wahlpflicht Informatik', 'Wahlpflicht Mathe'
-  ]
+zuordnung:
+  #cat(paste0("'",unique(mozu$zuordnung),"'", collapse=", "))
+  [
+   'BA Pflicht 1. Sem', 'BA Pflicht 2. Sem',
+   'BA Pflicht 3. Sem', 'BA Pflicht 4. Sem',
+   'WP Mathe/Info', 'WP Informatik', 'WP Mathematik',
+   'WP BWL', 'WP VWL','Seminare', 'WP Recht', 'Sprachen',
+   'NUF WP', 'NUF Pflicht',
+   'NUF WP 35 LP', 'NUF WP 42 LP', 'NUF WP 49 LP',
+   'NUF Pflichtbereich I',
+   'NUF Pflichtbereich II'
+   ]
 zeitform:
   'Wöchentlich': w
   'Block': b

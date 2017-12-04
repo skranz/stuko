@@ -53,8 +53,23 @@ show.edit.modul = function(modul,..., app=getApp(), glob=app$glob) {
   form = glob$forms$modul
   sd = get.sem.data(modul$semester)
 
+  most = filter(sd$most,semester==modul$semester, modulid==modul$modulid)
+  mosp = filter(sd$mosp,semester==modul$semester, modulid==modul$modulid)
+  mozu = filter(sd$mozu,semester==modul$semester, modulid==modul$modulid)
+
   widgets = lapply(names(form$fields), function(name) {
-      fieldInput(name=name,form=form, value = modul[[name]], lang="de",sets = glob$sets)
+    if (name == "studiengang") {
+      #restore.point("kdfdhfkdh")
+      value = most$studiengang
+    } else if (name == "zuordnung") {
+      value = mozu$zuordnung
+    } else if (name == "schwerpunkt") {
+      value = mosp$schwerpunkt
+    } else {
+      value = modul[[name]]
+    }
+
+    fieldInput(name=name,form=form, value = value, lang="de",sets = glob$sets)
   })
 
 
@@ -76,7 +91,7 @@ show.edit.modul = function(modul,..., app=getApp(), glob=app$glob) {
   evalJS("$('html, body').animate({scrollTop: $('#addModulBtn').offset().top + 'px'}, 'fast');")
 }
 
-save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glob=app$glob) {
+save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glob=app$glob, sd = get.sem.data(modul$semester)) {
   restore.point("save.modul.click")
   cat("\nsave.modul.click")
 
@@ -84,17 +99,31 @@ save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glo
   semester = modul$semester
 
   # Extract values
-  kuv = extract.form.formValues(formValues, form=glob$forms$modul)
+  mov = extract.form.formValues(formValues, form=glob$forms$modul)
 
-  nmo = modul
-  nmo[names(kuv)] = kuv
+  nmo = modul[colnames(sd$mo)]
+  fields = intersect(names(mov), names(nmo))
+  nmo[fields] = mov[fields]
 
-  sd = get.sem.data(modul$semester)
-  okupe = filter(sd$kupe,semester==modul$semester, modulid==modul$modulid)
-  okumo = filter(sd$kumo,semester==modul$semester, modulid==modul$modulid)
+  nmost = if (NROW(mov$studiengang)>0)
+    fast_df(modulid=modulid,semester=semester, studiengang=unlist(mov$studiengang))
+
+  nmosp = if (NROW(mov$schwerpunkt)>0)
+    fast_df(modulid=modulid,semester=semester, schwerpunkt=unlist(mov$schwerpunkt))
+
+  nmozu = if (NROW(mov$zuordnung)>0)
+    fast_df(modulid=modulid,semester=semester, zuordnung=unlist(mov$zuordnung))
+
+
+  omo = filter(sd$mo,semester==modul$semester, modulid==modul$modulid)
+  omost = filter(sd$most,semester==modul$semester, modulid==modul$modulid)
+
+  omosp = filter(sd$mosp,semester==modul$semester, modulid==modul$modulid)
+
+  omozu = filter(sd$mozu,semester==modul$semester, modulid==modul$modulid)
 
   modify_time = Sys.time()
-  diff.log = modul.diff.log(nmo=nmo,nmope=nmope, nmomo=nmomo, omo=modul,okupe=okupe, okumo=okumo, module=sd$module)
+  diff.log = modul.diff.log(nmo=nmo,nmost=nmost, nmosp=nmosp,nmozu=nmozu, omo=omo,omost=omost, omosp=omosp,omozu=omozu, module=sd$module)
 
   # Keine Modifikationen
   if (is.null(diff.log)) {
@@ -102,30 +131,25 @@ save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glo
     return()
   }
 
-  update.db.modul(nmo, nmope, nmomo, modify_time=modify_time, log=diff.log)
+  update.db.modul(nmo, nmost, nmosp, nmozu, modify_time=modify_time, log=diff.log)
 
-  app$modul = nmo
+  modul[colnames(nmo)] = nmo
+  app$modul = modul
 
   sd = get.sem.data(update = TRUE)
-
-  # Update table
-  #proxy = dataTableProxy("moduleTable")
-  #df = make.module.datatable.df(sd)
-  #replaceData(proxy,df,resetPaging=FALSE)
-  #update.module.ui()
 
   html = paste0("Die Änderungen im Modul," ,nmo$modulname," wurden mit folgender Logdatei gespeichert.","<pre>\n", diff.log,"</pre>")
   timedMessage("saveModulAlert",html=html,millis = 10000)
 }
 
-update.db.modul = function(modul, mozu, most,mosp, db=get.stukodb(),modify_user = app$userid, modify_time=Sys.time(), log=NULL, write_log = !is.null(log)) {
+update.db.modul = function(mo, most,mosp,mozu, db=get.stukodb(),modify_user = app$userid, modify_time=Sys.time(), log=NULL, write_log = !is.null(log)) {
   restore.point("update.db.modul")
 
   modulid = modul$modulid
   semester = modul$semester
 
-  modul$modify_user = modify_user
-  modul$modify_time = modify_time
+  mo$modify_user = modify_user
+  mo$modify_time = modify_time
 
   if (!is.list(log) & write_log) {
     log = list(logtime=modify_time, userid=modify_user,logtype="modul", logtext=log)
@@ -137,7 +161,7 @@ update.db.modul = function(modul, mozu, most,mosp, db=get.stukodb(),modify_user 
     dbDelete(db,"modulschwerpunkt",nlist(modulid, semester))
     dbDelete(db,"modulstudiengang",nlist(modulid, semester))
 
-    dbInsert(db,"modul",modul)
+    dbInsert(db,"modul",mo)
     if (NROW(mozu)>0)
       dbInsert(db,"modulzuordnung", mozu)
     if (NROW(mosp)>0)
@@ -153,11 +177,11 @@ update.db.modul = function(modul, mozu, most,mosp, db=get.stukodb(),modify_user 
 
 }
 
-modul.diff.log = function(nmo,nmope,nmomo,omo,okupe,okumo,modify_user = app$userid, modify_time=Sys.time(), module=NULL) {
+modul.diff.log = function(nmo,nmost,nmosp,nmozu,omo,omost,omosp,omozu,modify_user = app$userid, modify_time=Sys.time(), module=NULL) {
   restore.point("modul.diff.log")
 
   change = FALSE
-  log = paste0("Modifiziere Modul ", omo$modulname, " (", omo$modulid, ")")
+  log = paste0("Modifiziere Modul ", omo$titel, " (", omo$modulid, ", ", semester_name(omo$semester), ")\n")
 
   # modul
   cols = colnames(omo)
@@ -169,49 +193,48 @@ modul.diff.log = function(nmo,nmope,nmomo,omo,okupe,okumo,modify_user = app$user
   if (length(diff.cols)>0) {
     change = TRUE
     log = paste0(log,
-      "\n\nModifikationen an 'modul':",
       paste0("\n  ",diff.cols,": '", omo[diff.cols], "' zu '", nmo[diff.cols],"'", collapse="")
     )
   }
 
-  # Modulperson
-  okupe$personid[is.na(okupe$personid)] = ""
-  diff = tables.diff(select(nmope, -semester, -modulid), select(okupe,-semester, -modulid, -name))
-  if (NROW(diff$added)>0 | NROW(diff$removed)>0) {
+  # modulstudiengang
+  added = unique(setdiff(nmost$studiengang, omost$studiengang))
+  if (NROW(added)>0) {
     change = TRUE
-    added = do.call(paste,c(sep=", ",as.list(diff$added)))
-    removed = do.call(paste,c(sep=", ",as.list(diff$removed)))
-    log = paste0(log,
-      "\n\nModifikationen an 'modulperson':",
-      if (NROW(diff$added)>0)
-        paste0("\n  Neu:", paste0("\n   - ", added, collapse="")),
-      if (NROW(diff$removed)>0)
-        paste0("\n  Entfernt oder Ueberschrieben:", paste0("\n   - ", removed, collapse=""))
-    )
+    log = paste0(log,"\nNeue Studiengaenge: ",paste0(added, collapse=", "))
+  }
+  removed = unique(setdiff(omost$studiengang, nmost$studiengang))
+  if (NROW(removed)>0) {
+    change = TRUE
+    log = paste0(log,"\nEntfernte Studiengaenge: ",paste0(removed, collapse=", "))
   }
 
-  # modulmodul
-  diff = tables.diff(select(nmomo,modulid), select(okumo,modulid))
-  if (NROW(diff$added)>0 | NROW(diff$removed)>0) {
+  # modulschwerpunkt
+  added = unique(setdiff(nmosp$schwerpunkt, omosp$schwerpunkt))
+  if (NROW(added)>0) {
     change = TRUE
-    log = paste0(log,
-      "\n\nModifikationen an 'modulmodul':",
-      if (NROW(diff$added)>0) {
-        str = diff$added$modulid
-        if (!is.null(module)) str = unique(filter(module, modulid == str)[["label"]])
-        paste0("\n  Neu:", paste0("\n   - ", str, collapse=""))
-      },
-      if (NROW(diff$removed)>0) {
-        str = diff$removed$modulid
-        if (!is.null(module)) str = unique(filter(module, modulid == str)[["label"]])
-        paste0("\n  Neu:", paste0("\n   - ", str, collapse=""))
-      }
-    )
+    log = paste0(log,"\nNeue Schwerpunkte: ",paste0(added, collapse=", "))
+  }
+  removed = unique(setdiff(omosp$schwerpunkt, nmosp$schwerpunkt))
+  if (NROW(removed)>0) {
+    change = TRUE
+    log = paste0(log,"\nEntfernte Schwerpunkte: ",paste0(removed, collapse=", "))
+  }
+
+  # modulzuordnung
+  added = unique(setdiff(nmozu$zuordnung, omozu$zuordnung))
+  if (NROW(added)>0) {
+    change = TRUE
+    log = paste0(log,"\nNeue Zuordnungen: ",paste0(added, collapse=", "))
+  }
+  removed = unique(setdiff(omozu$zuordnung, nmozu$zuordnung))
+  if (NROW(removed)>0) {
+    change = TRUE
+    log = paste0(log,"\nEntfernte Zuordnungen: ",paste0(removed, collapse=", "))
   }
 
   if (!change)
     return(NULL)
-
 
   cat(log)
 

@@ -4,6 +4,8 @@ examples.data.frame.to.simple.form.yaml = function() {
   kurs = dbGet(db,"kurs")
   kurs = dbGet(db,"kursperson")
 
+  kurs = dbGet(db,"modul")
+
   yaml = data.frame.to.simple.form.yaml(kurs, lang="de")
 }
 

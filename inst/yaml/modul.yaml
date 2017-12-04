@@ -1,0 +1,38 @@
+fields:
+  titel:
+    lang_de:
+      label: 'Modulname'
+  modulid:
+    lang_de:
+      label: 'Modul-ID'
+  code:
+    lang_de:
+      label: 'Modulcode (letzte 5 Stellen)'
+  extern:
+    lang_de:
+      label: 'Externes Modul?'
+      choices:
+        'Extern': TRUE
+        'Intern': FALSE
+  ects:
+    lang_de:
+      label: 'ECTS'
+  studiengang:
+    multiple: TRUE
+    lang_de:
+      label: 'Interne Studiengänge'
+      choice_set: studiengang
+  schwerpunkt:
+    multiple: TRUE
+    lang_de:
+      label: 'Schwerpunkte (WiWi)'
+      choice_set: schwerpunkt
+  zuordnung:
+    multiple: TRUE
+    lang_de:
+      label: 'Weitere Zuordnungen'
+      choice_set: zuordnung
+  pruefungsform:
+    lang_de:
+      label: 'Pruefungsform'
+      choice_set: pruefungsform

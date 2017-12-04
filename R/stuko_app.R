@@ -31,7 +31,7 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
   glob$sets[["person"]] = person
 
 
-  forms = c("kurs")
+  forms = c("kurs","modul")
   glob$forms = list()
   for (form in forms) {
     form.file = paste0(glob$yaml.dir,"/", form, ".yaml")
@@ -113,8 +113,9 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
         downloadButton("repLPBtn", "Lehrangebot"),
         helpText("Eine formale Darstellung des Lehrprogramms, wie es in der StuKo und Fakultätsrat beschlossen wird."),
         downloadButton("repDiagBtn", "Diagnostik des Lehrangebots"),
-        helpText("Eine Diagnostik des Lehrprogramms. Vor allem gedacht um noch offene Baustellen in den Daten zu entdecken bevor das Lehrprogramm offiziell beschlossen wird.")
-        #simpleButton("repLBBtn","Lehrbeauftragte"),
+        helpText("Eine Diagnostik des Lehrprogramms. Vor allem gedacht um noch offene Baustellen in den Daten zu entdecken bevor das Lehrprogramm offiziell beschlossen wird."),
+        downloadButton("repLBBtn","Lehrbeauftragte"),
+        helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Vergütung.")
         #simpleButton("repKoordBtn","Vorlesungen nach Koordinatoren sortiert.")
       ),
       tabPanel("Log",
@@ -153,6 +154,17 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
       app=getApp()
       withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
         lehrangebot.diagnostik.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file)
+      )
+    }
+  )
+
+  setDownloadHandler("repLBBtn",
+    filename=function(app = getApp())
+      paste0("Lehrbeauftragte_",semester_name(app$sem),".docx"),
+    content = function(file, ...) {
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        lehrauftrag.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file, sets=glob$sets)
       )
     }
   )
@@ -243,7 +255,7 @@ make.kurse.datatable.df = function(sd, app=getApp(), glob=app$glob) {
   )
 
 
-  df = transmute(sd$kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(sd$kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus, Aktiv=ifelse(aktiv,"Ja","Nein"), Prüfung=pruefungsform, Codesharing=ifelse(nchar(codeshare)>0,"Ja",""), 'Modifiziert am'=modify_time, 'Modifiziert durch'=modify_user)
+  df = transmute(sd$kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(sd$kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus, Aktiv=ifelse(aktiv,"Ja","Nein"), Prüfung=pruefungsform, Codesharing=ifelse(nchar(codeshare)>0,"Ja",""), 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
 
   df
 }
@@ -398,7 +410,7 @@ kurs.diff.log = function(nku,nkupe,nkumo,oku,okupe,okumo,modify_user = app$useri
   restore.point("kurs.diff.log")
 
   change = FALSE
-  log = paste0("Modifiziere Kurs ", oku$kursname, " (", oku$kursid, ")")
+  log = paste0("Modifiziere Kurs ", oku$kursname, " (", oku$kursid, ", ", semester_name(oku$semester), ")")
 
   # kurs
   cols = colnames(oku)
