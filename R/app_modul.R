@@ -22,9 +22,18 @@ update.module.ui = function(app=getApp(), glob=app$glob,...) {
 
   classEventHandler("editModulBtn",event = "click",function(data=NULL, ...) {
     restore.point("editModulBtn")
-    show.edit.modul(get.sem.data()$module[data$row,])
+    module = get.sem.data()$module
+    modul = filter(module, modulid==data$modulid)
+    app$new.module = FALSE
+
+    show.edit.modul(modul)
     cat("\neditModul clicked...")
   })
+
+  classEventHandler("delModulBtn", event="click", delete.modul.click)
+
+  buttonHandler("addModulBtn",new.modul.click)
+
 }
 
 
@@ -32,10 +41,10 @@ update.module.ui = function(app=getApp(), glob=app$glob,...) {
 make.module.datatable.df = function(sd, app=getApp(), glob=app$glob) {
   restore.point("make.module.table.df")
 
-  rows = seq_len(NROW(sd$module))
+  ids = sd$module$modulid
   btns= paste0(
-    simpleButtonVector(id=paste0("editModulBtn_",rows),icon=icon(name = "pencil"), size="sm",extra.class = "editModulBtn",extra.head=paste0('data-row="',rows,'"')),
-    simpleButtonVector(id=paste0("delModulBtn_",rows),icon=icon(name = "trash-o"), size="sm", extra.class="delModulBtn", extra.head=paste0('data-row="',rows,'"'))
+    simpleButtonVector(id=paste0("editModulBtn_",ids),icon=icon(name = "pencil"), size="sm",extra.class = "editModulBtn",extra.head=paste0('data-modulid="',ids,'"')),
+    simpleButtonVector(id=paste0("delModulBtn_",ids),icon=icon(name = "trash-o"), size="sm", extra.class="delModulBtn", extra.head=paste0('data-modulid="',ids,'"'))
   )
 
 
@@ -79,8 +88,8 @@ show.edit.modul = function(modul,..., app=getApp(), glob=app$glob) {
     h3("Modul bearbeiten"),
     fluidRow(column(width = 12, widgets[1])),
     layout.widgets.as.fluid.grid(widgets[-1], 3),
-    simpleButton("saveModulBtn","Modul Speichern",form.sel = form.sel),
-    uiOutput("saveModulAlert")
+    uiOutput("saveModulAlert"),
+    simpleButton("saveModulBtn","Modul Speichern",form.sel = form.sel)
   )
 
   buttonHandler("saveModulBtn", function(...) {
@@ -90,6 +99,49 @@ show.edit.modul = function(modul,..., app=getApp(), glob=app$glob) {
   setUI("editModulUI",ui)
   evalJS("$('html, body').animate({scrollTop: $('#addModulBtn').offset().top + 'px'}, 'fast');")
 }
+
+
+delete.modul.click = function(data, ..., app=getApp()) {
+  restore.point("delete.modul.click")
+  semester = app$sem
+  module = get.sem.data()$module
+  modul = filter(module, modulid==data$modulid)
+
+  buttonHandler("cancelModulDelBtn",function(...) removeModal())
+  buttonHandler("confirmModulDelBtn", function(...) {
+    logtext= paste0("Entferne aus ", semester_name(modul$semester), " das Modul ", modul$titel)
+
+    db = app$glob$db
+    dbWithTransaction(db,{
+      dbDelete(db,"modul",list(semester=modul$semester, modulid=modul$modulid))
+      dbDelete(db,"modulstudiengang",list(semester=modul$semester, modulid=modul$modulid))
+      dbDelete(db,"modulschwerpunkt",list(semester=modul$semester, modulid=modul$modulid))
+      dbDelete(db,"modulzuordnung",list(semester=modul$semester, modulid=modul$modulid))
+      dbDelete(db,"kursmodul",list(semester=modul$semester, modulid=modul$modulid))
+
+      write.stuko.log(logtext, logtype="del_modul")
+    })
+    setUI("editModulUI","")
+    sd = get.sem.data(update=TRUE)
+    update.module.ui()
+    removeModal()
+  })
+
+  showModal(modalDialog(easyClose=TRUE,fade=FALSE,
+    title="Modul wirklich entfernen?",
+    p(paste0("Sie Sie sicher, dass Sie für das ", semester_name(semester), " das Modul '",modul$titel,"' mit allen Verknüpfungen entfernen wollen?")),
+    footer = tagList(simpleButton("confirmModulDelBtn","Ja, entferne Kurs."), simpleButton("cancelModulDelBtn","Abbruch"))
+  ))
+
+}
+
+new.modul.click = function(..., app=getApp()) {
+  restore.point("new.modul.click")
+  modul = list(modulid="", semester=app$sem,code="", extern=FALSE, ects=0, pruefungsform="k")
+  app$new.modul = TRUE
+  show.edit.modul(modul)
+}
+
 
 save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glob=app$glob, sd = get.sem.data(modul$semester)) {
   restore.point("save.modul.click")
@@ -104,6 +156,21 @@ save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glo
   nmo = modul[colnames(sd$mo)]
   fields = intersect(names(mov), names(nmo))
   nmo[fields] = mov[fields]
+
+  # Hat sich modulid geaendert
+  if (!is.true(nmo$modulid == modul$modulid) & !is.true(app$new.modul)) {
+    html = paste0("Sie haben die Modul-ID geändert von ", modul$modulid , " zu ", nmo$modulid,". Eine Änderung der Modul-ID ist aber nicht möglich.")
+    timedMessage("saveModulAlert",html=html,millis = 10000)
+    return()
+  } else if (is.true(app$new.modul)) {
+    res = is.new.modulid.valid(nmo$modulid)
+    if (!res$ok) {
+      timedMessage("saveModulAlert", msg=res$msg, millis=10000)
+      return()
+    }
+  }
+
+
 
   nmost = if (NROW(mov$studiengang)>0)
     fast_df(modulid=modulid,semester=semester, studiengang=unlist(mov$studiengang))
@@ -123,30 +190,36 @@ save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glo
   omozu = filter(sd$mozu,semester==modul$semester, modulid==modul$modulid)
 
   modify_time = Sys.time()
-  diff.log = modul.diff.log(nmo=nmo,nmost=nmost, nmosp=nmosp,nmozu=nmozu, omo=omo,omost=omost, omosp=omosp,omozu=omozu, module=sd$module)
 
-  # Keine Modifikationen
-  if (is.null(diff.log)) {
-    timedMessage("saveModulAlert",paste0("Sie haben noch keine Modifikationen am Modul vorgenommen."))
-    return()
+  if (!app$new.modul) {
+    diff.log = modul.diff.log(nmo=nmo,nmost=nmost, nmosp=nmosp,nmozu=nmozu, omo=omo,omost=omost, omosp=omosp,omozu=omozu, module=sd$module)
+
+    # Keine Modifikationen
+    if (is.null(diff.log)) {
+      timedMessage("saveModulAlert",paste0("Sie haben noch keine Modifikationen am Modul vorgenommen."))
+      return()
+    }
+  } else {
+    diff.log = paste0("Neues Modul im ", semester_name(nku$semester), " erstellt: ", nmo$titel, " (", nmo$modulid,")")
   }
 
   update.db.modul(nmo, nmost, nmosp, nmozu, modify_time=modify_time, log=diff.log)
 
   modul[colnames(nmo)] = nmo
-  app$modul = modul
+  app$modul = as_data_frame(modul)
+  app$new.modul = FALSE
 
   sd = get.sem.data(update = TRUE)
 
-  html = paste0("Die Änderungen im Modul," ,nmo$modulname," wurden mit folgender Logdatei gespeichert.","<pre>\n", diff.log,"</pre>")
+  html = paste0("Die Änderungen im Modul," ,nmo$titel," wurden mit folgendem Logeintrag gespeichert.","<pre>\n", diff.log,"</pre>")
   timedMessage("saveModulAlert",html=html,millis = 10000)
 }
 
 update.db.modul = function(mo, most,mosp,mozu, db=get.stukodb(),modify_user = app$userid, modify_time=Sys.time(), log=NULL, write_log = !is.null(log)) {
   restore.point("update.db.modul")
 
-  modulid = modul$modulid
-  semester = modul$semester
+  modulid = mo$modulid
+  semester = mo$semester
 
   mo$modify_user = modify_user
   mo$modify_time = modify_time
@@ -239,4 +312,18 @@ modul.diff.log = function(nmo,nmost,nmosp,nmozu,omo,omost,omosp,omozu,modify_use
   cat(log)
 
   log
+}
+
+
+
+is.new.modulid.valid = function(modulid, module=get.sem.data()$mo) {
+  if (modulid %in% module$modulid) {
+    row = match(module$modulid)
+    return(list(ok=FALSE, msg=paste0("Die Modul-ID ", modulid, " wird bereits vom exitierenden Modul ", module$titel[row], " genutzt.")))
+  }
+  if (!is.valid.id(modulid)) {
+    return(list(ok=FALSE, msg=paste0("Die angegebene Modul-ID ", modulid, " hat keinen Validen Syntax. Starten Sie mit einem Buchstaben und nutzen Sie nur Buchstaben, Zahlen und Unterstrich.")))
+  }
+
+  list(ok=TRUE)
 }
