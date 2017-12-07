@@ -254,3 +254,14 @@ set.personid.names = function(kupe, person=app$glob$person, app=getApp()) {
 
 
 }
+
+make.snapshot.click = function() {
+  restore.point("make.snapshot.click")
+
+
+  modalDialog(easyClose = TRUE,
+    title="Sicherheitskopie erstellen",
+    textArea("snapshotDescr","Beschreibung der Sicherheitskopie (optional)"),
+    footer =
+  )
+}

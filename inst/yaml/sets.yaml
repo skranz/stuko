@@ -58,8 +58,7 @@ schwerpunkt:
 zuordnung:
   #cat(paste0("'",unique(mozu$zuordnung),"'", collapse=", "))
   [
-   'BA Pflicht 1. Sem', 'BA Pflicht 2. Sem',
-   'BA Pflicht 3. Sem', 'BA Pflicht 4. Sem',
+   'BA Pflicht',
    'WP Mathe/Info', 'WP Informatik', 'WP Mathematik',
    'WP BWL', 'WP VWL','Seminare', 'WP Recht', 'Sprachen',
    'NUF WP', 'NUF Pflicht',

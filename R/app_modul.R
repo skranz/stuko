@@ -322,8 +322,62 @@ is.new.modulid.valid = function(modulid, module=get.sem.data()$mo) {
     return(list(ok=FALSE, msg=paste0("Die Modul-ID ", modulid, " wird bereits vom exitierenden Modul ", module$titel[row], " genutzt.")))
   }
   if (!is.valid.id(modulid)) {
-    return(list(ok=FALSE, msg=paste0("Die angegebene Modul-ID ", modulid, " hat keinen Validen Syntax. Starten Sie mit einem Buchstaben und nutzen Sie nur Buchstaben, Zahlen und Unterstrich.")))
+    return(list(ok=FALSE, msg=paste0("Die angegebene Modul-ID ", modulid, " hat keinen validen Syntax. Starten Sie mit einem Buchstaben und nutzen Sie nur Buchstaben, Zahlen und Unterstrich.")))
   }
 
   list(ok=TRUE)
 }
+
+examples.fast.edit = function() {
+  restore.point.options(display.restore.point=TRUE)
+  stuko.dir = "D:/libraries/stuko/ulm"
+  setwd(stuko.dir)
+  sapp = stukoApp(stuko.dir, sem=170)
+  glob = sapp$glob
+  app = eventsApp()
+  app$glob = glob
+  app$sem = sapp$sem
+  sd = get.sem.data()
+
+  mo = sd$mo
+  mo = sd$mozu %>% group_by(modulid,semester) %>%
+    summarize(zuordnung=list(zuordnung)) %>%
+    right_join(mo, by=c("modulid","semester"))
+
+  mo = sd$mosp %>% group_by(modulid,semester) %>%
+    summarize(schwerpunkt=list(schwerpunkt)) %>%
+    right_join(mo, by=c("modulid","semester"))
+
+  mo = sd$most %>% group_by(modulid,semester) %>%
+    summarize(studiengang=list(studiengang)) %>%
+    right_join(mo, by=c("modulid","semester"))
+
+  mo = ungroup(mo)
+
+  saveRDS(mo,"D:/libraries/stuko/mo_fast_edit.Rds")
+
+
+  df = transmute(mo, Modul=titel,
+    Zuordnungen=multiSelectizeInputVector("zuordnung", value=zuordnung,choices=glob$sets$zuordnung),
+    Studiengaenge=multiSelectizeInputVector("studiengang", value=studiengang,choices=glob$sets$studiengang),
+    Schwerpunkte=multiSelectizeInputVector("schwerpunkt", value=schwerpunkt,choices=glob$sets$schwerpunkt),
+  )
+
+  cat(df$Zuordnungen[[1]])
+  #viewApp(app)
+  app$ui = fluidPage(
+    selectizeHeaders(),
+    tags$style("#modul-form-table td,#modul-form-table th {padding-right: 1em}"),
+    p("Tabelle:"),
+    HTML(form.html.table(df,id="modul-form-table",nowrap=FALSE)),
+    tags$script(HTML('$("#modul-form-table select").selectize();'))
+  )
+
+  appInitHandler(function(...) {
+    #evalJS('$("#modul-form-table select").selectize();')
+  })
+
+  viewApp(app,launch.browser = TRUE)
+}
+
+# Work in Progress

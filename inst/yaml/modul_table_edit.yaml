@@ -1,0 +1,30 @@
+fields:
+  titel:
+    input: textarea
+    lang_de:
+      label: 'Modulname'
+  extern:
+    lang_de:
+      label: 'Extern?'
+      choices:
+        'Extern': TRUE
+        'Intern': FALSE
+  studiengang:
+    multiple: TRUE
+    lang_de:
+      label: 'Interne Studiengänge'
+      choice_set: studiengang
+  schwerpunkt:
+    multiple: TRUE
+    lang_de:
+      label: 'Schwerpunkte (WiWi)'
+      choice_set: schwerpunkt
+  zuordnung:
+    multiple: TRUE
+    lang_de:
+      label: 'Weitere Zuordnungen'
+      choice_set: zuordnung
+  pruefungsform:
+    lang_de:
+      label: 'Pruefungsform'
+      choice_set: pruefungsform
