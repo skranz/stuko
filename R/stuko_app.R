@@ -18,6 +18,7 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
   glob$db = get.stukodb(glob$db.dir)
 
   glob$tpl.dir = file.path(stuko.dir, "report_tpl")
+  glob$snapshot.dir = file.path(stuko.dir, "snapshots")
 
   glob$sem.dat = list()
 
@@ -30,6 +31,7 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
   person = c("", person)
   glob$sets[["person"]] = person
 
+  glob$snapshots =dbGet(glob$db, "snapshot")
 
   forms = c("kurs","modul")
   glob$forms = list()
@@ -38,9 +40,14 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
     #yaml = rmdtools::read.yaml(form.file,check.by.row = TRUE)
     glob$forms[[form]] = load.and.init.form(form.file, prefix=paste0(form,"_"))
   }
-  form = "kursperson"
-  fields = rmdtools::read.yaml(paste0(glob$yaml.dir,"/", form, ".yaml"))$fields
-  glob$forms[["kursperson"]] = tableform(id="kursperson", fields=fields, lang="de",sets=glob$sets)
+
+  forms = c("kursperson","modul_table_edit")
+  for (form in forms) {
+    fields = rmdtools::read.yaml(paste0(glob$yaml.dir,"/", form, ".yaml"))$fields
+    glob$forms[[form]] = tableform(id=form, fields=fields, lang="de",sets=glob$sets)
+  }
+
+
 
   glob$info = list()
   glob$rmd.dir = system.file("rmd", package = "stuko")
@@ -77,7 +84,7 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
 
 }
 
-stuko.login.fun = function(userid,...) {
+stuko.login.fun = function(userid,..., app=getApp()) {
   restore.point("stuko.login.fun")
   app$userid = userid
   ui = stuko.ui()
@@ -93,21 +100,8 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
     selectInput("semInput","Semester",choices = glob$sets$semester, selected=app$sem),
     uiOutput("stukoAlert"),
     tabsetPanel(
-      tabPanel("Kurse",
-        dataTableOutput("kurseTable"),
-        simpleButton("refreshKurseBtn","",icon = icon("refresh")),
-        simpleButton("addKursBtn","Neuen Kurs anlegen"),
-        uiOutput("editKursUI"),
-        br(),
-        slimCollapsePanel("Hintergrundinformationen",HTML(glob$info$kurse))
-
-      ),
-      tabPanel("Module",
-        dataTableOutput("moduleTable"),
-        simpleButton("refreshModuleBtn","",icon = icon("refresh")),
-        simpleButton("addModulBtn","Neues Modul anlegen"),
-        uiOutput("editModulUI")
-      ),
+      tabPanel("Kurse", kurse.ui()),
+      tabPanel("Module", module.ui()),
       tabPanel("Reports",
         helpText("Drücken Sie auf den entsprechenden Knopf um den Report zu erzeugen und als Word-Dateien herunterzuladen."),
         downloadButton("repLPBtn", "Lehrangebot"),
@@ -119,6 +113,7 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
         #simpleButton("repKoordBtn","Vorlesungen nach Koordinatoren sortiert.")
       ),
       tabPanel("Admin",
+        uiOutput("snapshotInfoUI"),
         simpleButton("makeSnapshotBtn", "Sicherheitskopie der Datenbank erstellen")
       ),
       tabPanel("Log",
@@ -172,6 +167,7 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
     }
   )
 
+  buttonHandler("makeSnapshotBtn", make.snapshot.click)
 
   ui
 }
@@ -182,6 +178,8 @@ update.stuko.ui = function(app=getApp()) {
   update.kurse.ui()
   update.module.ui()
   update.log.ui()
+  update.admin.ui()
+
 }
 
 update.log.ui = function(app=getApp(), glob=app$glob,...) {
@@ -255,13 +253,44 @@ set.personid.names = function(kupe, person=app$glob$person, app=getApp()) {
 
 }
 
-make.snapshot.click = function() {
+update.admin.ui = function() {
+  update.snapshot.info()
+}
+
+update.snapshot.info = function(app=getApp(), glob=app$glob) {
+  snapshots = glob$snapshots
+  if (NROW(snapshots)>0) {
+    txt = paste0("Letzte Sicherheitskopie am ", format(max(snapshots$time), "%d.%m.%Y %H:%M"))
+  } else {
+    txt = "Bislang noch keine Sicherheitskopie erstellt."
+  }
+  setUI("snapshotInfoUI", p(txt))
+
+}
+
+make.snapshot.click = function(..., app=getApp(), glob=app$glob, db=glob$db, type="manual") {
   restore.point("make.snapshot.click")
 
+  buttonHandler("confirmSnapshotBtn", function(formValues,...) {
+    restore.point("confirmSnapshotBtn")
+    descr = formValues$snapshotDescr
+    time = Sys.time()
+    id = paste0("s_",format(time,"%Y-%m-%d_%H%M%S"))
+    file = paste0(glob$snapshot.dir, "/", id, ".sqlite")
+    dbWithTransaction(db,{
+      dbInsert(db, "snapshot", list(snapshotid = id, time=time, userid=app$userid, descr=descr, type=type))
 
-  modalDialog(easyClose = TRUE,
-    title="Sicherheitskopie erstellen",
-    textArea("snapshotDescr","Beschreibung der Sicherheitskopie (optional)"),
-    footer =
-  )
+      file.copy(file.path(glob$db.dir,"stukodb.sqlite"), file)
+    })
+    glob$snapshots =dbGet(glob$db, "snapshot")
+    update.snapshot.info()
+    removeModal()
+  })
+  buttonHandler("cancelSnapshotBtn",function(...) removeModal())
+
+  showModal(modalDialog(easyClose = TRUE,
+    title="Sicherheitskopie der Datenbank erstellen",
+    textAreaInput("snapshotDescr","Beschreibung der Sicherheitskopie (optional)",""),
+    footer = tagList(simpleButton("confirmSnapshotBtn","Ok", form.ids = "snapshotDescr"), simpleButton("cancelSnapshotBtn","Abbruch"))
+  ))
 }

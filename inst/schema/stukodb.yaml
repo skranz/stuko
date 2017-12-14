@@ -1,13 +1,12 @@
 # Snapshots are a copy of our database
 snapshot:
   table:
+    snapshotid: CHARACTER(20)
     time: DATETIME
     userid: VARCHAR(50)
-    label: TEXT
     descr: TEXT
-    snapshotid: CHAR(20)
     # auto, manual, before_csv, before_bulk
-    type: CHAR(12)
+    type: CHARACTER(12)
   indexes:
     - "CREATE INDEX snapshot1 on snapshot (time)"
     - "CREATE INDEX snapshot2 on snapshot (snapshotid)"

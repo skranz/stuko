@@ -4,6 +4,7 @@ fields:
     lang_de:
       label: 'Modulname'
   extern:
+    size: 6
     lang_de:
       label: 'Extern?'
       choices:
@@ -24,6 +25,10 @@ fields:
     lang_de:
       label: 'Weitere Zuordnungen'
       choice_set: zuordnung
+  ects:
+    type: integer
+    lang_de:
+      label: 'ECTS'
   pruefungsform:
     lang_de:
       label: 'Pruefungsform'

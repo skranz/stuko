@@ -19,9 +19,14 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
 
   kup = load.kurse.for.lehrangebot(semester=semp, db=db)
   kup = mutate(kup, Kurs=kursname, Dozent=dozent, SWS=sws_kurs+sws_uebung)
+  kup = filter(kup, aktiv)
 
   ku = load.kurse.for.lehrangebot(semester=semester, db=db)
   ku = mutate(ku, Kurs=kursname, Dozent=dozent, SWS=sws_kurs+sws_uebung)
+
+  na_ku = filter(ku, !aktiv)
+  ku = filter(ku, aktiv)
+
 
   ku = ku %>% arrange(kursname)
   kup = kup %>% arrange(kursname)
@@ -42,21 +47,21 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
   dat = filter(ku,is.na(dozent) | is.true(dozent == "") | is.true(dozent=="NN")) %>% rename("Uebungsleiter"="ul")
 
   doc = add.lad.comments(doc,dat=dat,
-    if (any(dat$ul != "")) "Ggf. wurden in einigen Kursen die Dozenten fehlerhaft als ?bungsleiter klassifiziert..."
+    if (any(dat$ul != "")) "Ggf. wurden in einigen Kursen die Dozenten fehlerhaft als Uebungsleiter klassifiziert..."
   )
 
   doc = add.lad.table(doc,dat, cols=c("Kurs","Uebungsleiter"))
 
   doc = doc %>% body_add_par("Nichtaktivierte Kurse", style = "heading 1")
-  dat = filter(ku,!aktiv)
-  doc = add.lad.comments(doc, dat=dat, "Ggf. sind dies Kurse bei denen noch Einstellungen fehlen.")
+  dat = na_ku
+  doc = add.lad.comments(doc, dat=dat, "Diese Kurse erscheinen in keiner anderen Statistik hier. Nur aktive Kurse zaehlen..")
 
   doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent"))
 
 
-  doc = doc %>% body_add_par("Kurse mit ?bungen mit 0 SWS ?bung", style = "heading 1")
+  doc = doc %>% body_add_par("Kurse mit Uebungen mit 0 SWS Uebung", style = "heading 1")
   dat = filter(ku,kursform=="vu", sws_uebung==0)
-  doc = add.lad.comments(doc, dat=dat, "Hier wurde noch keine SWS Aufteilung zwischen Kurs und ?bung angegeben")
+  doc = add.lad.comments(doc, dat=dat, "Hier wurde noch keine SWS Aufteilung zwischen Kurs und Uebung angegeben")
 
   doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent","SWS"))
 
@@ -66,13 +71,13 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
   stakup = c(Kurse=NROW(kup),"BA-Pflicht"=sum(kup$ba_pflicht),"BA-WP"=sum(kup$ba_wp), "MA WiWi"=sum(kup$ma_wp),"NUF"=sum(kup$nuf_wp | kup$nuf_pflicht),"Nicht Zugeordnet"=sum(!kup$has.modul))
 
   df = as.data.frame(cbind(names(staku),staku, stakup, staku-stakup))
-  colnames(df) = c("Kategorie",semester_name(semester,TRUE), semester_name(semp,TRUE),"Ver?nderung")
+  colnames(df) = c("Kategorie",semester_name(semester,TRUE), semester_name(semp,TRUE),"Veraenderung")
   rownames(df) = NULL
 
   doc = doc %>% body_add_par("Anzahl der Kurse", style = "heading 1") %>%
     body_add_table(df)
 
-  # Kursver?nderungen
+  # Kursveraenderungen
   doc = add.lad.diff.table(doc, label="Bachelor WiWi Pflicht", filter="ba_pflicht", ku, kup, sem, semp)
 
   doc = add.lad.diff.table(doc, label="Bachelor WiWi Wahlpflicht", filter="ba_wp", ku, kup, sem, semp, cols=c("Kurs", "Dozent","sp"))
@@ -91,7 +96,7 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
 
 add.lad.diff.table = function(doc, label, filter, ku, kup, sem, semp, cols=c("Kurs","Dozent")) {
   restore.point("add.lad.diff.table")
-  doc = doc %>% body_add_par(paste0("Ver?nderungen ", label," von ", semester_name(semp), " nach ", semester_name(sem)) , style = "heading 1")
+  doc = doc %>% body_add_par(paste0("Veraenderungen ", label," von ", semester_name(semp), " nach ", semester_name(sem)) , style = "heading 1")
 
   df1 = s_filter(ku, filter)
   df2 = s_filter(kup, filter)
@@ -130,7 +135,7 @@ add.lad.comments = function(doc, ...,dat=NULL) {
 add.lad.table = function(doc, df, cols=c("Kurs","Dozent"),header=TRUE,...) {
 
   if (NROW(df)==0) {
-    return(body_add_par(doc,"--- Keine Eintr?ge ---"))
+    return(body_add_par(doc,"--- Keine Eintraege ---"))
   }
   df = df[,cols]
 

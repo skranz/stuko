@@ -14,6 +14,8 @@ lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
 
   kurse = load.kurse.for.lehrangebot(semester=semester, db=db)
 
+  kurse = filter(kurse, aktiv=TRUE)
+
   tpl.file = file.path(tpl.dir,"lehrangebot_tpl.docx")
 
   doc = read_docx(tpl.file)
@@ -123,7 +125,7 @@ adapt.kurs.for.lehrangebot = function(kurs, show.sp=FALSE) {
   if (has_u) {
     if (is.na(kurs$ul) | is.true(kurs$ul==""))
       kurs$ul = "NN"
-    res_u = transmute(kurs, Vorlesung="  - ?bung", SWS=sws_uebung, Dozent=ul, Schwerpunkt="")
+    res_u = transmute(kurs, Vorlesung="  - Uebung", SWS=sws_uebung, Dozent=ul, Schwerpunkt="")
     res = rbind(res,res_u)
   }
 

@@ -73,7 +73,8 @@ copy.modules.to.semester = function(src.sem, dest.sem, db=get.stukodb(), schemas
 }
 
 
-write.stuko.log = function(logtext,logtype, logtime=Sys.time(), userid="unknown",db=get.stukodb()) {
-    log = list(logtime=logtime, userid=userid,logtype=logtype, logtext=logtext)
-    dbInsert(db,"log", log)
+write.stuko.log = function(logtext,logtype, logtime=Sys.time(), userid=first.non.null(app$userid,"unknown"),db=get.stukodb(), app=getApp()) {
+  restore.point("write.stuko.log")
+  log = list(logtime=logtime, userid=userid,logtype=logtype, logtext=logtext)
+  dbInsert(db,"log", log)
 }

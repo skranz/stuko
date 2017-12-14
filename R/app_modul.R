@@ -1,3 +1,17 @@
+module.ui = function(..., app=getApp(), glob=app$glob) {
+  ui= tagList(
+    dataTableOutput("moduleTable"),
+    simpleButton("refreshModuleBtn","",icon = icon("refresh")),
+    simpleButton("addModulBtn","Neues Modul anlegen"),
+    simpleButton("delModuleBtn","Markierte Module löschen",form.sel = ".modulCheck"),
+    uiOutput("editModulUI")
+  )
+
+  buttonHandler("addModulBtn",new.modul.click)
+  buttonHandler("delModuleBtn",delete.module.click)
+  ui
+
+}
 
 update.module.ui = function(app=getApp(), glob=app$glob,...) {
   restore.point("update.module.ui")
@@ -24,15 +38,11 @@ update.module.ui = function(app=getApp(), glob=app$glob,...) {
     restore.point("editModulBtn")
     module = get.sem.data()$module
     modul = filter(module, modulid==data$modulid)
-    app$new.module = FALSE
+    app$new.modul = FALSE
 
     show.edit.modul(modul)
     cat("\neditModul clicked...")
   })
-
-  classEventHandler("delModulBtn", event="click", delete.modul.click)
-
-  buttonHandler("addModulBtn",new.modul.click)
 
 }
 
@@ -43,14 +53,14 @@ make.module.datatable.df = function(sd, app=getApp(), glob=app$glob) {
 
   ids = sd$module$modulid
   btns= paste0(
-    simpleButtonVector(id=paste0("editModulBtn_",ids),icon=icon(name = "pencil"), size="sm",extra.class = "editModulBtn",extra.head=paste0('data-modulid="',ids,'"')),
-    simpleButtonVector(id=paste0("delModulBtn_",ids),icon=icon(name = "trash-o"), size="sm", extra.class="delModulBtn", extra.head=paste0('data-modulid="',ids,'"'))
+    checkBoxInputVector(paste0("modulCheck_",ids), value=FALSE, extra.class="modulCheck", extra.head=paste0('data-kursids="',ids,'" style="padding-right: 3px"')),
+    simpleButtonVector(id=paste0("editModulBtn_",ids),icon=icon(name = "pencil"), size="sm", extra.class="editModulBtn", extra.head=paste0('data-modulid="',ids,'"'))
   )
 
 
   df = transmute(sd$module,Aktion=btns, Modul=titel, BaMa=bama,Studiengang=studiengang, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects),
 #   Kurse = num_kurse,
-    Prüfung=pruefungsform, Dozent=dozent, Kurs=kurs, 'Anz. Kurs'=num_kurs, 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
+    Pruefung=pruefungsform, Dozent=dozent, Kurs=kurs, 'Anz. Kurs'=num_kurs, 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
 
   df
 }
@@ -101,23 +111,28 @@ show.edit.modul = function(modul,..., app=getApp(), glob=app$glob) {
 }
 
 
-delete.modul.click = function(data, ..., app=getApp()) {
-  restore.point("delete.modul.click")
+delete.module.click = function(formValues, ..., app=getApp()) {
+  restore.point("delete.module.click")
   semester = app$sem
   module = get.sem.data()$module
-  modul = filter(module, modulid==data$modulid)
+  ids = get.selected.modulid(formValues)
+  module = filter(module, modulid %in% ids)
+
 
   buttonHandler("cancelModulDelBtn",function(...) removeModal())
   buttonHandler("confirmModulDelBtn", function(...) {
-    logtext= paste0("Entferne aus ", semester_name(modul$semester), " das Modul ", modul$titel)
+    restore.point("kjslfdhfk")
+    logtext= paste0("Entferne aus ", semester_name(modul$semester), " die Module:\n", paste0("  -",module$titel, collapse="\n"))
 
     db = app$glob$db
     dbWithTransaction(db,{
-      dbDelete(db,"modul",list(semester=modul$semester, modulid=modul$modulid))
-      dbDelete(db,"modulstudiengang",list(semester=modul$semester, modulid=modul$modulid))
-      dbDelete(db,"modulschwerpunkt",list(semester=modul$semester, modulid=modul$modulid))
-      dbDelete(db,"modulzuordnung",list(semester=modul$semester, modulid=modul$modulid))
-      dbDelete(db,"kursmodul",list(semester=modul$semester, modulid=modul$modulid))
+      for (id in module$modulid) {
+        dbDelete(db,"modul",list(semester=semester, modulid=id))
+        dbDelete(db,"modulstudiengang",list(semester=semester, modulid=id))
+        dbDelete(db,"modulschwerpunkt",list(semester=semester, modulid=id))
+        dbDelete(db,"modulzuordnung",list(semester=semester, modulid=id))
+        dbDelete(db,"kursmodul",list(semester=semester, modulid=id))
+      }
 
       write.stuko.log(logtext, logtype="del_modul")
     })
@@ -129,21 +144,25 @@ delete.modul.click = function(data, ..., app=getApp()) {
 
   showModal(modalDialog(easyClose=TRUE,fade=FALSE,
     title="Modul wirklich entfernen?",
-    p(paste0("Sie Sie sicher, dass Sie für das ", semester_name(semester), " das Modul '",modul$titel,"' mit allen Verknüpfungen entfernen wollen?")),
-    footer = tagList(simpleButton("confirmModulDelBtn","Ja, entferne Kurs."), simpleButton("cancelModulDelBtn","Abbruch"))
+    p(paste0("Sie Sie sicher, dass Sie fuer das ", semester_name(semester), " die Module ",paste0(module$titel,collapse=",")," mit allen Verknuepfungen entfernen wollen?")),
+    footer = tagList(simpleButton("confirmModulDelBtn","Ja, entferne Module."), simpleButton("cancelModulDelBtn","Abbruch"))
   ))
 
 }
 
 new.modul.click = function(..., app=getApp()) {
   restore.point("new.modul.click")
-  modul = list(modulid="", semester=app$sem,code="", extern=FALSE, ects=0, pruefungsform="k")
+  modul = list(modulid="", semester=app$sem,modify_time = Sys.time(), modify_user = app$userid, code="", extern=FALSE, titel="", ects=0, pruefungsform="k")
   app$new.modul = TRUE
   show.edit.modul(modul)
 }
 
 
-save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glob=app$glob, sd = get.sem.data(modul$semester)) {
+save.modul.click = function(modul = app$modul, formValues,..., sd = get.sem.data(modul$semester)) {
+  app=getApp()
+  glob=app$glob
+  modify_user = app$userid
+
   restore.point("save.modul.click")
   cat("\nsave.modul.click")
 
@@ -153,13 +172,15 @@ save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glo
   # Extract values
   mov = extract.form.formValues(formValues, form=glob$forms$modul)
 
+
+
   nmo = modul[colnames(sd$mo)]
   fields = intersect(names(mov), names(nmo))
   nmo[fields] = mov[fields]
 
   # Hat sich modulid geaendert
   if (!is.true(nmo$modulid == modul$modulid) & !is.true(app$new.modul)) {
-    html = paste0("Sie haben die Modul-ID geändert von ", modul$modulid , " zu ", nmo$modulid,". Eine Änderung der Modul-ID ist aber nicht möglich.")
+    html = paste0("Sie haben die Modul-ID geaendert von ", modul$modulid , " zu ", nmo$modulid,". Eine Aenderung der Modul-ID ist aber nicht moeglich.")
     timedMessage("saveModulAlert",html=html,millis = 10000)
     return()
   } else if (is.true(app$new.modul)) {
@@ -200,22 +221,23 @@ save.modul.click = function(modul = app$modul, formValues,..., app=getApp(), glo
       return()
     }
   } else {
-    diff.log = paste0("Neues Modul im ", semester_name(nku$semester), " erstellt: ", nmo$titel, " (", nmo$modulid,")")
+    diff.log = paste0("Neues Modul im ", semester_name(nmo$semester), " erstellt: ", nmo$titel, " (", nmo$modulid,")")
   }
 
-  update.db.modul(nmo, nmost, nmosp, nmozu, modify_time=modify_time, log=diff.log)
+  update.db.modul(nmo, nmost, nmosp, nmozu,modify_user=modify_user, modify_time=modify_time, log=diff.log)
 
-  modul[colnames(nmo)] = nmo
+  modul[names(nmo)] = nmo
+  modul$modify_user = modify_user
   app$modul = as_data_frame(modul)
   app$new.modul = FALSE
 
   sd = get.sem.data(update = TRUE)
 
-  html = paste0("Die Änderungen im Modul," ,nmo$titel," wurden mit folgendem Logeintrag gespeichert.","<pre>\n", diff.log,"</pre>")
+  html = paste0("Die Aenderungen im Modul," ,nmo$titel," wurden mit folgendem Logeintrag gespeichert.","<pre>\n", diff.log,"</pre>")
   timedMessage("saveModulAlert",html=html,millis = 10000)
 }
 
-update.db.modul = function(mo, most,mosp,mozu, db=get.stukodb(),modify_user = app$userid, modify_time=Sys.time(), log=NULL, write_log = !is.null(log)) {
+update.db.modul = function(mo, most,mosp,mozu, db=get.stukodb(),modify_user, modify_time=Sys.time(), log=NULL, write_log = !is.null(log)) {
   restore.point("update.db.modul")
 
   modulid = mo$modulid
@@ -259,7 +281,7 @@ modul.diff.log = function(nmo,nmost,nmosp,nmozu,omo,omost,omosp,omozu,modify_use
   # modul
   cols = colnames(omo)
   diff.cols = setdiff(
-    cols[is.true(nmo != omo)],
+    cols[!is.true(nmo == omo)],
     c("modify_time","modify_user")
   )
 
@@ -381,3 +403,33 @@ examples.fast.edit = function() {
 }
 
 # Work in Progress
+
+set.module.table.edit.ui = function(...,app=getApp()) {
+  restore.point("set.module.table.edit.ui")
+  glob = app$glob
+
+  app = eventsApp()
+
+  form = as.environment(glob$forms$modul_table_edit)
+  sd = get.sem.data()
+  data = select(sd$mo, titel, extern, zuordnung, studiengang)
+
+  form$data = form$org.data = data
+
+  ui = tableform.ui(form=form, auto.filter = TRUE, use.checkbox = TRUE, paginate = TRUE)
+
+  tableformFilterHandler("module_table", form=form, function(value,filter, fdata,...) {
+    restore.point("filter.change")
+    tableform.update.body(form=form, data=fdata)
+    cat("\nfilter changed", sample.int(1000,1))
+  })
+}
+
+
+get.selected.modulid = function(formValues) {
+  na = names(formValues)
+  na = na[str.starts.with(na,"modulCheck_")]
+  vals = unlist(formValues[na])
+  na = str.right.of(na,"modulCheck_")
+  na[vals]
+}

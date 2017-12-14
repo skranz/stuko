@@ -1,3 +1,24 @@
+kurse.ui = function(..., app=getApp(), glob=app$glob) {
+
+
+  ui = tagList(
+    dataTableOutput("kurseTable"),
+    simpleButton("refreshKurseBtn","",icon = icon("refresh")),
+    simpleButton("addKursBtn","Neuen Kurs anlegen"),
+    simpleButton("deactivateKurseBtn","Markierte Kurse (de-)aktivieren",form.sel = ".kursCheck"),
+    simpleButton("delKurseBtn","Markierte Kurse löschen",form.sel = ".kursCheck"),
+    uiOutput("editKursUI"),
+    br(),
+    slimCollapsePanel("Hintergrundinformationen",HTML(glob$info$kurse))
+  )
+
+  buttonHandler("addKursBtn",new.kurs.click)
+  buttonHandler("deactivateKurseBtn",deactivate.kurse.click)
+  buttonHandler("delKurseBtn",delete.kurse.click)
+
+  ui
+}
+
 
 update.kurse.ui = function(app=getApp(), glob=app$glob,...) {
   restore.point("update.kurse.ui")
@@ -32,10 +53,6 @@ update.kurse.ui = function(app=getApp(), glob=app$glob,...) {
     cat("\neditKurs clicked...")
   })
 
-  classEventHandler("delKursBtn", event="click", delete.kurs.click)
-
-  buttonHandler("addKursBtn",new.kurs.click)
-
 }
 
 make.kurse.datatable.df = function(sd, app=getApp(), glob=app$glob) {
@@ -43,12 +60,14 @@ make.kurse.datatable.df = function(sd, app=getApp(), glob=app$glob) {
 
   kursids = sd$kurse$kursid
   btns= paste0(
-    simpleButtonVector(id=paste0("editKursBtn_",kursids),icon=icon(name = "pencil"), size="sm",extra.class = "editKursBtn",extra.head=paste0('data-kursid="',kursids,'"')),
-    simpleButtonVector(id=paste0("delKursBtn_",kursids),icon=icon(name = "trash-o"), size="sm", extra.class="delKursBtn", extra.head=paste0('data-kursids="',kursids,'"'))
+    checkBoxInputVector(paste0("kursCheck_",kursids), value=FALSE, extra.class="kursCheck", extra.head=paste0('data-kursids="',kursids,'" style="padding-right: 3px"')),
+
+    simpleButtonVector(paste0("editKursBtn_",kursids),icon=icon(name = "pencil"), size="sm",extra.class = "editKursBtn",extra.head=paste0('data-kursid="',kursids,'"'))
+    #simpleButtonVector(id=paste0("delKursBtn_",kursids),icon=icon(name = "trash-o"), size="sm", extra.class="delKursBtn", extra.head=paste0('data-kursids="',kursids,'"'))
   )
 
 
-  df = transmute(sd$kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(sd$kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus, Aktiv=ifelse(aktiv,"Ja","Nein"), Prüfung=pruefungsform, Codesharing=ifelse(nchar(codeshare)>0,"Ja",""), 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
+  df = transmute(sd$kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,Aktiv=ifelse(aktiv,"Ja","Nein"),SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(sd$kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus,  'Pruefung'=pruefungsform, Codesharing=ifelse(nchar(codeshare)>0,"Ja",""), 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
 
   df
 }
@@ -88,7 +107,7 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
     h4("Mitarbeiter"),
     kp.ui,
     simpleButton("addKurspersonBtn","Neuer Mitarbeiter."),
-    helpText("Wenn kein Koordinator eingetragen wird, verwaltet der Studiendekan den Kurs direkt. Die Spalte SWS ist nur für Lehrbeauftragte relevant."),
+    helpText("Wenn kein Koordinator eingetragen wird, verwaltet der Studiendekan den Kurs direkt. Die Spalte SWS ist nur fuer Lehrbeauftragte relevant."),
     layout.widgets.as.fluid.grid(widgets[-1], 3),
     uiOutput("saveKursAlert"),
     simpleButton("saveKursBtn","Speichern",form.sel = form.sel)
@@ -111,21 +130,55 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
   evalJS("$('html, body').animate({scrollTop: $('#addKursBtn').offset().top + 'px'}, 'fast');")
 }
 
-delete.kurs.click = function(data, ..., app=getApp()) {
+
+get.selected.kursid = function(formValues) {
+  na = names(formValues)
+  na = na[str.starts.with(na,"kursCheck_")]
+  vals = unlist(formValues[na])
+  na = str.right.of(na,"kursCheck_")
+  na[vals]
+}
+
+deactivate.kurse.click = function(formValues, ..., app=getApp()) {
+  restore.point("deactivate.kurse.click")
+  semester = app$sem
+  kurse = get.sem.data()$kurse
+  ids = get.selected.kursid(formValues)
+
+  dbWithTransaction(app$glob$db, {
+    for (id in ids) {
+      # Toggle aktiv
+      kurs = filter(kurse, kursid==id)
+      aktiv = kurs$aktiv[[1]]
+
+      dbUpdate(app$glob$db,"kurs",vals = list(aktiv=!aktiv),where=list(semester=semester, kursid=id))
+    }
+  })
+
+  sd = get.sem.data(update=TRUE)
+  update.kurse.ui()
+
+}
+
+
+delete.kurse.click = function(formValues, ..., app=getApp()) {
   restore.point("delete.kurs.click")
   semester = app$sem
   kurse = get.sem.data()$kurse
-  kurs = filter(kurse, kursid==data$kursid)
+  ids = get.selected.kursid(formValues)
+  kurse = filter(kurse, kursid %in% ids)
 
   buttonHandler("cancelKursDelBtn",function(...) removeModal())
   buttonHandler("confirmKursDelBtn", function(...) {
-    logtext= paste0("Entferne aus ", semester_name(kurs$semester), " den Kurs ", kurs$kursname)
+    logtext= paste0("Entferne aus ", semester_name(semester), " die Kurse ", paste0(kurse$kursname, collapse=", "))
 
     db = app$glob$db
     dbWithTransaction(db,{
-      dbDelete(db,"kurs",list(semester=kurs$semester, kursid=kurs$kursid))
-      dbDelete(db,"kursperson",list(semester=kurs$semester, kursid=kurs$kursid))
-      dbDelete(db,"kursmodul",list(semester=kurs$semester, kursid=kurs$kursid))
+      for (id in kurse$kursid) {
+        dbDelete(db,"kurs",list(semester=semester, kursid=id))
+        dbDelete(db,"kursperson",list(semester=semester, kursid=id))
+        dbDelete(db,"kursmodul",list(semester=semester, kursid=id))
+      }
 
       write.stuko.log(logtext, logtype="del_kurs")
     })
@@ -136,8 +189,8 @@ delete.kurs.click = function(data, ..., app=getApp()) {
   })
 
   showModal(modalDialog(easyClose=TRUE,fade=FALSE,
-    title="Kurs wirklich entfernen?",
-    p(paste0("Sie Sie sicher, dass Sie für das ", semester_name(semester), " den Kurs '",kurs$kursname,"' mit allen Verknüpfungen entfernen wollen?")),
+    title="Kurse wirklich entfernen?",
+    p(paste0("Sie Sie sicher, dass Sie fuer das ", semester_name(semester), " die Kurse '", paste0(kurse$kursname, collapse=", "),"' mit allen Verknuepfungen entfernen wollen?")),
     footer = tagList(simpleButton("confirmKursDelBtn","Ja, entferne Kurs."), simpleButton("cancelKursDelBtn","Abbruch"))
   ))
 
@@ -165,7 +218,7 @@ save.kurs.click = function(kurs = app$kurs, formValues,..., app=getApp(), glob=a
 
   # Hat sich kursid geaendert
   if (!is.true(nku$kursid == kurs$kursid) & !is.true(app$new.kurs)) {
-    html = paste0("Sie haben die Kurs-ID geändert von ", kurs$kursid , " zu ", nku$kursid,". Eine Änderung der Kurs-ID ist aber nicht möglich.")
+    html = paste0("Sie haben die Kurs-ID geaendert von ", kurs$kursid , " zu ", nku$kursid,". Eine Aenderung der Kurs-ID ist aber nicht moeglich.")
     timedMessage("saveKursAlert",html=html,millis = 10000)
     return()
   } else if (is.true(app$new.kurs)) {
@@ -224,7 +277,7 @@ save.kurs.click = function(kurs = app$kurs, formValues,..., app=getApp(), glob=a
   #replaceData(proxy,df,resetPaging=FALSE)
   #update.kurse.ui()
 
-  html = paste0("Die Änderungen im Kurs '" ,nku$kursname,"' wurden mit folgendem Logeintrag gespeichert.","<pre>\n", diff.log,"</pre>")
+  html = paste0("Die Aenderungen im Kurs '" ,nku$kursname,"' wurden mit folgendem Logeintrag gespeichert.","<pre>\n", diff.log,"</pre>")
   timedMessage("saveKursAlert",html=html,millis = 10000)
 }
 
