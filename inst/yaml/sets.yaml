@@ -61,10 +61,7 @@ zuordnung:
    'BA Pflicht',
    'WP Mathe/Info', 'WP Informatik', 'WP Mathematik',
    'WP BWL', 'WP VWL','Seminare', 'WP Recht', 'Sprachen',
-   'NUF WP', 'NUF Pflicht',
-   'NUF WP 35 LP', 'NUF WP 42 LP', 'NUF WP 49 LP',
-   'NUF Pflichtbereich I',
-   'NUF Pflichtbereich II'
+   'NUF WP', 'NUF Pflicht'
    ]
 zeitform:
   'Wöchentlich': w

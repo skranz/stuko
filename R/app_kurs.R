@@ -1,8 +1,22 @@
 kurse.ui = function(..., app=getApp(), glob=app$glob) {
 
+  kfilter = app$all.koord$personid
+  names(kfilter) = paste0("Von ",app$all.koord$vorname, " ",app$all.koord$nachname, " koordinierte Kurse.")
+
+  if (app$stuko) {
+    kfilter = c("Alle Kurse"="all", kfilter)
+  } else {
+    kfilter(kfilter, "Alle Kurse")
+  }
+  app$kfilter = kfilter[1]
 
   ui = tagList(
-    dataTableOutput("kurseTable"),
+    if (length(kfilter)>1) {
+      tagList(HTML("Kursauswahl: "),simpleSelect("kfilter","",choices = kfilter))
+    },
+    div(id="kurseTableDiv",
+      dataTableOutput("kurseTable")
+    ),
     simpleButton("refreshKurseBtn","",icon = icon("refresh")),
     simpleButton("addKursBtn","Neuen Kurs anlegen"),
     simpleButton("deactivateKurseBtn","Markierte Kurse (de-)aktivieren",form.sel = ".kursCheck"),
@@ -15,6 +29,11 @@ kurse.ui = function(..., app=getApp(), glob=app$glob) {
   buttonHandler("addKursBtn",new.kurs.click)
   buttonHandler("deactivateKurseBtn",deactivate.kurse.click)
   buttonHandler("delKurseBtn",delete.kurse.click)
+
+  selectChangeHandler("kfilter", function(value,...) {
+    app$kfilter = value
+    update.kurse.ui()
+  })
 
   ui
 }
@@ -29,8 +48,15 @@ update.kurse.ui = function(app=getApp(), glob=app$glob,...) {
   glob$sets$kursform
 
   df = make.kurse.datatable.df(sd)
+  if (is.null(df)) {
+    #setHtmlHide("kurseTableDiv")
+    shinyEvents::setDataTable("kurseTable", NULL)
+    return()
+  } else {
+    #setHtmlShow("kurseTableDiv")
+  }
 
-  dt = datatable(df,selection = 'none',escape=-1,rownames = FALSE, filter=list(position="top", clear=FALSE, plain=TRUE),
+  dt = datatable(df,selection = 'none',escape=-1,rownames = FALSE, filter=list(position="top", clear=FALSE, plain=FALSE),
     class="display compact",
 #    style="bootstrap",
     autoHideNavigation = TRUE, extensions = c('FixedColumns','ColReorder','Select',"Buttons"),options = list(
@@ -41,6 +67,8 @@ update.kurse.ui = function(app=getApp(), glob=app$glob,...) {
     columnDefs = list(list(width="15em", targets=c(1)),list(width="3em", targets=3)),
     autoWidth=TRUE,
     scrollX=TRUE,colReorder = TRUE,fixedColumns = list(leftColumns = 2)))
+
+  #dt = dt %>% formatStyle("Aktiv", target="row",backgroundColor = "#ee0000")
 
   shinyEvents::setDataTable("kurseTable", dt,server=TRUE)
 
@@ -55,10 +83,22 @@ update.kurse.ui = function(app=getApp(), glob=app$glob,...) {
 
 }
 
-make.kurse.datatable.df = function(sd, app=getApp(), glob=app$glob) {
+make.kurse.datatable.df = function(sd, app=getApp(), glob=app$glob, kfilter = first.non.null(app$kfilter,"all")) {
   restore.point("make.kurse.table.df")
 
-  kursids = sd$kurse$kursid
+
+  kurse = sd$kurse
+
+  # Filter Kurse fuer spezifierten Koordinator
+  if (kfilter != "all") {
+    kurse = filter(kurse, has.substr(koid, kfilter))
+  }
+
+  if (NROW(kurse)==0) return(NULL)
+
+
+
+  kursids = kurse$kursid
   btns= paste0(
     checkBoxInputVector(paste0("kursCheck_",kursids), value=FALSE, extra.class="kursCheck", extra.head=paste0('data-kursids="',kursids,'" style="padding-right: 3px"')),
 
@@ -67,7 +107,7 @@ make.kurse.datatable.df = function(sd, app=getApp(), glob=app$glob) {
   )
 
 
-  df = transmute(sd$kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,Aktiv=ifelse(aktiv,"Ja","Nein"),SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(sd$kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus,  'Pruefung'=pruefungsform, Codesharing=ifelse(nchar(codeshare)>0,"Ja",""), 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
+  df = transmute(kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,Aktiv=ifelse(aktiv,"Ja","Nein"),SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus,  'Pruefung'=pruefungsform, Codesharing=ifelse(nchar(codeshare)>0,"Ja",""), 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
 
   df
 }
@@ -170,7 +210,7 @@ delete.kurse.click = function(formValues, ..., app=getApp()) {
 
   buttonHandler("cancelKursDelBtn",function(...) removeModal())
   buttonHandler("confirmKursDelBtn", function(...) {
-    logtext= paste0("Entferne aus ", semester_name(semester), " die Kurse ", paste0(kurse$kursname, collapse=", "))
+    logtext= paste0("Entferne aus ", semester_name(semester), " die Kurse:\n", paste0("  -",kurse$kursname, collapse="\n"))
 
     db = app$glob$db
     dbWithTransaction(db,{
@@ -207,7 +247,6 @@ save.kurs.click = function(kurs = app$kurs, formValues,..., app=getApp(), glob=a
   restore.point("save.kurs.click")
   cat("\nsave.kurs.click")
 
-  kursid = kurs$kursid
   semester = kurs$semester
 
   # Extract values
@@ -232,12 +271,12 @@ save.kurs.click = function(kurs = app$kurs, formValues,..., app=getApp(), glob=a
 
   kumov = unlist(formValues$kurseditModul)
 
-  nkumo = if (NROW(kumov)>0) fast_df(kursid=kursid, semester=semester, modulid=kumov)
+  nkumo = if (NROW(kumov)>0) fast_df(kursid=nku$kursid, semester=semester, modulid=kumov)
 
 
   kupev = extract.tableform.formValues(formValues, form=glob$forms$kursperson)
 
-  nkupe = if(NROW(kupev)>0) kupev %>% mutate(semester=semester, kursid=kursid)
+  nkupe = if(NROW(kupev)>0) kupev %>% mutate(semester=semester, kursid=nku$kursid)
 
   # set vorname and nachname automatic
   # for persons with personid
@@ -261,10 +300,10 @@ save.kurs.click = function(kurs = app$kurs, formValues,..., app=getApp(), glob=a
       return()
     }
   } else {
-    diff.log = paste0("Neuer Kurs im ", semester_name(nku$semester), " erstellt: ", nku$kursname, " (", nku$kursid,")")
+    diff.log = paste0("Neuer Kurs im ", semester_name(nku$semester), " erstellt:\n  -", nku$kursname, " (", nku$kursid,")")
   }
 
-  update.db.kurs(nku, nkupe, nkumo, modify_time=modify_time, log=diff.log)
+  update.db.kurs(nku, nkupe, nkumo,modify_user = app$userid, modify_time=modify_time, log=diff.log)
 
   app$kurs = as_data_frame(nku)
   app$new.kurs = FALSE

@@ -2,7 +2,7 @@ examples.stuko.app = function() {
   restore.point.options(display.restore.point=TRUE)
   stuko.dir = "D:/libraries/stuko/ulm"
   setwd(stuko.dir)
-  app = stukoApp(stuko.dir, sem=170)
+  app = stukoApp(stuko.dir, sem=180, init.userid = "sebastian.kranz@uni-ulm.de",need.password = FALSE,need.userid = FALSE)
   #viewApp(app)
 
   viewApp(app,launch.browser = TRUE)
@@ -24,8 +24,13 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
 
   glob$yaml.dir = system.file("yaml", package = "stuko")
   glob$sets = rmdtools::read.yaml(file.path(glob$yaml.dir,"sets.yaml"))
+  glob$strings = rmdtools::read.yaml(file.path(glob$yaml.dir,"strings.yaml"))
+
 
   glob$person = dbGet(glob$db,"person")
+  glob$person$kurzname = paste0(glob$person$nachname, ", ", substring(glob$person$vorname,1,1),".")
+  glob$vertreter = dbGet(glob$db,"vertreter")
+
   person = glob$person$personid
   names(person) = paste0(glob$person$nachname,", ",toupper(substring(glob$person$vorname,1,1)),".")
   person = c("", person)
@@ -70,13 +75,12 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
     tags$head(tags$style(form.table.default.css())),
     tags$style(HTML(
       ".vector-input-container, .vector-input-container .form-control {margin-bottom: 0px;}")),
-    p("StuKo-App"),
     uiOutput("mainUI")
   )
 
-  lomo = loginModule(container.id = "mainUI", init.userid = "test@uni-ulm.de",need.password = FALSE,need.userid = FALSE, login.fun = stuko.login.fun)
+  lomo = loginModule(container.id = "mainUI", ..., login.fun = stuko.login.fun)
 
-  appInitHandler(function(...) {
+  appInitHandler(function(..., app=getApp()) {
     restore.point("stukoLoginDispatch")
     initLoginDispatch(lomo)
   })
@@ -86,18 +90,49 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
 
 stuko.login.fun = function(userid,..., app=getApp()) {
   restore.point("stuko.login.fun")
+
+  setApp(app)
+  glob = app$glob
+
+
+  if (!userid %in% c(glob$vertreter$email, glob$person$email)) {
+    msg = paste0("Der Nutzer ", userid, " ist nicht in der Liste der Zugangsberechtigten eingetragen.")
+    setUI("mainUI", HTML(msg))
+    setAppIsAuthenticated(FALSE)
+    return()
+  }
   app$userid = userid
+
+  app$all.bossid = c(
+    filter(glob$vertreter,email==app$userid)$bossid,
+    filter(glob$person,email==app$userid)$personid
+  )
+  # Alle Koordinatoren die der Nutzer vertritt
+  app$all.koord = filter(glob$person, personid %in% app$all.bossid, koordinator)
+
+  app$admin = any(
+    filter(glob$vertreter,email==app$userid)$admin,
+    filter(glob$person,email==app$userid)$admin
+  )
+
+  app$stuko = any(filter(glob$person, personid %in% app$all.bossid)$stuko)
+
+
   ui = stuko.ui()
   setUI("mainUI",ui)
   update.stuko.ui()
 
 }
 
-stuko.ui = function(..., app=getApp(), glob=app$glob) {
+stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
   restore.point("stuko.ui")
 
   ui = tagList(
-    selectInput("semInput","Semester",choices = glob$sets$semester, selected=app$sem),
+    fluidRow(
+      column(width = 4,p("WiWi Ulm Kursverwaltung")),
+      column(width = 5,tagList(HTML("Semester: "),simpleSelect("semInput","",choices = glob$sets$semester, selected=app$sem))),
+      column(width = 3,p(paste0("Nutzer: ", userid)))
+    ),
     uiOutput("stukoAlert"),
     tabsetPanel(
       tabPanel("Kurse", kurse.ui()),
@@ -112,10 +147,12 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
         helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Vergütung.")
         #simpleButton("repKoordBtn","Vorlesungen nach Koordinatoren sortiert.")
       ),
-      tabPanel("Admin",
-        uiOutput("snapshotInfoUI"),
-        simpleButton("makeSnapshotBtn", "Sicherheitskopie der Datenbank erstellen")
-      ),
+      if (app$admin & app$stuko) {
+        tabPanel("Admin",
+          uiOutput("snapshotInfoUI"),
+          simpleButton("makeSnapshotBtn", "Sicherheitskopie der Datenbank erstellen")
+        )
+      },
       tabPanel("Log",
         simpleButton("refreshLogBtn","",icon = icon("refresh")),
         #dataTableOutput("logTable")
@@ -124,7 +161,7 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
     )
   )
   selectChangeHandler("semInput", function(value,...) {
-    app$sem = value
+    app$sem = as.integer(value)
     update.kurse.ui()
     update.module.ui()
   })
@@ -140,7 +177,7 @@ stuko.ui = function(..., app=getApp(), glob=app$glob) {
       restore.point("jsfhshfzgfzzfhvn")
       app=getApp()
       withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
-        lehrangebot.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file)
+        lehrangebot.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file, strings=glob$strings)
       )
     }
   )

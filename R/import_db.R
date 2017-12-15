@@ -1,10 +1,17 @@
 examples.import.db = function() {
   setwd("D:/libraries/stuko/")
+
+
   create.stukodb()
-  db = dbConnect(RSQLite::SQLite(),"stukodb.sqlite")
+  db = get.stukodb()
   fill.stukodb.from.csv(db=db)
-  copy.modules.to.semester(175, 160)
-  copy.modules.to.semester(175, 170)
+  #copy.modules.to.semester(175, 160)
+  #copy.modules.to.semester(175, 170)
+
+  #setwd("D:/libraries/stuko/ulm/db")
+  #db = get.stukodb()
+  #person = dbGet(db,"person")
+  #write_csv(person,"D:/libraries/stuko/person_db.csv")
 }
 
 get.stukodb = function(db.dir=getwd(), db.name="stukodb.sqlite", app=getApp(), schemas=stukodb.schemas()) {

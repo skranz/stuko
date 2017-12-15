@@ -6,7 +6,7 @@ examples.lehrangebot.report = function() {
 
 }
 
-lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), out.dir = getwd(), out.file = paste0(out.dir,"/lehrangebot_", semester,".docx")) {
+lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), out.dir = getwd(), out.file = paste0(out.dir,"/lehrangebot_", semester,".docx"), strings=list("Uebung"="Uebung")) {
   restore.point("lehrangebot.report")
 
   sem_label = semester_name(semester, kurz=FALSE)
@@ -14,7 +14,7 @@ lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
 
   kurse = load.kurse.for.lehrangebot(semester=semester, db=db)
 
-  kurse = filter(kurse, aktiv=TRUE)
+  kurse = filter(kurse, aktiv==TRUE)
 
   tpl.file = file.path(tpl.dir,"lehrangebot_tpl.docx")
 
@@ -29,7 +29,7 @@ lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
 
   add.ft = function(key, dat, show.sp=FALSE) {
     if (NROW(dat)==0) return(doc)
-    ft = kurse.lehrangebot.word.table(dat, show.sp)
+    ft = kurse.lehrangebot.word.table(dat, show.sp, strings=strings)
     doc %>%
       cursor_bookmark(key) %>%
       body_add_flextable(ft,align="left", pos = "on")
@@ -83,9 +83,9 @@ cursor_bookmark_or_stay = function(x,id) {
   res
 }
 
-kurse.lehrangebot.word.table = function(dat, show.sp=FALSE) {
+kurse.lehrangebot.word.table = function(dat, show.sp=FALSE, strings) {
   restore.point("kurse.lehrangebot.word.table")
-  df = adapt.kurse.for.lehrangebot(dat, show.sp=show.sp)
+  df = adapt.kurse.for.lehrangebot(dat, show.sp=show.sp, strings=strings)
 
   ft <- regulartable(data = df) %>% autofit() %>%
     bold(part = "header") %>% bold(j=3) %>%
@@ -109,14 +109,14 @@ kurse.lehrangebot.word.table = function(dat, show.sp=FALSE) {
 }
 
 
-adapt.kurse.for.lehrangebot = function(df, show.sp=FALSE) {
+adapt.kurse.for.lehrangebot = function(df, show.sp=FALSE, strings) {
   li = lapply(1:NROW(df), function(row) {
-    res = adapt.kurs.for.lehrangebot(df[row,], show.sp=show.sp)
+    res = adapt.kurs.for.lehrangebot(df[row,], show.sp=show.sp,strings)
   })
   bind_rows(li)
 }
 
-adapt.kurs.for.lehrangebot = function(kurs, show.sp=FALSE) {
+adapt.kurs.for.lehrangebot = function(kurs, show.sp=FALSE, strings) {
   restore.point("adapt.kurs.for.lehrangebot")
   kurs$Vorlesung = kurs$kursname
 
@@ -125,7 +125,7 @@ adapt.kurs.for.lehrangebot = function(kurs, show.sp=FALSE) {
   if (has_u) {
     if (is.na(kurs$ul) | is.true(kurs$ul==""))
       kurs$ul = "NN"
-    res_u = transmute(kurs, Vorlesung="  - Uebung", SWS=sws_uebung, Dozent=ul, Schwerpunkt="")
+    res_u = transmute(kurs, Vorlesung=paste0("  - ", strings$Uebung), SWS=sws_uebung, Dozent=ul, Schwerpunkt="")
     res = rbind(res,res_u)
   }
 
@@ -155,7 +155,7 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplica
   wp.ids = kuzu$kursid[str.starts.with(kuzu$zuordnung, "WP")]
   ba.ids = kust$kursid[kust$studiengang=="WiWi_BA"]
   ma.ids = kust$kursid[kust$studiengang=="WiWi_MA"]
-  nuf.ids = kust$kursid[kust$studiengang=="WiWi_NUF"]
+  nuf.ids = kust$kursid[kust$studiengang=="NUF_MA"]
   nuf.pflicht.ids = kuzu$kursid[str.starts.with(kuzu$zuordnung, "NUF Pflicht")]
 
   kurse$ba = kurse$kursid %in% ba.ids

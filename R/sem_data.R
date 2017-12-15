@@ -21,6 +21,7 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
 
   # Init modul table with detailed information
 
+
   # Add Studiengang
   module = mo %>%
     left_join(most, by=c("modulid","semester")) %>%
@@ -75,9 +76,9 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
     dplyr::distinct(kursid, semester, .keep_all=TRUE)
 
   kurse = kurse %>%
-    left_join(select(kuko, kursid,semester,name), by=c("kursid","semester")) %>%
+    left_join(select(kuko, kursid,semester,name,koid=personid), by=c("kursid","semester")) %>%
     group_by(kursid, semester) %>%
-    mutate(koordinator = paste0(sort(unique(name)), collapse=", ")) %>%
+    mutate(koordinator = paste0(sort(unique(name)), collapse=", "), koid = paste0(sort(unique(koid)), collapse=", ")) %>%
     select(-name) %>%
     dplyr::distinct(kursid, semester, .keep_all=TRUE)
 
@@ -148,6 +149,7 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob) 
 
 change.df.na = function(df, char.value="", num.value=NA, logical.value=NA, else.value = "") {
   restore.point("change.df.na")
+  if (NROW(df)==0) return(df)
 
   li = lapply(df, function(vals) {
     na.rows = is.na(vals)

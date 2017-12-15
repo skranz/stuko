@@ -188,11 +188,12 @@ person:
 
 # Vertreter der Jobs anstelle des Boss
 # erledigen kann.
-# vertrerid und bossid sind beides personid
+# bossid ist eine personid
 vertreter:
   table:
-    vertreterid: VARCHAR(100)
     bossid: VARCHAR(100)
+    email: VARCHAR(100)
+    admin: BOOLEAN
   indexes:
-    - "CREATE UNIQUE INDEX vertreter1 on vertreter (vertreterid, bossid)"
+    - "CREATE UNIQUE INDEX vertreter1 on vertreter (bossid, email)"
 

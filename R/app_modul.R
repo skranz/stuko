@@ -19,6 +19,10 @@ update.module.ui = function(app=getApp(), glob=app$glob,...) {
 
 
   df = make.module.datatable.df(sd)
+  if (is.null(df)) {
+    shinyEvents::setDataTable("moduleTable", NULL)
+    return()
+  }
 
   dt = datatable(df,selection = 'none',escape=-1,rownames = FALSE, filter=list(position="top", clear=FALSE, plain=TRUE),
     class="display compact",
@@ -50,6 +54,9 @@ update.module.ui = function(app=getApp(), glob=app$glob,...) {
 
 make.module.datatable.df = function(sd, app=getApp(), glob=app$glob) {
   restore.point("make.module.table.df")
+
+  if (NROW(sd$module)==0) return(NULL)
+
 
   ids = sd$module$modulid
   btns= paste0(
@@ -122,7 +129,7 @@ delete.module.click = function(formValues, ..., app=getApp()) {
   buttonHandler("cancelModulDelBtn",function(...) removeModal())
   buttonHandler("confirmModulDelBtn", function(...) {
     restore.point("kjslfdhfk")
-    logtext= paste0("Entferne aus ", semester_name(modul$semester), " die Module:\n", paste0("  -",module$titel, collapse="\n"))
+    logtext= paste0("Entferne aus ", semester_name(semester), " die Module:\n", paste0("  -",module$titel, collapse="\n"))
 
     db = app$glob$db
     dbWithTransaction(db,{
@@ -166,7 +173,6 @@ save.modul.click = function(modul = app$modul, formValues,..., sd = get.sem.data
   restore.point("save.modul.click")
   cat("\nsave.modul.click")
 
-  modulid = modul$modulid
   semester = modul$semester
 
   # Extract values
@@ -194,13 +200,13 @@ save.modul.click = function(modul = app$modul, formValues,..., sd = get.sem.data
 
 
   nmost = if (NROW(mov$studiengang)>0)
-    fast_df(modulid=modulid,semester=semester, studiengang=unlist(mov$studiengang))
+    fast_df(modulid=nmo$modulid,semester=semester, studiengang=unlist(mov$studiengang))
 
   nmosp = if (NROW(mov$schwerpunkt)>0)
-    fast_df(modulid=modulid,semester=semester, schwerpunkt=unlist(mov$schwerpunkt))
+    fast_df(modulid=nmo$modulid,semester=semester, schwerpunkt=unlist(mov$schwerpunkt))
 
   nmozu = if (NROW(mov$zuordnung)>0)
-    fast_df(modulid=modulid,semester=semester, zuordnung=unlist(mov$zuordnung))
+    fast_df(modulid=nmo$modulid,semester=semester, zuordnung=unlist(mov$zuordnung))
 
 
   omo = filter(sd$mo,semester==modul$semester, modulid==modul$modulid)
