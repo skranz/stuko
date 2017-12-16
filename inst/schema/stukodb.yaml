@@ -143,6 +143,7 @@ kurs:
     # Gleicher realer Kurs der aber hier
     # zwei verschiedene Eintraege hat
     codeshare: CHARACTER(20)
+    kommentar: TEXT
   indexes:
     - "CREATE INDEX kurs1 on kurs (semester, kursid)"
 

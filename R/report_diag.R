@@ -52,18 +52,27 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
 
   doc = add.lad.table(doc,dat, cols=c("Kurs","Uebungsleiter"))
 
-  doc = doc %>% body_add_par("Nichtaktivierte Kurse", style = "heading 1")
-  dat = na_ku
-  doc = add.lad.comments(doc, dat=dat, "Diese Kurse erscheinen in keiner anderen Statistik hier. Nur aktive Kurse zaehlen..")
-
-  doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent"))
-
 
   doc = doc %>% body_add_par("Kurse mit Uebungen mit 0 SWS Uebung", style = "heading 1")
   dat = filter(ku,kursform=="vu", sws_uebung==0)
   doc = add.lad.comments(doc, dat=dat, "Hier wurde noch keine SWS Aufteilung zwischen Kurs und Uebung angegeben")
 
   doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent","SWS"))
+
+
+  doc = doc %>% body_add_par("Nichtaktivierte Kurse", style = "heading 1")
+  dat = na_ku
+  doc = add.lad.comments(doc, dat=dat, "Beachten Sie, dass die vorherigen Statistiken nur aktivierte Kurse beruecksichtigt haben.")
+
+  doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent"))
+
+
+  doc = doc %>% body_add_par("Kurse mit Kommentaren für dieses Semester", style = "heading 1")
+  ku$kommentar[is.na(ku$kommentar)] = ""
+  dat = filter(ku, nchar(str.trim(kommentar))>0)
+  doc = add.lad.comments(doc, dat=dat, "")
+
+  doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent","kommentar"))
 
 
   # Statistiken

@@ -52,3 +52,8 @@ fields:
     lang_de:
       label: 'Plan: übernächster Termin'
       choice_set: semester
+  kommentar:
+    input: textarea
+    lang_de:
+      label: 'Kommentar zum Kurs dieses Semester'
+

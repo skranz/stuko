@@ -13,6 +13,7 @@ lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
   date_label = lang_datum(Sys.Date())
 
   kurse = load.kurse.for.lehrangebot(semester=semester, db=db)
+  if (is.null(kurse)) return(NULL)
 
   kurse = filter(kurse, aktiv==TRUE)
 
@@ -141,6 +142,8 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplica
 
   kurse = dbGet(db,"kurs",params = list(semester=semester), schemas=stukodb.schemas())
 
+  #if(NROW(kurse)==0) return(NULL)
+
   kupe = dbGet(db,"kursperson",params = list(semester=semester), schemas=stukodb.schemas())
 
   kumo = dbGet(db,"kursmodul", params=list(semester=semester))
@@ -184,30 +187,39 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplica
     summarize(sp = paste0(unique(substring(schwerpunkt,4)), collapse=", ")) %>%
     select(kursid, sp)
 
-  # Schwerpunkte von Kursen fuer Master und Bachelor
-  kusp2 = kusp %>%
-    filter(bama_wp) %>%
-    group_by(kursid,sp_bama) %>%
-    summarize(sp = paste0(unique(substring(schwerpunkt,4)), collapse=", ")) %>%
-    ungroup() %>%
-    tidyr::spread(key=sp_bama, value=sp) %>%
-    mutate(sp = paste0("BA:", BA,"\nMA:",MA)) %>%
-    select(kursid, sp)
+  if (NROW(kusp)>0) {
+    # Schwerpunkte von Kursen fuer Master und Bachelor
+    kusp2 = kusp %>%
+      filter(bama_wp) %>%
+      group_by(kursid,sp_bama) %>%
+      summarize(sp = paste0(unique(substring(schwerpunkt,4)), collapse=", ")) %>%
+      ungroup() %>%
+      tidyr::spread(key=sp_bama, value=sp) %>%
+      mutate(sp = paste0("BA:", BA,"\nMA:",MA)) %>%
+      select(kursid, sp)
+  } else {
+    kusp2 = NULL
+  }
 
   kusp_sum = rbind(kusp1, kusp2)
 
   kurse = left_join(kurse, kusp_sum, by="kursid")
 
-  # Dozenten
-  kudo = kupe %>%
-    filter(rolle %in% c("do","dk","ul")) %>%
-    mutate(rolle = ifelse(rolle=="ul", "ul", "do")) %>%
-    group_by(kursid, rolle) %>%
-    summarize(dozent = paste0(unique(paste0(substring(vorname,1,1), ". ", nachname)), collapse=", ")) %>%
-    ungroup() %>%
-    tidyr::spread(key=rolle, value=dozent) %>%
-    rename(dozent=do)
-
+  if (NROW(kupe)>0) {
+    # Dozenten
+    kudo = kupe %>%
+      filter(rolle %in% c("do","dk","ul")) %>%
+      mutate(rolle = ifelse(rolle=="ul", "ul", "do")) %>%
+      group_by(kursid, rolle) %>%
+      summarize(dozent = paste0(unique(paste0(substring(vorname,1,1), ". ", nachname)), collapse=", ")) %>%
+      ungroup() %>%
+      tidyr::spread(key=rolle, value=dozent)
+    if (!has.col(kudo,"do")) kudo$do = ""
+    if (!has.col(kudo,"ul")) kudo$ul = ""
+  } else {
+    kudo = data_frame(kursid=character(0),do = character(0), ul=character(0))
+  }
+  kudo = select(kudo, kursid=kursid, dozent=do, ul=ul)
   kurse = left_join(kurse, kudo, by="kursid")
 
   kumo.ids = unique(kumo$kursid)
@@ -225,7 +237,7 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplica
   }
   kurse = kurse[!duplicated(kurse),]
 
-  kuzu
+  #kuzu
 
   kurse
 }

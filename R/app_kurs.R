@@ -123,6 +123,8 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
       fieldInput(name=name,form=form, value = kurs[[name]], lang="de",sets = glob$sets)
   })
 
+
+
   kp = filter(sd$kupe,kursid==kurs$kursid)
   kp.ui = tableform.ui(form=glob$forms$kursperson, data=select(kp,-semester, -kursid, -name))
 
@@ -139,6 +141,7 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
 
   form.sel = paste0(c(paste0("#kurseditModul"),paste0("#kurs_",names(form$fields)),".tableform-kursperson-input"), collapse=", ")
 
+  nw = length(widgets)
   ui = tagList(
     h3("Kurs bearbeiten"),
     fluidRow(column(width = 12, widgets[1])),
@@ -148,7 +151,8 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
     kp.ui,
     simpleButton("addKurspersonBtn","Neuer Mitarbeiter."),
     helpText("Wenn kein Koordinator eingetragen wird, verwaltet der Studiendekan den Kurs direkt. Die Spalte SWS ist nur fuer Lehrbeauftragte relevant."),
-    layout.widgets.as.fluid.grid(widgets[-1], 3),
+    layout.widgets.as.fluid.grid(widgets[c(-1,-nw)], 3),
+    fluidRow(column(width = 12, widgets[nw])),
     uiOutput("saveKursAlert"),
     simpleButton("saveKursBtn","Speichern",form.sel = form.sel)
   )
