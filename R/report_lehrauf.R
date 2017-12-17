@@ -23,7 +23,7 @@ lehrauftrag.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
     Lehrbeauftragter = paste0(nachname, ", ", vorname),
     Kurs =kursname,
     Koordinator = koordinator,
-    'Vergütung' = to.label(lehrauftrag,sets$lehrauftrag),
+    'Kompensation' = to.label(lehrauftrag,sets$lehrauftrag),
     'SWS' = dozent_sws
   )
 

@@ -138,13 +138,13 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
       tabPanel("Kurse", kurse.ui()),
       tabPanel("Module", module.ui()),
       tabPanel("Reports",
-        helpText("Drücken Sie auf den entsprechenden Knopf um den Report zu erzeugen und als Word-Dateien herunterzuladen."),
+        helpText("Druecken Sie auf den entsprechenden Knopf um den Report zu erzeugen und als Word-Dateien herunterzuladen."),
         downloadButton("repLPBtn", "Lehrangebot"),
-        helpText("Eine formale Darstellung des Lehrprogramms, wie es in der StuKo und Fakultätsrat beschlossen wird."),
+        helpText("Eine formale Darstellung des Lehrprogramms, wie es in der StuKo und Fakultaetsrat beschlossen wird."),
         downloadButton("repDiagBtn", "Diagnostik des Lehrangebots"),
         helpText("Eine Diagnostik des Lehrprogramms. Vor allem gedacht um noch offene Baustellen in den Daten zu entdecken bevor das Lehrprogramm offiziell beschlossen wird."),
         downloadButton("repLBBtn","Lehrbeauftragte"),
-        helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Vergütung.")
+        helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Verguetung.")
         #simpleButton("repKoordBtn","Vorlesungen nach Koordinatoren sortiert.")
       ),
       if (app$admin & app$stuko) {
