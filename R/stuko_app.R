@@ -154,7 +154,7 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
         )
       },
       tabPanel("Log",
-        simpleButton("refreshLogBtn","",icon = icon("refresh")),
+        actionButton("refreshLogBtn","",icon = icon("refresh")),
         #dataTableOutput("logTable")
         uiOutput("logUI")
       )
