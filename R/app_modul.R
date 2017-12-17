@@ -1,9 +1,9 @@
 module.ui = function(..., app=getApp(), glob=app$glob) {
   ui= tagList(
     dataTableOutput("moduleTable"),
-    simpleButton("refreshModuleBtn","",icon = icon("refresh")),
+    actionButton("refreshModuleBtn","",icon = icon("refresh")),
     simpleButton("addModulBtn","Neues Modul anlegen"),
-    simpleButton("delModuleBtn","Markierte Module löschen",form.sel = ".modulCheck"),
+    simpleButton("delModuleBtn","Markierte Module entfernen",form.sel = ".modulCheck"),
     uiOutput("editModulUI")
   )
 

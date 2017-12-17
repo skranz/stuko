@@ -17,10 +17,10 @@ kurse.ui = function(..., app=getApp(), glob=app$glob) {
     div(id="kurseTableDiv",
       dataTableOutput("kurseTable")
     ),
-    simpleButton("refreshKurseBtn","",icon = icon("refresh")),
+    actionButton("refreshKurseBtn","",icon = icon("refresh")),
     simpleButton("addKursBtn","Neuen Kurs anlegen"),
     simpleButton("deactivateKurseBtn","Markierte Kurse (de-)aktivieren",form.sel = ".kursCheck"),
-    simpleButton("delKurseBtn","Markierte Kurse löschen",form.sel = ".kursCheck"),
+    simpleButton("delKurseBtn","Markierte Kurse entfernen",form.sel = ".kursCheck"),
     uiOutput("editKursUI"),
     br(),
     slimCollapsePanel("Hintergrundinformationen",HTML(glob$info$kurse))
