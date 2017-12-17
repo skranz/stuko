@@ -243,3 +243,84 @@ scrap.module.info = function(str, line.dist=2) {
   li = c(nlist(Titel, Zuordnung), li)
   li
 }
+
+make.seminar.kurse = function(semester) {
+  setwd("D:/libraries/stuko")
+
+  db = get.stukodb()
+
+  semester = 180
+  mod = read_csv("modules_with_extern.csv", col_types=cols(code=col_character()))
+  mod = filter(mod, zuordnung=="Seminare")
+
+  mo = read_csv("modul_db.csv")
+  pe = read_csv("person_db.csv")
+
+  ku = NULL
+  kupe = NULL
+  kumo = NULL
+  modify_time = Sys.time()
+  modify_user = "auto"
+  row = 1
+  for (row in seq_len(NROW(mod))) {
+    m = mod[row,]
+    this.code = ifelse(nchar(m$code)>5,substring(m$code, 6), m$code)
+
+
+    k = list(
+      kursid = paste0("sem_", this.code),
+      semester = semester,
+      modify_time = modify_time,
+      modify_user = modify_user,
+      aktiv = FALSE,
+      vnum = "",
+      kursname = m$titel,
+      sws_kurs = 2,
+      sws_uebung = 0,
+      kursform = "se",
+      zeitform = "b",
+      sprache = cld2::detect_language(m$titel),
+      turnus = 2,
+      zukunft_sem = semester + 10,
+      zukunft_sem2 = semester + 20,
+      codeshare = "",
+      kommentar = ""
+    )
+    ku = rbind(ku, as_data_frame(k))
+
+    pe.ind = pe$nachname %in% m$modulkoordinator
+    if (sum(pe.ind)>0) {
+      pe.ind = which(pe.ind)[1]
+      pers = pe[pe.ind]
+      kp = list(
+        kursid = k$kursid,
+        semester = semester,
+        person = pers$personid,
+        nachname = pers$nachname,
+        vorname = pers$vorname,
+        rolle = "dk",
+        lehrauftrag = "-",
+        dozent_sws = 0
+      )
+      kupe = rbind(kupe, as_data_frame(kp))
+    }
+
+    this.mo = filter(mo, code == this.code)
+    km = list(
+      kursid = k$kursid,
+      semester = semester,
+      modulid = this.mo$modulid[[1]]
+    )
+
+    kumo = rbind(kumo, as_data_frame(km))
+  }
+  ku$sprache[is.na(ku$sprache)] = "-"
+
+  DBI::dbWithTransaction(db,{
+    dbInsert(db, "kurs",ku)
+    dbInsert(db, "kursperson",kupe)
+    dbInsert(db, "kursmodul",kumo)
+
+  })
+
+}
