@@ -37,13 +37,14 @@ semester_name = function(semester, kurz=TRUE) {
     sem = "SoSe"
   } else if (kurz) {
     sem = "WiSe"
-    jahr = paste0(jahr, as.integer(jahr+1))
+    jahr = paste0(jahr, "/", as.integer(jahr)+1)
+    return(paste0(sem,jahr))
   } else if (!kurz & sose) {
     sem = "Sommersemester"
     jahr = paste0("20",jahr)
   } else {
     sem = "Wintersemester"
-    jahr = paste0("20",jahr,"/",as.integer(jahr+1))
+    jahr = paste0("20",jahr,"/",as.integer(jahr)+1)
   }
   paste0(sem," ", jahr)
 
