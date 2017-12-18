@@ -20,6 +20,7 @@ kurse.ui = function(..., app=getApp(), glob=app$glob) {
     actionButton("refreshKurseBtn","",icon = icon("refresh")),
     simpleButton("addKursBtn","Neuen Kurs anlegen"),
     simpleButton("deactivateKurseBtn","Markierte Kurse (de-)aktivieren",form.sel = ".kursCheck"),
+    simpleButton("copyKurseBtn","Markierte Kurse in anderes Semester kopieren"),
     simpleButton("delKurseBtn","Markierte Kurse entfernen",form.sel = ".kursCheck"),
     uiOutput("editKursUI"),
     br(),
@@ -29,6 +30,10 @@ kurse.ui = function(..., app=getApp(), glob=app$glob) {
   buttonHandler("addKursBtn",new.kurs.click)
   buttonHandler("deactivateKurseBtn",deactivate.kurse.click)
   buttonHandler("delKurseBtn",delete.kurse.click)
+  buttonHandler("copyKurseBtn", function(...) {
+    showModal(copy.kurse.ui())
+  })
+
 
   selectChangeHandler("kfilter", function(value,...) {
     app$kfilter = value
@@ -435,4 +440,110 @@ is.valid.id = function(id) {
   nid = make.names(gsub(".","_",id, fixed=TRUE))
   id == nid
 }
+
+
+
+copy.kurse.ui = function(tosem = first.non.null(app$tosem, app$sem+10),..., app=getApp(), glob=app$glob) {
+  restore.point("copy.kurse.ui")
+
+  ui = modalDialog(size = "l", footer=NULL,
+    tagList(
+      if (app$stuko & app$admin)
+        p("Hinweis: Um als StuKo-Administrator alle Turnusgemaessen Kurse in ein neues Semester zu kopieren, nutzen Sie die entsprechende Option im Reiter 'Admin'"),
+
+      selectInput("tosemCK","Kurse und zugehoerige Module im folgendes Semester kopieren", choices = glob$sets$semester, selected=tosem),
+      checkboxInput("tosemOverwriteCK",label="Bereits im neuen Semester angelegte Kurse und Module ueberschreiben"),
+      hr(),
+      simpleButton("tosemOkCKBtn", "Markierte Kurse und Module kopieren",form.sel = ".kursCheck, #tosemCK, #tosemOverwriteCK"), simpleButton("cancelModalBtn","Abbruch")
+    )
+  )
+
+  buttonHandler("cancelModalBtn",function(...) removeModal())
+  buttonHandler("tosemOkCKBtn",function(formValues,...) {
+    restore.point("tosemOkCKBtn")
+    tosem = as.integer(formValues$tosemCK)
+    overwrite = as.logical(formValues$tosemOverwriteCK)
+
+    kursids = get.selected.kursid(formValues)
+    cat("Copy kurses to", tosem,"...")
+    copy.selected.kurse(tosem=tosem,overwrite = overwrite, kursids=kursids)
+    removeModal()
+  })
+  ui
+}
+
+
+copy.selected.kurse = function(kursids, tosem, overwrite=FALSE, ...,fromsem = getApp()$sem, db=get.stukodb()) {
+  restore.point("copy.selected.kurse")
+
+  sd = get.sem.data(fromsem)
+
+  ku = filter(sd$kurs, kursid %in% kursids)
+
+  tosd = get.sem.data(tosem)
+
+  if (!overwrite) {
+    ku = filter(ku, ! kursid %in% tosd$kurs$kursid)
+  }
+  if (NROW(ku)==0) return(NULL)
+
+  ku = arrange(ku, desc(aktiv))
+  dupl = duplicated(ku$kursid)
+  ku = ku[!dupl, ]
+
+  kumo = filter(sd$kumo, kursid %in% ku$kursid)
+  kupe = filter(sd$kupe, kursid %in% ku$kursid)
+  mo   = filter(sd$mo, modulid %in% kumo$modulid)
+  most = filter(sd$most, modulid %in% kumo$modulid)
+  mosp = filter(sd$mosp, modulid %in% kumo$modulid)
+  mozu = filter(sd$mozu, modulid %in% kumo$modulid)
+
+
+  log = paste0("Kopiere ausgewählte Kurse und Module von ", semester_name(fromsem), " nach ", semester_name(tosem),"\n\n",
+    NROW(ku), " Kurse:\n",
+    paste0("  - ", ku$kursname, collapse="\n"),
+    "\n\n", NROW(mo), " Module:\n",
+    paste0("  - ", mo$titel, collapse="\n")
+  )
+
+  if (NROW(ku)>0)   ku$semester   = tosem
+  if (NROW(kumo)>0) kumo$semester = tosem
+  if (NROW(kupe)>0) kupe$semester = tosem
+  if (NROW(mo)>0)   mo$semester   = tosem
+  if (NROW(most)>0) most$semester = tosem
+  if (NROW(mosp)>0) mosp$semester = tosem
+  if (NROW(mozu)>0) mozu$semester = tosem
+
+  ku$zukunft_sem = tosem + 5*ku$turnus
+  ku$zukunft_sem2 = tosem + 5*(ku$turnus*2)
+
+
+  dbWithTransaction(db, {
+    if (overwrite) {
+      for (kursid in ku$kursid) {
+        dbDelete(db,"kurs", list(semester=tosem, kursid=kursid))
+        dbDelete(db,"kursperson", list(semester=tosem, kursid=kursid))
+        dbDelete(db,"kursmodul", list(semester=tosem, kursid=kursid))
+      }
+      for (kursid in ku$kursid) {
+        dbDelete(db,"modul", list(semester=tosem, modulid=modulid))
+        dbDelete(db,"modulzuordnung", list(semester=tosem, modulid=modulid))
+        dbDelete(db,"modulschwerpunkt", list(semester=tosem, modulid=modulid))
+        dbDelete(db,"modulstudiengang", list(semester=tosem, modulid=modulid))
+      }
+    }
+    dbInsert(db,"kurs",ku)
+    dbInsert(db,"kursperson",kupe)
+    dbInsert(db,"kursmodul",kumo)
+    dbInsert(db,"modul",mo)
+    dbInsert(db,"modulzuordnung",mozu)
+    dbInsert(db,"modulschwerpunkt",mosp)
+    dbInsert(db,"modulstudiengang",most)
+
+    write.stuko.log(log,"kopiere")
+
+  })
+  sd = get.sem.data(tosem, update = TRUE)
+}
+
 

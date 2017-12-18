@@ -29,6 +29,10 @@ copy.kurse.to.semester = function(db = get.stukodb(),source.sem, dest.sem, overw
     kupe = filter(kupe, !kursid %in% eids)
   }
   ku$semester = dest.sem
+
+  ku$zukunft_sem = dest.sem + 5*ku$turnus
+  ku$zukunft_sem2 = dest.sem + 5*(2*ku$turnus)
+
   kupe$semester = dest.sem
   kumo$semester = dest.sem
 
@@ -41,10 +45,26 @@ copy.kurse.to.semester = function(db = get.stukodb(),source.sem, dest.sem, overw
 
 }
 
+examples.delete.kurse.module = function() {
+  setwd("D:/libraries/stuko/ulm")
+  db = get.stukodb("D:/libraries/stuko/ulm/db")
+  delete.semester.kurse(db, 190)
+  delete.semester.module(db, 190)
+}
+
 delete.semester.kurse = function(db=get.stukodb(), semester) {
   dbWithTransaction(db,{
     dbDelete(db,"kurs", list(semester=semester))
     dbDelete(db,"kursperson", list(semester=semester))
     dbDelete(db,"kursmodul", list(semester=semester))
+  })
+}
+
+delete.semester.module = function(db=get.stukodb(), semester) {
+  dbWithTransaction(db,{
+    dbDelete(db,"modul", list(semester=semester))
+    dbDelete(db,"modulschwerpunkt", list(semester=semester))
+    dbDelete(db,"modulstudiengang", list(semester=semester))
+    dbDelete(db,"modulzuordnung", list(semester=semester))
   })
 }
