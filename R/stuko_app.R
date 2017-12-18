@@ -27,8 +27,10 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
   glob$strings = rmdtools::read.yaml(file.path(glob$yaml.dir,"strings.yaml"))
 
 
-  glob$person = dbGet(glob$db,"person")
-  glob$person$kurzname = paste0(glob$person$nachname, ", ", substring(glob$person$vorname,1,1),".")
+  person = dbGet(glob$db,"person")
+  person$vorname[is.na(person$vorname)] = ""
+  person$kurzname = paste0(person$nachname, ifelse(nchar(person$vorname)>0, paste0(", ", substring(person$vorname,1,1),"."), ""))
+  glob$person = person
   glob$vertreter = dbGet(glob$db,"vertreter")
 
   person = glob$person$personid
@@ -113,6 +115,10 @@ stuko.login.fun = function(userid,..., app=getApp()) {
     filter(glob$person,email==app$userid)$admin
   )
 
+  app$admin.for = c(
+    filter(glob$vertreter,email==app$userid, admin)$bossid,
+    filter(glob$person,email==app$userid)$personid
+  )
   app$stuko = any(filter(glob$person, personid %in% app$all.bossid)$stuko)
 
 
@@ -135,22 +141,15 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
     tabsetPanel(
       tabPanel("Kurse", kurse.ui()),
       tabPanel("Module", module.ui()),
-      tabPanel("Reports",
-        helpText("Druecken Sie auf den entsprechenden Knopf um den Report zu erzeugen und als Word-Dateien herunterzuladen."),
-        downloadButton("repLPBtn", "Lehrangebot"),
-        helpText("Eine formale Darstellung des Lehrprogramms, wie es in der StuKo und Fakultaetsrat beschlossen wird."),
-        downloadButton("repDiagBtn", "Diagnostik des Lehrangebots"),
-        helpText("Eine Diagnostik des Lehrprogramms. Vor allem gedacht um noch offene Baustellen in den Daten zu entdecken bevor das Lehrprogramm offiziell beschlossen wird."),
-        downloadButton("repLBBtn","Lehrbeauftragte"),
-        helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Verguetung.")
-        #simpleButton("repKoordBtn","Vorlesungen nach Koordinatoren sortiert.")
-      ),
+      tabPanel("Reports", reports.ui()),
       if (app$admin & app$stuko) tabPanel("Admin", admin.ui()),
       tabPanel("Log",
+        HTML("Eintraege der letzten 8 Monate"),
         actionButton("refreshLogBtn","",icon = icon("refresh")),
         #dataTableOutput("logTable")
         uiOutput("logUI")
-      )
+      ),
+      if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui())
     )
   )
   selectChangeHandler("semInput", function(value,...) {
@@ -162,40 +161,6 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
   buttonHandler("refreshKurseBtn", update.kurse.ui)
   buttonHandler("refreshModuleBtn", update.module.ui)
   buttonHandler("refreshLogBtn", update.log.ui)
-
-  setDownloadHandler("repLPBtn",
-    filename=function(app = getApp())
-      paste0("Lehrangebot_",semester_name(app$sem),".docx"),
-    content = function(file, ...) {
-      restore.point("jsfhshfzgfzzfhvn")
-      app=getApp()
-      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
-        lehrangebot.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file, strings=glob$strings)
-      )
-    }
-  )
-
-  setDownloadHandler("repDiagBtn",
-    filename=function(app = getApp())
-      paste0("Lehrangebot_Diagnostik_",semester_name(app$sem),".docx"),
-    content = function(file, ...) {
-      app=getApp()
-      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
-        lehrangebot.diagnostik.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file)
-      )
-    }
-  )
-
-  setDownloadHandler("repLBBtn",
-    filename=function(app = getApp())
-      paste0("Lehrbeauftragte_",semester_name(app$sem),".docx"),
-    content = function(file, ...) {
-      app=getApp()
-      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
-        lehrauftrag.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file, sets=glob$sets)
-      )
-    }
-  )
 
 
   ui
@@ -214,7 +179,12 @@ update.stuko.ui = function(app=getApp()) {
 update.log.ui = function(app=getApp(), glob=app$glob,...) {
   restore.point("update.log.ui")
 
-  glob$log = dbGet(glob$db, "log") %>%
+  start.date = Sys.Date()
+  month(start.date) = month(start.date)-8
+
+
+  sql = paste0("select * from log where logtime >= ", start.date)
+  glob$log = dbGet(glob$db,"log", sql=sql) %>%
     arrange(desc(logtime))
 
   txt = paste0(strftime(glob$log$logtime,"%Y-%m-%d %H:%M"), " von ", glob$log$userid, "\n\n", glob$log$logtext, collapse="\n\n-------------------------------\n\n")
