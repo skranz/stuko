@@ -85,3 +85,34 @@ write.stuko.log = function(logtext,logtype, logtime=Sys.time(), userid=first.non
   log = list(logtime=logtime, userid=userid,logtype=logtype, logtext=logtext)
   dbInsert(db,"log", log)
 }
+
+delete.stuko.duplicates = function(db = get.stukodb()) {
+  ku = dbGet(db,"kurs")
+  dupl = duplicated(select(ku,kursid, semester))
+  ku = ku[!dupl,]
+
+  kupe = dbGet(db,"kursperson")
+  dupl = duplicated(kupe)
+  kupe = kupe[!dupl,]
+
+  kumo = dbGet(db,"kursmodul")
+  dupl = duplicated(kumo)
+  kumo = kumo[!dupl,]
+
+
+  dbWithTransaction(db,{
+    dbDelete(db,"kurs", list())
+    dbDelete(db,"kursperson", list())
+    dbDelete(db,"kursmodul", list())
+
+    dbInsert(db,"kurs", ku)
+    dbInsert(db,"kursperson", kupe)
+    dbInsert(db,"kursmodul", kumo)
+
+  })
+
+  #mo = dbGet(db,"modul")
+  #dupl = duplicated(select(mo,modulid, semester))
+  #mo = mo[!dupl,]
+
+}

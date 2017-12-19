@@ -48,7 +48,7 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
     glob$forms[[form]] = load.and.init.form(form.file, prefix=paste0(form,"_"))
   }
 
-  forms = c("kursperson","modul_table_edit")
+  forms = c("kursperson","modul_table_edit", "vertreter")
   for (form in forms) {
     fields = rmdtools::read.yaml(paste0(glob$yaml.dir,"/", form, ".yaml"))$fields
     glob$forms[[form]] = tableform(id=form, fields=fields, lang="de",sets=glob$sets)
@@ -143,7 +143,7 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
       tabPanel("Module", module.ui()),
       tabPanel("Reports", reports.ui()),
       if (app$admin & app$stuko) tabPanel("Admin", admin.ui()),
-      tabPanel("Log",
+     if (app$stuko ) tabPanel("Log",
         HTML("Eintraege der letzten 8 Monate"),
         actionButton("refreshLogBtn","",icon = icon("refresh")),
         #dataTableOutput("logTable")

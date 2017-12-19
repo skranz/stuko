@@ -1,0 +1,12 @@
+fields:
+  email:
+    size: 30
+    lang_de:
+      size: 30
+      label: 'Emailadresse des Vertreters'
+  admin:
+    size: 20
+    lang_de:
+      size: 20
+      choices: {Nein: FALSE, Ja: TRUE}
+      label: 'Darf andere Vertreter editieren'
