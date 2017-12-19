@@ -1,4 +1,4 @@
-reports.ui = function(...) {
+reports.ui = function(..., app=getApp(), glob=app$glob) {
   ui = tagList(
     helpText("Druecken Sie auf den entsprechenden Knopf um den Report zu erzeugen und als Word-Dateien herunterzuladen."),
     downloadButton("repLPBtn", "Lehrangebot"),

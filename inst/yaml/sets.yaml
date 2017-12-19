@@ -36,6 +36,7 @@ lehrauftrag:
   'Nur Reisekosten': rk
   'Nur Vergütung': vg
   'Reisekosten + Vergütung': rk_vg
+  'Honorarprofessur': hp
 bama:
   'Bachelor': BA
   'Master': MA

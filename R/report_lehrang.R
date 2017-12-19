@@ -227,6 +227,9 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplica
 
   kurse$sp[is.na(kurse$sp)] = ""
   kurse$dozent[is.na(kurse$dozent)] = "NN"
+  kurse$dozent[nchar(kurse$dozent)==0] = "NN"
+  kurse$dozent[str.trim(kurse$dozent)=="."] = "NN"
+
 
 
   if (add.zuordnung) {

@@ -11,7 +11,19 @@ examples.copy.semester = function() {
   delete.semester.kurse(db, 170)
   delete.semester.kurse(db, 175)
 
+#
+#   ku = dbGet(db,"kurs")
+#   ku$zukunft_sem = ku$semester + ku$turnus*5
+#   ku$zukunft_sem2 = ku$semester + ku$turnus*10
+#
+#   dbWithTransaction(db,{
+#     dbDelete(db,"kurs", list())
+#     dbInsert(db,"kurs",ku)
+#
+#   })
 }
+
+
 
 copy.kurse.to.semester = function(db = get.stukodb(),source.sem, dest.sem, overwrite=FALSE) {
   restore.point("copy.kurse.to.semester")
