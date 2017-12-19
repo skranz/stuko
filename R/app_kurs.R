@@ -131,7 +131,7 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
 
 
   kp = filter(sd$kupe,kursid==kurs$kursid)
-  kp.ui = tableform.ui(form=glob$forms$kursperson, data=select(kp,-semester, -kursid, -name))
+  kp.ui = tableform.ui(form=glob$forms$kursperson, data=select(kp,-semester, -kursid, -name), use.delete.btn = TRUE)
 
   #view.ui(kp.ui)
 
@@ -164,7 +164,7 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
 
   buttonHandler("addKurspersonBtn", function(...) {
     restore.point("addKurspersonBtn")
-    form.html.table.add.row(form=glob$forms$kursperson, data=data_frame(personid=NA, nachname="", vorname="", rolle="", lehrauftrag="-", dozent_sws=0))
+    form.html.table.add.row(form=glob$forms$kursperson, data=data_frame(personid=NA, nachname="", vorname="", rolle="", lehrauftrag="-", dozent_sws=0), use.delete.btn = TRUE)
   })
 
   buttonHandler("saveKursBtn", function(...) {
