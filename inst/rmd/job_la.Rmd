@@ -1,0 +1,28 @@
+#. email_subject
+Lehrangebot im {{sem_lang}}
+#. email_body
+Liebe(r) {{name_lang}} und Vertreter,
+
+bitte ueberpruefen Sie bis zum {{wishdate}} das von Ihnen koordinierte, geplante Lehrangebot fuer das {{sem_lang}}. Melden Sie sich hierfuer bitte auf der Webseite der WiWi Kursverwaltung an:
+{{url}}
+
+Ueberpruefen Sie bitte auch, dass alle Lehrauftraege, mit korrekter Verguetungsform eingetragen sind.
+
+Sind Aenderungen an den von Ihnen koordinierten Kursen notwendig, finden Kurse nicht statt, oder wird eine neuer Kurs angeboten, nehmen Sie bitte entsprechende Anpassungen im Reiter 'Kurse' und ggf. im Reiter 'Module' vor.
+
+Sollten noch offene Fragen / Probleme bezüglich eines Kurses existieren, können Sie den Kurs bearbeiten und die offene Frage im Kommentarfeld eintragen.
+
+Bestaetigen Sie bitte hiernach im Reiter "Jobs", dass Sie Ihr Kursprogramm geprueft und ggf. angepasst haben.
+
+Herzliche Gruesse,
+Georg Gebhardt
+
+Studiendekan WiWi
+
+#. email_reminder
+Liebe(r) {{name_lang}} und Vertreter,
+
+Sie haben noch nicht in der WiWi Kursverwaltung das von Ihnen koordinierte Lehrangebot fuer das {{sem_lang}} bestaetigt (siehe Email unten). Falls Sie das Lehrangebot wegen offener Fragen noch nicht bestaetigen koennen, aendern Sie bitte den Status dieses Jobs auf "In Bearbeitung". Sie erhalten dann keine automatischen Erinnerungsemails mehr.
+
+--- Vorherige Email ---
+

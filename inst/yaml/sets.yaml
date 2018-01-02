@@ -88,3 +88,32 @@ pruefungsform:
   'Seminar': se
   'keine Angaben': '-'
   'sonstige': so
+eval_was:
+  'Keine Evaluation': '-'
+  'Nur Vorlesung': vl
+  'Vorlesung und Uebung': vu
+jobstate:
+  'Offen': o
+  'In Bearbeitung': b
+  'Abgeschlossen': a
+  'Wieder eröffnet': w
+  'Deaktiviert': d
+jobtype:
+  'Lehrangebot': la
+  'Evaluationsbögen bestellen': ev
+  'Änderungen überprüfen': ub
+  'Sonstiges': so
+jobemail:
+  'Keine Email senden': -1
+  'Noch nicht versandt': 0
+  'Bereits versandt': 1
+hiwityp:
+  'Tutor': tu
+  'Studentische Hilfskraft': sh
+  'Wissenschaftliche Hilfskraft': wh
+antragstatus:
+  'Beantragt': be
+  'Bewilligt': ak
+  'Teilweise bewilligt': mo
+  'Abgelehnt': ab
+  'Deaktiviert': de

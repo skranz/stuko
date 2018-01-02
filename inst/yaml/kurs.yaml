@@ -52,6 +52,16 @@ fields:
     lang_de:
       label: 'Plan: übernächster Termin'
       choice_set: semester
+  eval_was:
+    lang_de:
+      label: 'Evaluierung von'
+      choice_set: eval_was
+  eval_boegen:
+    type: integer
+    lang_de:
+      label: 'Zahl der Bögen pro Evaluation'
+
+
   kommentar:
     input: textarea
     lang_de:

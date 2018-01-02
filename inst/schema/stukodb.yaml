@@ -1,3 +1,20 @@
+job:
+  table:
+    jobid: CHARACTER(20)
+    jobgroup: CHARACTER(20)
+    jobtitle: VARCHAR(200)
+    jobemail: INTEGER
+    givetime: DATETIME
+    giverid: CHARACTER(20)
+    givername: CHARACTER(50)
+    receiverid: CHARACTER(20)
+    jobtype: CHARACTER(10)
+    jobstate: CHARACTER(2)
+    wishdate: DATE
+    descr: TEXT
+    comment: TEXT
+    semester: INTEGER
+
 # Snapshots are a copy of our database
 snapshot:
   table:
@@ -144,6 +161,8 @@ kurs:
     # zwei verschiedene Eintraege hat
     codeshare: CHARACTER(20)
     kommentar: TEXT
+    eval_was: CHARACTER(4)
+    eval_boegen: INTEGER
   indexes:
     - "CREATE INDEX kurs1 on kurs (semester, kursid)"
 
@@ -197,4 +216,18 @@ vertreter:
     admin: BOOLEAN
   indexes:
     - "CREATE UNIQUE INDEX vertreter1 on vertreter (bossid, email)"
+
+hiwi:
+  table:
+    # Antragssteller
+    personid: VARCHAR(100)
+    semester: INTEGER
+    hiwityp: CHARACTER(2)
+    kursid: CHARACTER(20)
+    antragstatus: CHARACTER(2)
+    anzahl: INTEGER
+    stunden: INTEGER
+    monate: INTEGER
+    zweck: TEXT
+    kommentar: TEXT
 
