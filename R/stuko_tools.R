@@ -62,9 +62,9 @@ tables.diff = function(df1, df2, by=colnames(df1)) {
   }
   key1 = do.call(paste, df1[by])
   key2 = do.call(paste, df2[by])
-  same = df1[key1 %in% intersect(key1,key2),]
-  removed = df2[!key2 %in% key1,]
-  added = df1[!key1 %in% key2,]
+  same = df1[key1 %in% intersect(key1,key2),, drop=FALSE]
+  removed = df2[!key2 %in% key1,,drop=FALSE]
+  added = df1[!key1 %in% key2,,drop=FALSE]
   nlist(same, added, removed)
 }
 

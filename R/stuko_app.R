@@ -8,11 +8,12 @@ examples.stuko.app = function() {
   viewApp(app,launch.browser = TRUE)
 }
 
-stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
+stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE,...) {
   restore.point("stukoApp")
   app = eventsApp()
   glob = app$glob
 
+  glob$use.jobs = use.jobs
   glob$stuko.dir = stuko.dir
   glob$db.dir = file.path(stuko.dir, "db")
   glob$db = get.stukodb(glob$db.dir)
@@ -26,6 +27,16 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
   glob$sets = rmdtools::read.yaml(file.path(glob$yaml.dir,"sets.yaml"))
   glob$strings = rmdtools::read.yaml(file.path(glob$yaml.dir,"strings.yaml"))
 
+  if (use.jobs) {
+    start.date = Sys.Date()
+    month(start.date) = month(start.date)-16
+    start.time = as.numeric(as.POSIXct(start.date))
+    sql = paste0('select * from job where jobstate in ("o","b","w") OR givetime >= ', start.time)
+    glob$jobs = dbGet(glob$db,table="job", sql = sql,null.as.na = FALSE)
+    glob$jobs$frist = frist.days(glob$jobs$wishdate)
+
+  }
+
 
   person = dbGet(glob$db,"person")
   person$vorname[is.na(person$vorname)] = ""
@@ -34,7 +45,8 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
   glob$vertreter = dbGet(glob$db,"vertreter")
 
   person = glob$person$personid
-  names(person) = paste0(glob$person$nachname,", ",toupper(substring(glob$person$vorname,1,1)),".")
+  names(person) = paste0(glob$person$nachname, ifelse(nchar(glob$person$vorname)>0, paste0(", ", substring(glob$person$vorname,1,1),"."), ""))
+
   person = c("", person)
   glob$sets[["person"]] = person
 
@@ -66,6 +78,7 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),...) {
 
   app$ui = fluidPage(
     selectizeHeaders(),
+    jqueryLayoutHeader(),
     tags$head(tags$style(HTML(
     '
 .table.dataTable tbody td.active, .table.dataTable tbody tr.active td {
@@ -121,6 +134,12 @@ stuko.login.fun = function(userid,..., app=getApp()) {
   )
   app$stuko = any(filter(glob$person, personid %in% app$all.bossid)$stuko)
 
+  if (glob$use.jobs) {
+    app$rjobs = filter(glob$jobs, receiverid %in% app$all.bossid)
+    app$gjobs = filter(glob$jobs, giverid %in% app$all.bossid)
+    cat("\nNum app$gjobs = ", NROW(app$gjobs),"\n" )
+
+  }
 
   ui = stuko.ui()
   setUI("mainUI",ui)
@@ -131,6 +150,22 @@ stuko.login.fun = function(userid,..., app=getApp()) {
 stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
   restore.point("stuko.ui")
 
+  tabs = remove.null(list(
+    if (glob$use.jobs) tabPanel("Jobs", jobs.ui()),
+    if (glob$use.jobs & app$stuko) tabPanel("Erteilte Jobs", gjobs.ui()),
+    tabPanel("Kurse", kurse.ui()),
+    tabPanel("Module", module.ui()),
+    tabPanel("Reports", reports.ui()),
+    if (app$admin & app$stuko) tabPanel("Admin", admin.ui()),
+    if (app$stuko ) tabPanel("Log",
+      HTML("Eintraege der letzten 8 Monate"),
+      actionButton("refreshLogBtn","",icon = icon("refresh")),
+      #dataTableOutput("logTable")
+      uiOutput("logUI")
+    ),
+    if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui())
+  ))
+
   ui = tagList(
     fluidRow(
       column(width = 4,p("WiWi Ulm Kursverwaltung")),
@@ -138,19 +173,7 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
       column(width = 3,p(paste0("Nutzer: ", userid)))
     ),
     uiOutput("stukoAlert"),
-    tabsetPanel(
-      tabPanel("Kurse", kurse.ui()),
-      tabPanel("Module", module.ui()),
-      tabPanel("Reports", reports.ui()),
-      if (app$admin & app$stuko) tabPanel("Admin", admin.ui()),
-     if (app$stuko ) tabPanel("Log",
-        HTML("Eintraege der letzten 8 Monate"),
-        actionButton("refreshLogBtn","",icon = icon("refresh")),
-        #dataTableOutput("logTable")
-        uiOutput("logUI")
-      ),
-      if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui())
-    )
+    do.call(tabsetPanel, tabs)
   )
   selectChangeHandler("semInput", function(value,...) {
     app$sem = as.integer(value)
@@ -169,6 +192,10 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
 
 update.stuko.ui = function(app=getApp()) {
   restore.point("update.stuko.ui")
+  if (app$glob$use.jobs) {
+    update.jobs.ui()
+    update.gjobs.ui()
+  }
   update.kurse.ui()
   update.module.ui()
   update.log.ui()

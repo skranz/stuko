@@ -96,7 +96,6 @@ jobstate:
   'Offen': o
   'In Bearbeitung': b
   'Abgeschlossen': a
-  'Wieder eröffnet': w
   'Deaktiviert': d
 jobtype:
   'Lehrangebot': la

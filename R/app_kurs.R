@@ -1,4 +1,5 @@
 kurse.ui = function(..., app=getApp(), glob=app$glob) {
+  restore.point("kurse.ui")
 
   kfilter = app$all.koord$personid
   names(kfilter) = paste0("Von ",app$all.koord$vorname, " ",app$all.koord$nachname, " koordinierte Kurse.")

@@ -17,14 +17,15 @@ lehrauftrag.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
   sd = get.sem.data(sem=semester)
   lb = sd$kupe %>% filter(lehrauftrag != '-')
 
-  lbku = inner_join(lb, select(sd$kurse,kursid, semester, kursname, koordinator), by=c("kursid","semester"))
+  lbku = inner_join(lb, select(sd$kurse,kursid, semester, kursname, koordinator), by=c("kursid","semester")) %>%
+    arrange(koordinator, nachname)
 
   tab = transmute(lbku,
     Lehrbeauftragter = paste0(nachname, ", ", vorname),
     Kurs =kursname,
     Koordinator = koordinator,
     'Kompensation' = to.label(lehrauftrag,sets$lehrauftrag),
-    'SWS' = dozent_sws
+    'LVS' = dozent_sws
   )
 
   tpl.file = file.path(tpl.dir,"lehrauftrag_tpl.docx")

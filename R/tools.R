@@ -1,4 +1,8 @@
-
+remove.null = function(li) {
+  if (length(li)==0) return(li)
+  nu = sapply(li, is.null)
+  li[!nu]
+}
 
 example.replace.umlaute = function() {
   str = c("üßan","Äüfffnö")
