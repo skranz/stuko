@@ -2,7 +2,7 @@ examples.stuko.app = function() {
   restore.point.options(display.restore.point=TRUE)
   stuko.dir = "D:/libraries/stuko/ulm"
   setwd(stuko.dir)
-  app = stukoApp(stuko.dir, sem=180, init.userid = "sebastian.kranz@uni-ulm.de",need.password = FALSE,need.userid = FALSE)
+  app = stukoApp(stuko.dir, sem=180, init.userid = "sebastian.kranz@uni-ulm.de",need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
   #viewApp(app)
 
   viewApp(app,launch.browser = TRUE)
@@ -17,6 +17,8 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE,
   glob$stuko.dir = stuko.dir
   glob$db.dir = file.path(stuko.dir, "db")
   glob$db = get.stukodb(glob$db.dir)
+
+  glob$semdb.dir = semdb.dir
 
   glob$tpl.dir = file.path(stuko.dir, "report_tpl")
   glob$snapshot.dir = file.path(stuko.dir, "snapshots")

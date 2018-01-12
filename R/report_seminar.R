@@ -11,7 +11,7 @@ examples.seminar.report = function() {
 
 }
 
-seminar.report = function(semester, db = get.stukodb(), semdb, out.dir = getwd(), out.file = paste0(out.dir,"/seminare.docx")) {
+seminar.report = function(semester, db = get.stukodb(),semdb.dir=NULL, semdb=dbConnect(RSQLite::SQLite(), file.path(semdb.dir, "semDB.sqlite")), out.dir = getwd(), out.file = paste0(out.dir,"/seminare.docx")) {
   restore.point("seminar.report")
 
   sem_label = semester_name(semester, kurz=FALSE)

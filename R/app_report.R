@@ -6,7 +6,14 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     downloadButton("repDiagBtn", "Diagnostik des Lehrangebots"),
     helpText("Eine Diagnostik des Lehrprogramms. Vor allem gedacht um noch offene Baustellen in den Daten zu entdecken bevor das Lehrprogramm offiziell beschlossen wird."),
     downloadButton("repLBBtn","Lehrbeauftragte"),
-    helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Verguetung.")
+    helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Verguetung."),
+    if (!is.null(app$glob$semdb.dir)) {
+      tagList(
+        downloadButton("repSeminarsBtn","Seminare im Lehrangebot und Matchingsoftware"),
+        helpText("Vergleicht (per Fuzzy-Stringmatching) die Seminare, die im Lehrangebot eingetragen sind, mit den Seminaren, die in der Seminarsoftware freigeschaltet sind.")
+      )
+    },
+    p()
     #simpleButton("repKoordBtn","Vorlesungen nach Koordinatoren sortiert.")
   )
 
@@ -44,6 +51,16 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     }
   )
 
+  setDownloadHandler("repSeminarsBtn",
+    filename=function(app = getApp())
+      paste0("Seminarvergleich.docx"),
+    content = function(file, ...) {
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        seminar.report(semester=app$sem, db=app$glob$db, semdb.dir=app$glob$semdb.dir, out.file=file)
+      )
+    }
+  )
 
 
   ui
