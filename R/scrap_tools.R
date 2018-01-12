@@ -57,3 +57,34 @@ differing.cols = function(df, collapse=NULL) {
     paste0(names(df)[differs], collapse=",")
   }
 }
+
+string.approx.pair.match = function(v1,v2, method="qgram", return.index=FALSE,...) {
+  if (length(v1)==0 | length(v2)==0) {
+    if (return.index) return(list(i1=seq_along(v1), i2=seq_along(v2)))
+    return(list(v1=v1, v2=v2))
+
+  }
+
+  old1 = 1:length(v1)
+  old2 = 1:length(v2)
+  new1 = NULL
+  new2 = NULL
+
+  mat = stringdistmatrix(v1,v2,method = method)
+  while(NROW(mat)*NCOL(mat)>0) {
+    cl = arrayInd(which.min(mat), dim(mat))
+    new1 = c(new1,old1[cl[1]])
+    new2 = c(new2,old2[cl[2]])
+    old1 = old1[-cl[1]]
+    old2 = old2[-cl[2]]
+
+    mat = mat[-cl[1],-cl[2], drop=FALSE]
+  }
+  if (return.index) {
+    return(list(i1=c(new1, old1), i2=c(new2, old2)))
+  }
+
+  res1 = v1[c(new1, old1)]
+  res2 = v2[c(new2, old2)]
+  list(v1=res1, v2=res2)
+}

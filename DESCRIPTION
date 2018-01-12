@@ -10,4 +10,4 @@ Encoding: UTF-8
 LazyData: true
 Depends: restorepoint, dbmisc, rmdtools, shinyEvents,
   shinyEventsUI, shinyEventsLogin, webforms, DT, readr,
-  tidyr, officer, flextable, dplyrExtras, lubridate
+  tidyr, officer, flextable, dplyrExtras, lubridate, stringdist

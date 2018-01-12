@@ -8,7 +8,7 @@ examples.stuko.app = function() {
   viewApp(app,launch.browser = TRUE)
 }
 
-stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE,...) {
+stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE, semdb.dir = NULL, ...) {
   restore.point("stukoApp")
   app = eventsApp()
   glob = app$glob
