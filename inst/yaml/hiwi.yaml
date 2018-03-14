@@ -1,0 +1,29 @@
+fields:
+  hiwityp:
+    lang_de:
+      size: 12
+      label: 'Art'
+      choice_set: hiwitype
+  anzahl:
+    lang_de:
+      size: 5
+      label: 'Anzahl'
+      choice_set: [1,2,3,4,5,6,7,8]
+  monate:
+    lang_de:
+      size: 5
+      label: 'Monate'
+      choice_set: [1,2,3,4,5,6,7,8]
+  stunden:
+    type: integer
+    lang_de:
+      size: 5
+      label: 'Stunden pro Monat'
+  kursid:
+    lang_de:
+      size: 5
+      label: 'Für Kurs(e)'
+  zweck:
+    type: textarea
+    lang_de:
+      label: 'Ergaenzende Kommentare'

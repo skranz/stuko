@@ -249,7 +249,7 @@ make.seminar.kurse = function(semester) {
 
   db = get.stukodb()
 
-  semester = 180
+  semester = 185
   mod = read_csv("modules_with_extern.csv", col_types=cols(code=col_character()))
   mod = filter(mod, zuordnung=="Seminare")
 

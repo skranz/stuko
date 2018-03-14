@@ -1,6 +1,6 @@
 examples.scrapped.to.db.csv = function() {
   setwd("D:/libraries/stuko/")
-  semester = 180
+  semester = 185
   scrapped.to.db.csv(semester=semester)
 }
 

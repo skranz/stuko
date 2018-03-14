@@ -12,6 +12,8 @@ examples.import.db = function() {
   #db = get.stukodb()
   #person = dbGet(db,"person")
   #write_csv(person,"D:/libraries/stuko/person_db.csv")
+  #
+  copy.modules.to.semester(src.sem = 180, dest.sem = 185)
 }
 
 get.stukodb = function(db.dir=getwd(), db.name="stukodb.sqlite", app=getApp(), schemas=stukodb.schemas()) {
@@ -115,4 +117,28 @@ delete.stuko.duplicates = function(db = get.stukodb()) {
   #dupl = duplicated(select(mo,modulid, semester))
   #mo = mo[!dupl,]
 
+}
+
+examples.fill.stukodb.kurse.from.csv = function() {
+  fill.stukodb.kurse.from.csv(src.sem=165, dest.sem=185, csv.dir = "D:/libraries/stuko")
+}
+
+fill.stukodb.kurse.from.csv = function(db=get.stukodb(), src.sem=165, dest.sem=185, schemas=stukodb.schemas(), csv.dir=getwd(), modify_user="_from_csv",modify_time=Sys.time()) {
+  restore.point("fill.stukodb.kurse.from.csv")
+  tables = c("kurs","kursperson","kursmodul")
+
+  table = tables[1]
+  for (table in tables) {
+    cat("\n\n**********************************\nLoad and insert", table)
+    file = file.path(csv.dir,paste0(table,"_db.csv"))
+    if (file.exists(file)) {
+      dat = read_csv(file)
+      dat = filter(dat,semester %in% src.sem)
+      dat$semester = dest.sem
+      dat$modify_user = modify_user; dat$modify_time=modify_time
+      #dbDelete(db,table,params = NULL)
+      dbmisc::dbInsert(db, table, dat, schemas=schemas)
+    }
+  }
+  write.stuko.log("Import kurs tables from csv","csv_all", db=db)
 }

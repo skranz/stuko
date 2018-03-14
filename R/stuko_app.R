@@ -170,8 +170,8 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
 
   ui = tagList(
     fluidRow(
-      column(width = 4,p("WiWi Ulm Kursverwaltung")),
-      column(width = 5,tagList(HTML("Semester: "),simpleSelect("semInput","",choices = glob$sets$semester, selected=app$sem))),
+      column(width = 3,p("WiWi Ulm Kursverwaltung")),
+      column(width = 4,tagList(HTML("Semester: "),simpleSelect("semInput","",choices = glob$sets$semester, selected=app$sem))),
       column(width = 3,p(paste0("Nutzer: ", userid)))
     ),
     uiOutput("stukoAlert"),

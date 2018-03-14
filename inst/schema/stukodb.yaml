@@ -219,10 +219,11 @@ vertreter:
 
 hiwi:
   table:
+    antragid: CHARACTER(20)
     # Antragssteller
     personid: VARCHAR(100)
     semester: INTEGER
-    hiwityp: CHARACTER(2)
+    hiwityp: CHARACTER(4)
     kursid: CHARACTER(20)
     antragstatus: CHARACTER(2)
     anzahl: INTEGER

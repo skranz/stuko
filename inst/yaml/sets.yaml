@@ -108,11 +108,12 @@ jobemail:
   'Bereits versandt': 1
 hiwityp:
   'Tutor': tu
-  'Studentische Hilfskraft': sh
-  'Wissenschaftliche Hilfskraft': wh
+  'Hiwi ohne Abschluss': hi
+  'Hiwi mit BA': hiba
+  'Hiwi mit MA': hima
 antragstatus:
   'Beantragt': be
   'Bewilligt': ak
-  'Teilweise bewilligt': mo
+  'Modifziert bewilligt': mo
   'Abgelehnt': ab
   'Deaktiviert': de
