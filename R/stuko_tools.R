@@ -7,7 +7,7 @@ default_semester = function(date = Sys.Date()) {
   if (month >= 10) {
     ye = ye+1
     sem = 0
-  } else if (month <= 4) {
+  } else if (month <= 3) {
     sem = 0
   # Winter term
   } else {
