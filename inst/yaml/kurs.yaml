@@ -56,12 +56,10 @@ fields:
     lang_de:
       label: 'Evaluierung von'
       choice_set: eval_was
-  eval_boegen:
-    type: integer
-    lang_de:
-      label: 'Zahl der Bögen pro Evaluation'
-
-
+#  eval_boegen:
+#    type: integer
+#    lang_de:
+#      label: 'Zahl der Bögen pro Evaluation'
   kommentar:
     input: textarea
     lang_de:
