@@ -6,8 +6,6 @@ kurse.ui = function(..., app=getApp(), glob=app$glob) {
 
   if (app$stuko) {
     kfilter = c("Alle Kurse"="all", kfilter)
-  } else {
-    kfilter(kfilter, "Alle Kurse")
   }
   app$kfilter = kfilter[1]
 
@@ -500,7 +498,7 @@ copy.selected.kurse = function(kursids, tosem, overwrite=FALSE, ...,fromsem = ge
   mozu = filter(sd$mozu, modulid %in% kumo$modulid)
 
 
-  log = paste0("Kopiere ausgewählte Kurse und Module von ", semester_name(fromsem), " nach ", semester_name(tosem),"\n\n",
+  log = paste0("Kopiere ausgew?hlte Kurse und Module von ", semester_name(fromsem), " nach ", semester_name(tosem),"\n\n",
     NROW(ku), " Kurse:\n",
     paste0("  - ", ku$kursname, collapse="\n"),
     "\n\n", NROW(mo), " Module:\n",
