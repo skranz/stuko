@@ -23,6 +23,14 @@ seminar.report = function(semester, db = get.stukodb(),semdb.dir=NULL, semdb=dbC
 
   sems = dbGet(semdb, "seminars", list(semester=csemester, active=TRUE))
 
+  if (NROW(sems)==0) {
+    doc = read_docx(tpl.file)
+    doc = doc %>% body_add_par("Kein Seminare in Seminardatenbank gefunden.")
+    print(doc, target = out.file)
+    invisible(doc)
+  }
+
+
   sems$matched = 0
 
   .semester = semester
