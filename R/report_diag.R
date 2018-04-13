@@ -67,7 +67,7 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
   doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent"))
 
 
-  doc = doc %>% body_add_par("Kurse mit Kommentaren für dieses Semester", style = "heading 1")
+  doc = doc %>% body_add_par("Kurse mit Kommentaren fuer dieses Semester", style = "heading 1")
   ku$kommentar[is.na(ku$kommentar)] = ""
   dat = filter(ku, nchar(str.trim(kommentar))>0)
   doc = add.lad.comments(doc, dat=dat, "")
