@@ -10,6 +10,7 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob, 
   db = get.stukodb()
   # Load main tables
   ku = dbGet(db,"kurs",nlist(semester))
+
   kupe = dbGet(db,"kursperson",nlist(semester))
 
   kumo = dbGet(db,"kursmodul",nlist(semester))

@@ -51,6 +51,22 @@ semester_name = function(semester, kurz=TRUE) {
 }
 
 
+knapp_semester_name = function(semester) {
+  sose = semester %% 10 == 0
+  jahr = substring(semester, 1,2)
+
+  if (sose) {
+    sem = "SS"
+  } else {
+    sem = "WS"
+    jahr = paste0(jahr, "_", as.integer(jahr)+1)
+    return(paste0(sem,jahr))
+  }
+  paste0(sem, jahr)
+}
+
+
+
 tables.diff = function(df1, df2, by=colnames(df1)) {
   restore.point("tables.diff")
   if (is.null(df1) & is.null(df2)) {

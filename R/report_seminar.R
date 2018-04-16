@@ -25,7 +25,7 @@ seminar.report = function(semester, db = get.stukodb(),semdb.dir=NULL, semdb=dbC
 
   if (NROW(sems)==0) {
     doc = read_docx(tpl.file)
-    doc = doc %>% body_add_par("Kein Seminare in Seminardatenbank gefunden.")
+    doc = doc %>% body_add_par("Keine Seminare in Seminardatenbank gefunden.")
     print(doc, target = out.file)
     return(invisible(doc))
   }
