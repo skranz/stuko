@@ -1,6 +1,6 @@
 # Diagnosen zum Lehrangebot
 
-examples.seminar.report = function() {
+examples.plan.report = function() {
   setwd("D:/libraries/stuko/")
   db = get.stukodb("D:/libraries/stuko/ulm/db")
 
