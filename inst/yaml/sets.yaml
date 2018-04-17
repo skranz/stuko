@@ -32,13 +32,13 @@ rolle:
 lehrauftrag:
   # Lehrauftrag: no, nopay, travel, travelpay, pay
   '-': '-'
-  'Ohne Vergütung (pruefungsberechtigt)': ov_pb
+  'Ohne Vergütung (prueft)': ov_pb
   'Ohne Vergütung': ov
-  'Nur Reisekosten (pruefungsberechtigt)': rk_pb
+  'Nur Reisekosten (prueft)': rk_pb
   'Nur Reisekosten': rk
-  'Nur Vergütung (pruefungsberechtigt)': vg_pb
+  'Nur Vergütung (prueft)': vg_pb
   'Nur Vergütung': vg
-  'Reisekosten + Vergütung (pruefungsberechtigt)': rk_vg_pb
+  'Reisekosten + Vergütung (prueft)': rk_vg_pb
   'Reisekosten + Vergütung': rk_vg
   'Honorarprofessur': hp
 
