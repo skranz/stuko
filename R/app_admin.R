@@ -25,7 +25,7 @@ copy.all.kurse.ui = function(tosem = first.non.null(app$tosem, app$sem+10),..., 
       selectInput("tosemInput","Turnusgemaesse Kurse und Module im folgenden Semester erstellen", choices = glob$sets$semester, selected=tosem),
       #helpText("Kopiere Kurse aus vorherigen Semestern, die gemaess Turnus im obigen Semester stattfinden."),
       checkboxInput("tosemOverwrite",label="Bereits im neuen Semester angelegte Kurse und Module ueberschreiben"),
-      checkboxInput("tosemJustAktiv",label="Nur aktive Kurse aus vergangenen Semestern uebertragen"),
+      checkboxInput("tosemJustAktiv",label="Nur aktive Kurse aus vergangenen Semestern uebertragen",value = TRUE),
       uiOutput("tosemInfo"),
       hr(),
       simpleButton("tosemOkBtn", "Kurse und Module anlegen",form.ids = c("tosemInput","tosemOverwrite","tosemJustAktiv")), simpleButton("cancelModalBtn","Abbruch")
@@ -51,12 +51,23 @@ copy.all.kurse.ui = function(tosem = first.non.null(app$tosem, app$sem+10),..., 
   ui
 }
 
+get.turnus.kurse.tosem = function(tosem, lags=1:5, db=get.stukodb()) {
+  restore.point("get.turnus.kurse.tosem")
+  li = lapply(lags, function(lag) {
+    ku = dbGet(db, "kurs", list(semester=tosem-lag*5, turnus=lag),empty.as.null = TRUE)
+  })
+  bind_rows(li)
+
+}
+
 update.copy.all.kurse.ui = function(tosem, ..., app=getApp(), db=get.stukodb()) {
   restore.point("update.copy.all.kurse.ui")
 
-  newku = dbGet(db, "kurs", list(zukunft_sem=tosem))
-
   exku = dbGet(db, "kurs", list(semester=tosem))
+
+
+  newku = get.turnus.kurse.tosem(tosem, db=db)
+
 
   akku = filter(newku, aktiv==TRUE)
   dupl = duplicated(akku$kursid)
@@ -76,7 +87,7 @@ update.copy.all.kurse.ui = function(tosem, ..., app=getApp(), db=get.stukodb()) 
 copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=get.stukodb()) {
   restore.point("copy.all.kurse")
 
-  newku = dbGet(db, "kurs", list(zukunft_sem=tosem))
+  newku = get.turnus.kurse.tosem(tosem, db=db)
 
 
 
@@ -128,9 +139,6 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
   if (NROW(most)>0) most$semester = tosem
   if (NROW(mosp)>0) mosp$semester = tosem
   if (NROW(mozu)>0) mozu$semester = tosem
-
-  ku$zukunft_sem = tosem + 5*ku$turnus
-  ku$zukunft_sem2 = tosem + 5*(ku$turnus*2)
 
 
   #stop()

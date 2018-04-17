@@ -76,8 +76,6 @@ scrapped.kurs.to.db.csv = function() {
 
   # Default Turnus: Jedes zweite Semester
   dat$turnus = 2
-  dat$zukunft_sem = add.semester(dat$semester, dat$turnus)
-  dat$zukunft_sem2 = add.semester(dat$semester, dat$turnus*2)
   dat$codeshare = ""
 
 
@@ -106,7 +104,7 @@ scrapped.kurs.to.db.csv = function() {
     do(adapt.uebung(.)) %>%
     ungroup()
 
-  kurs = select(dat,kursid, semester, aktiv, vnum, kursname, sws_kurs, sws_uebung, kursform, zeitform, sprache, turnus, zukunft_sem, zukunft_sem2,codeshare)
+  kurs = select(dat,kursid, semester, aktiv, vnum, kursname, sws_kurs, sws_uebung, kursform, zeitform, sprache, turnus,codeshare)
 
 
 

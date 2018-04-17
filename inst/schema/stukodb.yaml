@@ -155,14 +155,17 @@ kurs:
     # Standardturnus der Veranstaltung
     # in Semestern
     turnus: INTEGER
-    zukunft_sem: INTEGER
-    zukunft_sem2: INTEGER
     # Gleicher realer Kurs der aber hier
     # zwei verschiedene Eintraege hat
+    # wird momentan nicht genutzt
     codeshare: CHARACTER(20)
     kommentar: TEXT
     eval_was: CHARACTER(4)
-    eval_boegen: INTEGER
+    #eval_boegen: INTEGER
+    pruefung: CHARACTER(2)
+    offen: CHARACTER(1)
+    findet_statt: CHARACTER(2)
+
   indexes:
     - "CREATE INDEX kurs1 on kurs (semester, kursid)"
 
@@ -217,18 +220,18 @@ vertreter:
   indexes:
     - "CREATE UNIQUE INDEX vertreter1 on vertreter (bossid, email)"
 
-hiwi:
-  table:
-    antragid: CHARACTER(20)
-    # Antragssteller
-    personid: VARCHAR(100)
-    semester: INTEGER
-    hiwityp: CHARACTER(4)
-    kursid: CHARACTER(20)
-    antragstatus: CHARACTER(2)
-    anzahl: INTEGER
-    stunden: INTEGER
-    monate: INTEGER
-    zweck: TEXT
-    kommentar: TEXT
+#hiwi:
+#  table:
+#    antragid: CHARACTER(20)
+#    # Antragssteller
+#    personid: VARCHAR(100)
+#    semester: INTEGER
+#    hiwityp: CHARACTER(4)
+#    kursid: CHARACTER(20)
+#    antragstatus: CHARACTER(2)
+#    anzahl: INTEGER
+#    stunden: INTEGER
+#    monate: INTEGER
+#    zweck: TEXT
+#    kommentar: TEXT
 

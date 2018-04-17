@@ -2,8 +2,10 @@ module.ui = function(..., app=getApp(), glob=app$glob) {
   ui= tagList(
     dataTableOutput("moduleTable"),
     actionButton("refreshModuleBtn","",icon = icon("refresh")),
-    simpleButton("addModulBtn","Neues Modul anlegen"),
-    simpleButton("delModuleBtn","Markierte Module entfernen",form.sel = ".modulCheck"),
+    if (app$stuko)
+      simpleButton("addModulBtn","Neues Modul anlegen"),
+    if (app$stuko)
+      simpleButton("delModuleBtn","Markierte Module entfernen",form.sel = ".modulCheck"),
     uiOutput("editModulUI")
   )
 
@@ -67,7 +69,7 @@ make.module.datatable.df = function(sd, app=getApp(), glob=app$glob) {
 
   df = transmute(sd$module,Aktion=btns, Modul=titel, BaMa=bama,Studiengang=studiengang, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects),
 #   Kurse = num_kurse,
-    Pruefung=pruefungsform, Dozent=dozent, Kurs=kurs, 'Anz. Kurs'=num_kurs, 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
+    Dozent=dozent, Kurs=kurs, 'Anz. Kurs'=num_kurs, 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
 
   df
 }
@@ -159,7 +161,7 @@ delete.module.click = function(formValues, ..., app=getApp()) {
 
 new.modul.click = function(..., app=getApp()) {
   restore.point("new.modul.click")
-  modul = list(modulid="", semester=app$sem,modify_time = Sys.time(), modify_user = app$userid, code="", extern=FALSE, titel="", ects=0, pruefungsform="k")
+  modul = list(modulid="", semester=app$sem,modify_time = Sys.time(), modify_user = app$userid, code="", extern=FALSE, titel="", ects=0, pruefungsform="")
   app$new.modul = TRUE
   show.edit.modul(modul)
 }

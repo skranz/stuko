@@ -87,7 +87,7 @@ scrap_modulhandbuch = function(basename,overwrite.txt = FALSE) {
     ignore =
       str.starts.with(txt,"Master of Science Nachhaltige") |
       (str.starts.with(lag(txt),"Master of Science Nachhaltige") &
-      str.starts.with(txt,"Unternehmensführung"))
+      str.starts.with(txt,"Unternehmensf?hrung"))
   }
 
 
@@ -178,9 +178,9 @@ clean.scraped.module.info.df = function(df) {
   dat = dat[!duplicated(dat),]
 
 
-  if ("Studiengänge" %in% colnames(df)) {
-    df$Studiengang = paste0(df$Studiengang," ", df[["Studiengänge"]])
-    df = df[,setdiff(colnames(df,"Studiengänge"))]
+  if ("Studieng?nge" %in% colnames(df)) {
+    df$Studiengang = paste0(df$Studiengang," ", df[["Studieng?nge"]])
+    df = df[,setdiff(colnames(df,"Studieng?nge"))]
   }
 
   # Rename columns
@@ -209,8 +209,8 @@ scrap.module.info = function(str, line.dist=2) {
 
   row = which(str.starts.with(str,"Einordnung in die"))
   str[row] = paste0("Studiengang",str.right.of(str[row],"Einordnung in die"))
-  str[row+1] = str.right.of(str[row+1],"Studiengänge")
-  str[row+2] = str.right.of(str[row+2],"Studiengänge",not.found = str[row+2])
+  str[row+1] = str.right.of(str[row+1],"Studieng?nge")
+  str[row+2] = str.right.of(str[row+2],"Studieng?nge",not.found = str[row+2])
 
   row = which(str.starts.with(str,"Lehr- und"))
   str[row] = paste0("Lehrform",str.right.of(str[row],"Lehr- und"))
@@ -281,8 +281,6 @@ make.seminar.kurse = function(semester) {
       zeitform = "b",
       sprache = cld2::detect_language(m$titel),
       turnus = 2,
-      zukunft_sem = semester + 10,
-      zukunft_sem2 = semester + 20,
       codeshare = "",
       kommentar = ""
     )

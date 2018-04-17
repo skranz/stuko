@@ -17,7 +17,8 @@ kurse.ui = function(..., app=getApp(), glob=app$glob) {
       dataTableOutput("kurseTable")
     ),
     actionButton("refreshKurseBtn","",icon = icon("refresh")),
-    simpleButton("addKursBtn","Neuen Kurs anlegen"),
+    if (app$stuko)
+      simpleButton("addKursBtn","Neuen Kurs anlegen"),
     simpleButton("deactivateKurseBtn","Markierte Kurse (de-)aktivieren",form.sel = ".kursCheck"),
     simpleButton("copyKurseBtn","Markierte Kurse in anderes Semester kopieren"),
     simpleButton("delKurseBtn","Markierte Kurse entfernen",form.sel = ".kursCheck"),
@@ -91,6 +92,7 @@ make.kurse.datatable.df = function(sd, app=getApp(), glob=app$glob, kfilter = fi
   restore.point("make.kurse.table.df")
 
 
+  sets = glob$sets
   kurse = sd$kurse
 
   # Filter Kurse fuer spezifierten Koordinator
@@ -111,7 +113,7 @@ make.kurse.datatable.df = function(sd, app=getApp(), glob=app$glob, kfilter = fi
   )
 
 
-  df = transmute(kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,Aktiv=ifelse(aktiv,"Ja","Nein"),SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus,  'Pruefung'=pruefungsform, Codesharing=ifelse(nchar(codeshare)>0,"Ja",""), 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
+  df = transmute(kurse,Aktion=btns, Kurs=kursname, Dozent=dozent,Aktiv=ifelse(aktiv,"Ja","Nein"),SWS=sws_kurs+sws_uebung,BaMa=bama, Zuordnung=zuordnung, Schwerpunkte=schwerpunkt, Kursform=to.label(kurse$kursform, glob$sets$kursform), Sprache=sprache, Extern=ifelse(extern,"extern","intern"), ECTS=as.integer(ects), Koordinator=koordinator,Lehrauftrag=lehrauftrag, Module = num_modul, Turnus=turnus,  'Pruefung'=to.label(pruefung, sets$pruefung), Offen=to.label(offen, sets$offen), 'Modifiziert am'=as.Date(modify_time), 'Modifiziert durch'=modify_user)
 
   df
 }
@@ -512,9 +514,6 @@ copy.selected.kurse = function(kursids, tosem, overwrite=FALSE, ...,fromsem = ge
   if (NROW(most)>0) most$semester = tosem
   if (NROW(mosp)>0) mosp$semester = tosem
   if (NROW(mozu)>0) mozu$semester = tosem
-
-  ku$zukunft_sem = tosem + 5*ku$turnus
-  ku$zukunft_sem2 = tosem + 5*(ku$turnus*2)
 
 
   dbWithTransaction(db, {

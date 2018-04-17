@@ -94,6 +94,21 @@ pruefungsform:
   'Seminar': se
   'keine Angaben': '-'
   'sonstige': so
+pruefung:
+  'Klausur': k
+  'Mündliche Prüfung': m
+  'Klausur oder Mündlich': km
+  'Seminar': se
+  'keine Angaben': '-'
+  'sonstige': so
+offen:
+  'offen': o
+  'geschlossen': g
+findet_statt:
+  'sollte stattfinden': s
+  'noch unklar': u
+
+
 eval_was:
   'Keine Evaluation': '-'
   'Nur Vorlesung': vl
@@ -112,6 +127,7 @@ jobemail:
   'Keine Email senden': -1
   'Noch nicht versandt': 0
   'Bereits versandt': 1
+
 hiwityp:
   'Tutor': tu
   'Hiwi ohne Abschluss': hi

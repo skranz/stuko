@@ -13,8 +13,6 @@ examples.copy.semester = function() {
 
 #
 #   ku = dbGet(db,"kurs")
-#   ku$zukunft_sem = ku$semester + ku$turnus*5
-#   ku$zukunft_sem2 = ku$semester + ku$turnus*10
 #
 #   dbWithTransaction(db,{
 #     dbDelete(db,"kurs", list())
@@ -42,12 +40,8 @@ copy.kurse.to.semester = function(db = get.stukodb(),source.sem, dest.sem, overw
   }
   ku$semester = dest.sem
 
-  ku$zukunft_sem = dest.sem + 5*ku$turnus
-  ku$zukunft_sem2 = dest.sem + 5*(2*ku$turnus)
-
   kupe$semester = dest.sem
   kumo$semester = dest.sem
-
 
   dbWithTransaction(db,{
     dbInsert(db,"kurs", ku)

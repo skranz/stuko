@@ -10,16 +10,20 @@ fields:
       choices:
         Ja: TRUE
         Nein: FALSE
+  findet_statt:
+    lang_de:
+      label: 'Wie sicher findet Kurs statt?'
+      choice_set: findet_statt
   kursid:
     lang_de:
       label: 'Interne ID'
   vnum:
     lang_de:
       label: 'Kurs-Nr Vorlesungsverzeichnis'
-  codeshare:
-    lang_de:
-      label: 'Codesharing mit Kurs'
-      choice_set: codeshare
+#  codeshare:
+#    lang_de:
+#      label: 'Codesharing mit Kurs'
+#      choice_set: codeshare
   kursform:
     lang_de:
       label: 'Form des Kurses'
@@ -44,14 +48,22 @@ fields:
     lang_de:
       label: "Geplanter Turnus (jedes x'te Semester)"
       choices:  {'Einmalig': 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}
-  zukunft_sem:
+##  zukunft_sem:
+##    lang_de:
+##      label: 'Plan: nächster Termin'
+##      choice_set: semester
+##  zukunft_sem2:
+##    lang_de:
+##      label: 'Plan: übernächster Termin'
+##      choice_set: semester
+  pruefung:
     lang_de:
-      label: 'Plan: nächster Termin'
-      choice_set: semester
-  zukunft_sem2:
+      label: 'Prüfungsform'
+      choice_set: pruefung
+  offen:
     lang_de:
-      label: 'Plan: übernächster Termin'
-      choice_set: semester
+      label: 'Prüfung offen?'
+      choice_set: offen
   eval_was:
     lang_de:
       label: 'Evaluierung von'

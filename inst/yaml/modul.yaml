@@ -32,7 +32,7 @@ fields:
     lang_de:
       label: 'Weitere Zuordnungen'
       choice_set: zuordnung
-  pruefungsform:
-    lang_de:
-      label: 'Pruefungsform'
-      choice_set: pruefungsform
+#  pruefungsform:
+#    lang_de:
+#      label: 'Pruefungsform'
+#      choice_set: pruefungsform

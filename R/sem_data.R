@@ -113,7 +113,7 @@ get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob, 
       ects = paste0(unique(ects), collapse=", "),
       schwerpunkt = paste0(unique(schwerpunkt), collapse=", "),
       bama = paste0(unique(bama), collapse=", "),
-      pruefungsform = paste0(unique(pruefungsform), collapse=", "),
+      #pruefungsform = paste0(unique(pruefungsform), collapse=", "),
       zuordnung = paste0(unique(zuordnung), collapse=", "),
     ) %>%
     dplyr::distinct(kursid, semester, .keep_all=TRUE) %>%
