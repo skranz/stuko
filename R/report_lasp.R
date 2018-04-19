@@ -4,7 +4,7 @@ examples.lasp.report = function() {
   setwd("D:/libraries/stuko/")
   db = get.stukodb("D:/libraries/stuko/ulm/db")
 
-  semester = 190
+  semester = 185
   lehrangebot.schwerpunkt.report(semester, db)
 
 }
@@ -42,6 +42,8 @@ lehrangebot.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir 
   d = ku %>% group_by(kursname, sp) %>%
     summarize(ects=first(ects), sem1 = xfun(semester, findet_statt, 1) ,sem2=xfun(semester,findet_statt,2),sem3=xfun(semester,findet_statt,3))
 
+  d$current = d$sem3 != ""
+  d$prev = d$current==FALSE & d$sem2 != ""
 
 
   d = arrange(d, sp) %>% filter(nchar(sp)>0)
@@ -86,10 +88,19 @@ lehrangebot.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir 
             body_add_par(paste0("Schwerpunkt: ", csp, " (",bm,")"), style = "heading 2")
       }
 
+      restore.point("dfhd")
       df = filter(dbm, sp %in% csp) %>%
-        select(-sp,-bama)
+        arrange(desc(current), desc(prev)) %>%
+        select(-sp,-bama, -prev)
+
+      tab = regulartable(df, col_keys=setdiff(colnames(df),"current")) %>% theme_box() %>% bg(i = which(!df$current),bg="#cccccc") %>% width(1,4.2) %>% width(2,0.25) %>% width(3:5, 0.7) %>% align(j = 1,align="left")
+      dim_pretty(tab)
+
       doc = doc %>%
-         body_add_table(df, style="Plain Table 1")
+         #body_add_table(df, style="Plain Table 1")
+         body_add_flextable(tab,align = "left")
+
+
     }
   }
 
