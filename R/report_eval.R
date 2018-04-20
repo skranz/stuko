@@ -4,7 +4,7 @@ examples.seminar.report = function() {
   setwd("D:/libraries/stuko/")
   db = get.stukodb("D:/libraries/stuko/ulm/db")
 
-  semester = 185
+  semester = 180
   evaluierung.report(semester, db)
 
 }
@@ -28,6 +28,8 @@ evaluierung.report = function(semester, db = get.stukodb(), out.dir = getwd(), o
   dupl = duplicated(select(ku, koid, kursname))
   ku = ku[!dupl,]
 
+  ku = mutate(ku, ul = ifelse(eval_was == "vu",ifelse(ul=="","NN",""),""))
+
   ku$eval_was = to.label(ku$eval_was, sets$eval_was)
 
   #kue = filter(ku, do_eval)
@@ -42,8 +44,9 @@ evaluierung.report = function(semester, db = get.stukodb(), out.dir = getwd(), o
     body_replace_at("sem_label",paste0(sem_label," ")) %>%
     body_replace_at("date_label", date_label)
 
-  tab = select(kue, koordinator, dozent, kursname, eval_was, sprache)
-  colnames(tab) = c("Koord.", "Dozent", "Kurs","Evaluation", "Sprache")
+
+  tab = select(kue, koordinator,kursname,vnum,  dozent, ul, eval_was, sprache)
+  colnames(tab) = c("Koord.",  "Kurs", "LSF","Dozent", "\u00dcbung", "Evaluation", "Sprache")
 
   #ft = regulartable(tab)
   doc = doc %>%

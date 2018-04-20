@@ -1,5 +1,5 @@
 
-get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob, cache=TRUE) {
+get.sem.data = function(sem=app$sem, update=FALSE, app=getApp(), glob=app$glob, cache=TRUE, add.ul = FALSE) {
   restore.point("get.sem.data")
   sem.key = as.character(sem)
   if (!update & !is.null(glob$sem.dat[[sem.key]])) {
