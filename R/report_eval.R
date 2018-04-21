@@ -4,7 +4,7 @@ examples.seminar.report = function() {
   setwd("D:/libraries/stuko/")
   db = get.stukodb("D:/libraries/stuko/ulm/db")
 
-  semester = 180
+  semester = 185
   evaluierung.report(semester, db)
 
 }
@@ -28,7 +28,7 @@ evaluierung.report = function(semester, db = get.stukodb(), out.dir = getwd(), o
   dupl = duplicated(select(ku, koid, kursname))
   ku = ku[!dupl,]
 
-  ku = mutate(ku, ul = ifelse(eval_was == "vu",ifelse(ul=="","NN",""),""))
+  ku = mutate(ku, ul = ifelse(eval_was == "vu",ifelse(ul=="","NN",ul),""))
 
   ku$eval_was = to.label(ku$eval_was, sets$eval_was)
 

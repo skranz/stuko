@@ -2,7 +2,7 @@ examples.stuko.app = function() {
   restore.point.options(display.restore.point=TRUE)
   stuko.dir = "D:/libraries/stuko/ulm"
   setwd(stuko.dir)
-  app = stukoApp(stuko.dir, sem=180, init.userid = "sebastian.kranz@uni-ulm.de",need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
+  app = stukoApp(stuko.dir, sem=185, init.userid = "sebastian.kranz@uni-ulm.de",need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
   #viewApp(app)
 
   viewApp(app,launch.browser = TRUE)
