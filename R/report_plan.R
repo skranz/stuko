@@ -4,7 +4,7 @@ examples.plan.report = function() {
   setwd("D:/libraries/stuko/")
   db = get.stukodb("D:/libraries/stuko/ulm/db")
 
-  semester = 180
+  semester = 185
   planung.schwerpunkt.report(semester, db)
 
 }
@@ -19,11 +19,14 @@ planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = ge
   sems = seq(semester, semester+(num.sem-1)*5,by=5)
   li = lapply(sems, function(sem) {
     sd = get.sem.data(sem)
-    ku = filter(sd$kurse,kursform %in% c("vl","vu"),aktiv, extern==FALSE)
+    ku = sd$kurse
+    ku = filter(ku,kursform %in% c("v","vu"),aktiv, extern==FALSE)
     ku
   })
 
   ku = do.call(rbind,li)
+
+  #test = filter(ku, has.substr(ku$dozent,"Marten"))
 
   ku$sp = strsplit(ku$schwerpunkt, ", ", fixed=TRUE)
 

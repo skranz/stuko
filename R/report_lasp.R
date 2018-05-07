@@ -19,11 +19,16 @@ lehrangebot.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir 
   sems = seq(semester-(num.sem-1)*5,semester,by=5)
   li = lapply(sems, function(sem) {
     sd = get.sem.data(sem)
-    ku = filter(sd$kurse,kursform %in% c("vl","vu"),aktiv)
+    ku = sd$kurse
+    ku = filter(ku,kursform %in% c("v","vu"),aktiv)
     ku
   })
 
   ku = do.call(rbind,li)
+
+  #test = filter(ku, has.substr(ku$dozent,"Marten"))
+
+
 
   ku$sp = strsplit(ku$schwerpunkt, ", ", fixed=TRUE)
 

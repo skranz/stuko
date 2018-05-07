@@ -1,7 +1,7 @@
 examples.lehrangebot.report = function() {
   setwd("D:/libraries/stuko")
-  db = get.stukodb()
-  semester = 160
+  db = get.stukodb("D:/libraries/stuko/ulm/db")
+  semester = 185
   lehrangebot.report(semester, db)
 
 }
@@ -156,6 +156,7 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplica
   kust = inner_join(kumo, most, by=c("semester","modulid"))
 
   wp.ids = kuzu$kursid[str.starts.with(kuzu$zuordnung, "WP")]
+  #ba.pflicht.ids = kuzu$kursid[str.starts.with(kuzu$zuordnung, "WP")]
   ba.ids = kust$kursid[kust$studiengang=="WiWi_BA"]
   ma.ids = kust$kursid[kust$studiengang=="WiWi_MA"]
   nuf.ids = kust$kursid[kust$studiengang=="NUF_MA"]
