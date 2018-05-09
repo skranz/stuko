@@ -2,7 +2,9 @@ examples.stuko.app = function() {
   restore.point.options(display.restore.point=TRUE)
   stuko.dir = "D:/libraries/stuko/ulm"
   setwd(stuko.dir)
-  app = stukoApp(stuko.dir, sem=185, init.userid = "sebastian.kranz@uni-ulm.de",need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
+  userid = ""
+  userid = "sebastian.kranz@uni-ulm.de"
+  app = stukoApp(stuko.dir, sem=185, init.userid = userid,need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
   #viewApp(app)
 
   viewApp(app,launch.browser = TRUE)
@@ -43,7 +45,9 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE,
   person = dbGet(glob$db,"person")
   person$vorname[is.na(person$vorname)] = ""
   person$kurzname = paste0(person$nachname, ifelse(nchar(person$vorname)>0, paste0(", ", substring(person$vorname,1,1),"."), ""))
-  glob$person = person
+
+
+  glob$person = arrange(person,nachname)
   glob$vertreter = dbGet(glob$db,"vertreter")
 
   person = glob$person$personid

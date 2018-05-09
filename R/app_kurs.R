@@ -131,6 +131,8 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
 
 
 
+
+
   kp = filter(sd$kupe,kursid==kurs$kursid)
   kp.ui = tableform.ui(form=glob$forms$kursperson, data=select(kp,-semester, -kursid, -name), use.delete.btn = TRUE)
 
@@ -286,11 +288,25 @@ save.kurs.click = function(kurs = app$kurs, formValues,..., app=getApp(), glob=a
 
   kupev = extract.tableform.formValues(formValues, form=glob$forms$kursperson)
 
+
+  # Check if a koordinator is not from the list of persons
+  #restore.point("check.koordinator")
+  wrong.ko = which(kupev$personid == "" & kupev$rolle %in% c("ko","dk"))
+  if (length(wrong.ko)>0) {
+    html = paste0("Achtung Aenderungen nicht gespeichert: Ein Koordinator muss stets eine 'Person aus der Liste' sein. Bitte nicht nur den Vor- und Nachnamen angeben, sondern jemanden aus der Liste der Personen waehlen. Bei externen, d.h. importierten Kursen, ist der Koordinator normalerweise der Studiendekan des exportierenden Fachbereichs. Wenn ein solcher Studiendekan nicht existiert (z. B. Business English), ist der eigene, importierende Studiendekan der Koordinator. Bei internen Kurse sollte immer ein fester Professor / festangestellter Mitarbeiter des Fachbereichs als Koordinator angegeben werden.")
+    timedMessage("saveKursAlert",html=html,millis = Inf)
+    return()
+  }
+
+
+
   nkupe = if(NROW(kupev)>0) kupev %>% mutate(semester=semester, kursid=nku$kursid)
 
   # set vorname and nachname automatic
   # for persons with personid
   nkupe = set.personid.names(nkupe)
+
+
 
 
   sd = get.sem.data(kurs$semester)
