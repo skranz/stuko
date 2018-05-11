@@ -17,8 +17,8 @@ kurse.ui = function(..., app=getApp(), glob=app$glob) {
       dataTableOutput("kurseTable")
     ),
     actionButton("refreshKurseBtn","",icon = icon("refresh")),
-    if (app$stuko)
-      simpleButton("addKursBtn","Neuen Kurs anlegen"),
+    #if (app$stuko)
+    simpleButton("addKursBtn","Neuen Kurs anlegen"),
     simpleButton("deactivateKurseBtn","Markierte Kurse (de-)aktivieren",form.sel = ".kursCheck"),
     simpleButton("copyKurseBtn","Markierte Kurse in anderes Semester kopieren"),
     simpleButton("delKurseBtn","Markierte Kurse entfernen",form.sel = ".kursCheck"),
@@ -248,8 +248,43 @@ delete.kurse.click = function(formValues, ..., app=getApp()) {
 
 }
 
-new.kurs.click = function(..., app=getApp()) {
+new.kurs.click = function(..., app=getApp(), show.diag=!is.true(app$kfilter=="all")) {
   restore.point("new.kurs.click")
+
+  if (show.diag) {
+    diag = modalDialog(size = "l", title="Wirklich neuen Kurs erstellen?", footer=NULL,tagList(HTML(paste0(
+"<p>Um die Datenbank konsistent zu halten, erstellen Sie bitte nur dann einen neuen Kurs, wenn dies wirklich ein neuer Kurs ist, der nicht bereits in der Datenbank enthalten ist.</p>
+<ul><li>
+Falls der Kurs schonmal fuer ein frueheres Semester in die Datenbank eingetragen wurde, machen Sie bitte Folgendes:      <ol>
+    <li>Druecken Sie auf Abbruch</li>
+    <li>Waehlen Sie bitte dieses fruehere Semester in der Semesterauswahl in der obersten Zeile der Anwendung.</li>
+    <li>Markieren Sie in der Kursliste dieses frueheren Semesters die Checkbox des zu kopierenden Kurses und druecken Sie den Knopf 'Markierte Kurse in anderes Semester kopieren' unterhalb der Kursliste.</li>
+    <li>Folgen Sie den Anweisungen des sich dann oeffnenden Dialogs um den Kurs in dieses Semester zu kopieren.</li>
+  </ol>
+</li><li>
+Es kann auch sein, dass Sie einen Kurs erstellen wollten, der schonmal gehalten wurde, Sie aber nicht als Koordinator fuer den Kurs eingetragen sind. Melden Sie sich in diesem Fall bitte  bei ", app$glob$sets$ansprechpartner, ", um als Koordinator fuer den Kurs freigeschaltet zu werden.
+</li>
+<li>Wenn Sie wirklich einen komplett neuen Kurs erstellen wollen, muessen Sie hierfuer auch ein Modul in dieser Software anlegen (siehe Reiter Module), welches zusaetzliche Informationen wie z. B. ECTS beschreibt. Normalerweise gibt es ein Modul pro Kurs, aber wenn z. B. der Kurs fuer Bachelor und Master mit unterschiedlich vielen ECTS angeboten wird, sollte man zwei Module erstellen.
+Ausserdem muessen Sie noch eine detailierte Modulbeschreibung fuer den Kurs erstellen (derzeit noch ein Worddokument). Kontaktieren Sie ", app$glob$sets$ansprechpartner, " fuer eine Vorlage der Modulbeschreibung und senden Sie ihm die ausgefuellte Modulbeschreibung.
+</li>
+</ul>
+<hr>
+<p>Sind Sie immer noch sicher, dass Sie einen neuen Kurs erstellen wollen?</p>
+"
+      )),
+      simpleButton("okCreateKursBtn", "Ja, ich moechte einen neuen Kurs erstellen"),
+      simpleButton("cancelModalBtn","Abbruch")
+    ))
+    showModal(diag)
+    buttonHandler("cancelModalBtn", function(...) removeModal())
+    buttonHandler("okCreateKursBtn", function(...) {
+      removeModal()
+      new.kurs.click(show.diag=FALSE)
+    })
+    return()
+  }
+
+
   kurs = list(kursid="", semester=app$sem, aktiv=TRUE, turnus=2, kursform="vu", zeitform="w", sws_kurs=0, sws_uebung=0, sprache="de")
   app$new.kurs = TRUE
   show.edit.kurs(kurs)
