@@ -205,7 +205,7 @@ deactivate.kurse.click = function(formValues, ..., app=getApp()) {
 
       dbUpdate(app$glob$db,"kurs",vals = list(aktiv=!aktiv),where=list(semester=semester, kursid=id))
 
-      action = if (aktiv) "aktiviert" else "deaktiviert"
+      action = if (!aktiv) "aktiviert" else "deaktiviert"
       log = paste0("Kurs ", kurs$kursname , "(", kurs$kursid, ") wurde ", action, ".")
 
       write.stuko.log(log,action)
