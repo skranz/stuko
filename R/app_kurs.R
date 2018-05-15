@@ -204,6 +204,12 @@ deactivate.kurse.click = function(formValues, ..., app=getApp()) {
       aktiv = kurs$aktiv[[1]]
 
       dbUpdate(app$glob$db,"kurs",vals = list(aktiv=!aktiv),where=list(semester=semester, kursid=id))
+
+      action = if (aktiv) "aktiviert" else "deaktiviert"
+      log = paste0("Kurs ", kurs$kursname , "(", kurs$kursid, ") wurde ", action, ".")
+
+      write.stuko.log(log,action)
+
     }
   })
 
@@ -257,7 +263,7 @@ new.kurs.click = function(..., app=getApp(), show.diag=!is.true(app$kfilter=="al
 <ul><li>
 Falls der Kurs schonmal fuer ein frueheres Semester in die Datenbank eingetragen wurde, machen Sie bitte Folgendes:      <ol>
     <li>Druecken Sie auf Abbruch</li>
-    <li>Waehlen Sie bitte dieses fruehere Semester in der Semesterauswahl in der obersten Zeile der Anwendung.</li>
+    <li>Waehlen Sie bitte dieses fruehere Semester in der Semesterauswahl in der obersten Zeile dieser Anwendung.</li>
     <li>Markieren Sie in der Kursliste dieses frueheren Semesters die Checkbox des zu kopierenden Kurses und druecken Sie den Knopf 'Markierte Kurse in anderes Semester kopieren' unterhalb der Kursliste.</li>
     <li>Folgen Sie den Anweisungen des sich dann oeffnenden Dialogs um den Kurs in dieses Semester zu kopieren.</li>
   </ol>
