@@ -58,6 +58,8 @@ modul:
     ects: INTEGER
     # k, m, km, a, -
     pruefungsform: CHARACTER(2)
+    # Falls mehrere Prueungsnr, dann mit Komma getrennt
+    pruefungsnr: TEXT
   indexes:
     - "CREATE INDEX modul1 on modul (modulid,semester)"
     - "CREATE INDEX modul2 on modul (semester, modulid)"
@@ -101,8 +103,7 @@ mhb:
 
 modulstudiengang:
   descr: |
-    Hier nur die Studiengaenge, fuer welche die WiWi Stuko,
-    ein Lehrprogramm verabschieden muss
+    Alle Studiengaenge fuer die der Kurs geoeffnet ist
   table:
     modulid: CHARACTER(20)
     semester: INTEGER
@@ -162,9 +163,13 @@ kurs:
     kommentar: TEXT
     eval_was: CHARACTER(4)
     #eval_boegen: INTEGER
+    findet_statt: CHARACTER(2)
+    # Pruefungsinfo
     pruefung: CHARACTER(2)
     offen: CHARACTER(1)
-    findet_statt: CHARACTER(2)
+    pruefung_dauer: TEXT # in minuten
+    pruefung_selbst: CHARACTER(2) # vs zentral gemanaget
+    pruefung_teilnehmer: TEXT # Mindestzahl der Teilnehmer für Raum
 
   indexes:
     - "CREATE INDEX kurs1 on kurs (semester, kursid)"

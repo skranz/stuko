@@ -4,7 +4,7 @@ fields:
       label: 'Modulname'
   modulid:
     lang_de:
-      label: 'Modul-ID'
+      label: 'Modul-ID (intern)'
   code:
     lang_de:
       label: 'Modulcode (letzte 5 Stellen)'
@@ -12,8 +12,8 @@ fields:
     lang_de:
       label: 'Externes Modul?'
       choices:
-        'Extern': TRUE
-        'Intern': FALSE
+        'Extern (importiert)': TRUE
+        'Intern (selbstverwaltet)': FALSE
   ects:
     lang_de:
       label: 'ECTS'
@@ -32,6 +32,13 @@ fields:
     lang_de:
       label: 'Weitere Zuordnungen'
       choice_set: zuordnung
+  pruefungsnr:
+    input: textarea
+    lang_de:
+      label: 'Pruefungsnummer(n)'
+      help: |
+        Angabe nur für nicht importierte Module.
+        Pruefungsnummer fuer Vorleistung mit '(Vorleistung)' anmerken.
 #  pruefungsform:
 #    lang_de:
 #      label: 'Pruefungsform'

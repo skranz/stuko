@@ -56,14 +56,6 @@ fields:
 ##    lang_de:
 ##      label: 'Plan: übernächster Termin'
 ##      choice_set: semester
-  pruefung:
-    lang_de:
-      label: 'Prüfungsform'
-      choice_set: pruefung
-  offen:
-    lang_de:
-      label: 'Prüfung offen?'
-      choice_set: offen
   eval_was:
     lang_de:
       label: 'Evaluierung von'
@@ -76,4 +68,39 @@ fields:
     input: textarea
     lang_de:
       label: 'Kommentar zum Kurs dieses Semester'
+  pruefung:
+    lang_de:
+      label: 'Prüfungsform'
+      choice_set: pruefung
+  offen:
+    lang_de:
+      label: 'Prüfung offen?'
+      choice_set: offen
+  pruefung_dauer:
+    lang_de:
+      label: 'Bei Klausur: Dauer in Minuten'
+  pruefung_selbst:
+    lang_de:
+      label: 'Prüfungen im Prüfungszeitraum?'
+      choice_set: pruefung_selbst
+      help: |
+        Für alle Klausuren im Prüfungszeitraum werden zentral
+        Räume und Termine organisiert.<br>Für Prüfungen außerhalb des
+        Prüfungszeitraums, musss das Institut selbst Räume und Termine planen.
+        <br>Bei mündlichen
+        Prüfungen im Prüfungszeitraum organisieren Sie zwar auch selbst den Termin,
+        aber bitte trotzdem 'Im Prüfungszeitraum' wählen.
+  pruefung_teilnehmer:
+    input: textarea
+    lang_de:
+      label: 'Klausur: Raumgröße / Teilnehmer'
+      help: |
+        Für wie viele potentielle Klausurteilnehmer sollen Räume reserviert werden?
+        Sie können unterschiedliche Einschätzungen für Haupt- und
+        Nachklausuren angeben (Freitext).
+        <br>
+        Natürlich können Sie Teilnehmerzahlen im Vorfeld nie exakt wissen,
+        aber Ihre Einschätzung kann der Raumplanung helfen.
+
+
 

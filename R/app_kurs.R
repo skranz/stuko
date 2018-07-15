@@ -159,8 +159,12 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
     kp.ui,
     simpleButton("addKurspersonBtn","Neuer Mitarbeiter."),
     helpText("Wenn kein Koordinator eingetragen wird, verwaltet der Studiendekan den Kurs direkt. Die Spalte SWS ist nur fuer Lehrbeauftragte relevant."),
-    layout.widgets.as.fluid.grid(widgets[c(-1,-nw)], 3),
-    fluidRow(column(width = 12, widgets[nw])),
+    fluidRow(column(width = 12, widgets[1])),
+    layout.widgets.as.fluid.grid(widgets[c(2:12)], 3),
+    fluidRow(column(width = 12, widgets[13])),
+    h4("Zur Pruefungsverwaltung"),
+    layout.widgets.as.fluid.grid(widgets[14:16], 3),
+    layout.widgets.as.fluid.grid(widgets[17:18], 2),
     uiOutput("saveKursAlert"),
     simpleButton("saveKursBtn","Speichern",form.sel = form.sel)
   )

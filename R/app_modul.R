@@ -103,10 +103,17 @@ show.edit.modul = function(modul,..., app=getApp(), glob=app$glob) {
 
   form.sel = paste0(paste0("#modul_",names(form$fields)), collapse=", ")
 
+  nw = length(widgets)
   ui = tagList(
     h3("Modul bearbeiten"),
-    fluidRow(column(width = 12, widgets[1])),
-    layout.widgets.as.fluid.grid(widgets[-1], 3),
+    fluidRow(
+      column(width = 8, widgets[1]),
+      column(width = 4, widgets[2])
+    ),
+    layout.widgets.as.fluid.grid(widgets[c(-1,-2,-nw)], 3),
+    fluidRow(
+      column(width = 8, widgets[nw])
+    ),
     uiOutput("saveModulAlert"),
     simpleButton("saveModulBtn","Modul Speichern",form.sel = form.sel)
   )
