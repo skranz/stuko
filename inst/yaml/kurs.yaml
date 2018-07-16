@@ -81,15 +81,15 @@ fields:
       label: 'Bei Klausur: Dauer in Minuten'
   pruefung_selbst:
     lang_de:
-      label: 'Prüfungen im Prüfungszeitraum?'
+      label: 'Klausur im Prüfungszeitraum?'
       choice_set: pruefung_selbst
       help: |
         Für alle Klausuren im Prüfungszeitraum werden zentral
-        Räume und Termine organisiert.<br>Für Prüfungen außerhalb des
+        Räume und Termine organisiert.<br>Für Klausuren außerhalb des
         Prüfungszeitraums, musss das Institut selbst Räume und Termine planen.
-        <br>Bei mündlichen
-        Prüfungen im Prüfungszeitraum organisieren Sie zwar auch selbst den Termin,
-        aber bitte trotzdem 'Im Prüfungszeitraum' wählen.
+        <br>Bei Seminaren, mündlichen
+        Prüfungen, usw. organisieren Sie zwar auch selbst Raum und Termin,
+        aber bitte trotzdem 'Im Prüfungszeitraum' stehen lassen.
   pruefung_teilnehmer:
     input: textarea
     lang_de:

@@ -1,16 +1,25 @@
 reports.ui = function(..., app=getApp(), glob=app$glob) {
   ui = tagList(
     helpText("Druecken Sie auf den entsprechenden Knopf um den Report zu erzeugen und als Word-Dateien herunterzuladen."),
+
     downloadButton("repLPBtn", "Lehrangebot"),
     helpText("Eine formale Darstellung des Lehrprogramms, wie es in der StuKo und Fakultaetsrat beschlossen wird."),
+
     downloadButton("repDiagBtn", "Diagnostik des Lehrangebots"),
     helpText("Eine Diagnostik des Lehrprogramms. Vor allem gedacht um noch offene Baustellen in den Daten zu entdecken bevor das Lehrprogramm offiziell beschlossen wird."),
+
     downloadButton("repLaspBtn", "Lehrangebot nach Schwerpunkten"),
     helpText("Lehrangebot nach Schwerpunkten und vergleich mit 2 vorherigen Semerstern."),
+
     downloadButton("repPlanBtn", "Zweijahresplanung nach Schwerpunkten"),
     helpText("Geplantes Lehrangebot fuer 4 Semester nach Schwerpunkten."),
+
     downloadButton("repLBBtn","Lehrbeauftragte"),
     helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Verguetung."),
+
+    downloadButton("repPruefungBtn","Pruefungsliste"),
+    helpText("Eine Liste der Pruefungen mit Pruefungsnummern zur zentralen Klausurplanung."),
+
     downloadButton("repEvalBtn","Evaluierungswuensche"),
     helpText("Eine Liste der Evaluierungswuensche (z.B. nur Vorlesung oder Vorlesung und Uebung) aller Kurse."),
     if (!is.null(app$glob$semdb.dir)) {
@@ -79,6 +88,18 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
       )
     }
   )
+
+  setDownloadHandler("repPruefungBtn",
+    filename=function(app = getApp())
+      paste0("Pruefungen_",semester_name(app$sem),".docx"),
+    content = function(file, ...) {
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        pruefung.report(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets)
+      )
+    }
+  )
+
 
   setDownloadHandler("repEvalBtn",
     filename=function(app = getApp())
