@@ -96,8 +96,8 @@ pruefung.report = function(semester, db = get.stukodb(), out.dir = getwd(), out.
 
   # Change bookmarks
   doc = doc %>%
-    body_replace_text_at_bkm("sem_label",paste0(sem_label," ")) %>%
-    body_replace_text_at_bkm("date_label", date_label)
+    body_replace_at("sem_label",paste0(sem_label," ")) %>%
+    body_replace_at("date_label", date_label)
 
   doc = doc %>%
     body_add_par("Klausuren im Pruefungszeitraum", style = "heading 1")
