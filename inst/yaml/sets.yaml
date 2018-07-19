@@ -112,17 +112,17 @@ pruefungsform:
 pruefung:
   'Klausur': k
   'Mündliche Prüfung': m
+  '1. Termin Klausur, 2. Termin mündlich': m2
   'Klausur oder Mündlich': km
   'Seminar': se
   'keine Angaben': '-'
   'sonstige': so
 
 pruefung_selbst:
-  'Im Prüfungszeitraum': '-'
-  'Erst- und Zweittermin selbstorganisiert': s
-  'Ersttermin im Prüfungszeitraum, Zweittermin selbstorganisiert': s2
-  'Ersttermin selbst organisiert, Zweittermin im Prüfungszeitraum': s1
-
+  'Im Prüfungszeitraum (1. und 2. Termin)': '-'
+  'Keine Prüfung im Prüfungszeitraum': s
+  'Nur 1. Termin im Prüfungszeitraum': s2
+  'Nur 2. Termin im Prüfungszeitraum': s1
 
 offen:
   'offen': o

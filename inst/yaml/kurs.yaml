@@ -81,15 +81,26 @@ fields:
       label: 'Bei Klausur: Dauer in Minuten'
   pruefung_selbst:
     lang_de:
-      label: 'Klausur im Prüfungszeitraum?'
+      label: 'Prüfungen im Prüfungszeitraum?'
       choice_set: pruefung_selbst
       help: |
         Für alle Klausuren im Prüfungszeitraum werden zentral
         Räume und Termine organisiert.<br>Für Klausuren außerhalb des
         Prüfungszeitraums, musss das Institut selbst Räume und Termine planen.
         <br>Bei Seminaren, mündlichen
-        Prüfungen, usw. organisieren Sie zwar auch selbst Raum und Termin,
-        aber bitte trotzdem 'Im Prüfungszeitraum' stehen lassen.
+        Prüfungen, usw. organisieren Sie auch stets selbst Raum und Termin.
+  pruefung_anmerkung:
+    input: textarea
+    lang_de:
+      label: 'Anmerkungen (Vorleistungen & selbst organisierte Pruefungen)'
+      help: |
+        Sie können hier allgemeine Anmerkungen für die Prüfungsplanung angeben.
+        <br>Geben Sie bitte an, wenn es Vorleistungen gibt, für die
+        eine spezielle Frist im Studiensekretariat hinterlegt werden soll.
+        <br>Sollen Prüfungen außerhalb des Prüfungszeitraums
+        für Sie beim Studiensekretariat angelegt werden, geben Sie bitte
+        hier die Termine für Haupt- und Nachklausur an. (Räume müssen sie
+        außerhalb des Prüfungszeitraums aber selbst reservieren.)
   pruefung_teilnehmer:
     input: textarea
     lang_de:

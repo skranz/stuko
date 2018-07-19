@@ -2,7 +2,7 @@ examples.import.db = function() {
   setwd("D:/libraries/stuko/")
 
 
-  create.stukodb()
+  create.stukodb("D:/libraries/stuko/ulm/db")
   db = get.stukodb()
   fill.stukodb.from.csv(db=db)
   #copy.modules.to.semester(175, 160)
@@ -43,7 +43,7 @@ stukodb.schemas = function() {
 create.stukodb = function(db.dir=getwd(), db.name="stukodb.sqlite") {
   schema.file = system.file("schema/stukodb.yaml",package = "stuko")
   schemas = dbmisc::load.and.init.schemas(schema.file)
-  dbmisc::dbCreateSQLiteFromSchema(schema.file,db.name = db.name, db.dir=db.dir)
+  dbmisc::dbCreateSQLiteFromSchema(schema.file,db.name = db.name, db.dir=db.dir,update = TRUE)
   #write.stuko.log("Empty stukodb created","new")
 }
 

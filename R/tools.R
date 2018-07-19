@@ -5,14 +5,18 @@ remove.null = function(li) {
 }
 
 example.replace.umlaute = function() {
-  str = c("üßan","Äüfffnö")
+  str = c("Ã¤an")
+  for (f in list.files(getwd(), full.names=TRUE)) {
+    cat("\n",f)
+    parse(f)
+  }
   replace.umlaute(str)
 }
 
 replace.umlaute = function(str) {
   stringi::stri_replace_all_fixed(
     str,
-    c("ä", "ö", "ü", "Ä", "Ö", "Ü","ß"),
+    c("\U00e4", "\U00f6", "Ã¼", "Ã„", "Ã–", "Ãœ","ÃŸ"),
     c("ae", "oe", "ue", "Ae", "Oe", "Ue","ss"),
     vectorize_all = FALSE
   )

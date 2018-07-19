@@ -164,7 +164,8 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
     fluidRow(column(width = 12, widgets[13])),
     h4("Zur Pruefungsverwaltung"),
     layout.widgets.as.fluid.grid(widgets[14:16], 3),
-    layout.widgets.as.fluid.grid(widgets[17:18], 2),
+    layout.widgets.as.fluid.grid(widgets[17:19], 3),
+#    layout.widgets.as.fluid.grid(widgets[19], 1),
     uiOutput("saveKursAlert"),
     simpleButton("saveKursBtn","Speichern",form.sel = form.sel)
   )

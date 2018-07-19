@@ -17,15 +17,28 @@ pruefung.report = function(semester, db = get.stukodb(), out.dir = getwd(), out.
 
   sd = get.sem.data(semester)
   ku = sd$kurse
-  mo = sd$module
 
-  tpl.file = system.file("report_tpl/pruefung_tpl.docx",package="stuko")
-  doc = read_docx(tpl.file)
+
+
+  kumo = sd$kumo
+  kumo = left_join(kumo, sd$mo, by=c("semester","modulid"))
+  mopr = kumo %>%
+    group_by(kursid) %>%
+    summarize(modulpruef = paste0("[",code,"] ", pruefungsnr, collapse="\n\n"))
+
+  ku = inner_join(ku, select(mopr,kursid,modulpruef),by="kursid")
 
   ku = filter(ku,
     is.true(extern==FALSE),
     pruefung != "se"
   )
+
+
+  mo = sd$module
+
+  tpl.file = system.file("report_tpl/pruefung_tpl.docx",package="stuko")
+  doc = read_docx(tpl.file)
+
 
   unique(ku$extern)
   unique(ku$zuordnung)
@@ -50,24 +63,35 @@ pruefung.report = function(semester, db = get.stukodb(), out.dir = getwd(), out.
         pruefung_selbst == "s2" ~ "Nur 1. Termin",
         TRUE ~ ""
       )
-    )
+    ) %>%
+    mutate(Kurs=paste0(kursname," [",bereich,"]"))
 
-
-  klausuren = filter(ku, pruefung %in% c("k","km"), pruefung_selbst != "s")
-
-  add.text= function(old, add) {
+  add.text= function(old, add, sep=", ") {
     if (length(old)==0) return(old)
     add.rows = nchar(old)>0
-    old[add.rows] = paste0(old[add.rows],", ",add)
-    old[!add.rows] = add
+    if (length(add)==1) {
+      old[add.rows] = paste0(old[add.rows],sep,add)
+      old[!add.rows] = add
+    } else {
+      old[add.rows] = paste0(old[add.rows],sep,add[add.rows])
+      old[!add.rows] = add[!add.rows]
+    }
+
     old
   }
+  ku = mutate(ku, anmerkung = add.text(pruefung_anmerkung, anmerkung,sep=". "))
+  ku = mutate(ku, anmerkung = ifelse(pruefung=="m2",add.text(anmerkung,"1. Termin Klausur, 2. Termin m\U00FCndlich",sep=". "), anmerkung))
+
+
+  klausuren = filter(ku, pruefung %in% c("k","km","m2"), pruefung_selbst != "s")
+
   klausuren = mutate(klausuren,
     anmerkung = ifelse(pruefung=="km",add.text(anmerkung,"evtl. m\U00FCndlich"), anmerkung)
   )
 
-  selbst = filter(ku, pruefung %in% c("k","km"), pruefung_selbst == "s")
-  andere = filter(ku, !pruefung %in% c("k","km"))
+
+  selbst = filter(ku, pruefung %in% c("k","km","m2"), pruefung_selbst == "s")
+  andere = filter(ku, !pruefung %in% c("k","km","m2"))
 
 
   # Change bookmarks
@@ -76,17 +100,19 @@ pruefung.report = function(semester, db = get.stukodb(), out.dir = getwd(), out.
     body_replace_text_at_bkm("date_label", date_label)
 
   doc = doc %>%
-    body_add_par("Klausuren", style = "heading 1")
+    body_add_par("Klausuren im Pruefungszeitraum", style = "heading 1")
 
-  df = transmute(klausuren,Kurs=kursname,Dozent=dozent,Zuordnung=bereich,Pruefungsnummern=pruefungsnr,Dauer=pruefung_dauer,Plaetze=pruefung_teilnehmer, `*`=anmerkung)
+  df = transmute(klausuren,Kurs=Kurs,Dozent=dozent,og=offen,`[Modul]  Pruefungen`=modulpruef,Dauer=pruefung_dauer,Plaetze=pruefung_teilnehmer, `*`=anmerkung)
+  colnames(df)[3] = " "
 
   doc = doc %>%
     body_add_table(df, style="Plain Table 1")
 
   doc = doc %>%
-    body_add_par("Von Instituten zu beiden Terminen eigenstaendig organisierte Klausuren ausserhalb des Pruefungszeitraums", style = "heading 1")
+    body_add_par("Kurse mit beiden Klausuren ausserhalb des Pruefungszeitraums", style = "heading 1")
 
-  df = transmute(selbst,Kurs=kursname,Dozent=dozent,Zuordnung=bereich,Pruefungsnummern=pruefungsnr,Anmerkung="Ausserhalb Pruefungszeitraum. Vom Institut organisiert.")
+  df = transmute(selbst,Kurs=Kurs,Dozent=dozent,og=offen,`[Modul]  Pruefungen`=modulpruef,Dauer=pruefung_dauer, Anmerkung=add.text(anmerkung, pruefung_teilnehmer, sep=";\n "))
+  colnames(df)[3] = " "
 
   if (NROW(df)>0) {
     doc = doc %>%
@@ -110,7 +136,8 @@ pruefung.report = function(semester, db = get.stukodb(), out.dir = getwd(), out.
   doc = doc %>%
     body_add_par("Vorlesungen ohne Klausuren", style = "heading 1")
 
-  df = transmute(andere,Kurs=kursname,Dozent=dozent,Zuordnung=bereich,Pruefungsnummern=pruefungsnr,Pruefungsform=pf.fun(pruefung))
+  df = transmute(andere,Kurs=Kurs,Dozent=dozent,og=offen,`[Modul]  Pruefungen`=modulpruef,Pruefungsform=pf.fun(pruefung), Anmerkung=add.text(anmerkung, pruefung_teilnehmer, sep=";\n "))
+  colnames(df)[3] = " "
 
   if (NROW(df)>0) {
     doc = doc %>%
