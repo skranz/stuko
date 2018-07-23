@@ -27,6 +27,7 @@ seminartermine.report = function(semester, db = get.stukodb(), out.dir = getwd()
   ku = inner_join(ku, select(mopr,kursid,modulpruef),by="kursid")
 
   ku = filter(ku,
+    aktiv,
     is.true(extern==FALSE),
     kursform == "se"
   )

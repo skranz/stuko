@@ -29,6 +29,7 @@ pruefung.report = function(semester, db = get.stukodb(), out.dir = getwd(), out.
   ku = inner_join(ku, select(mopr,kursid,modulpruef),by="kursid")
 
   ku = filter(ku,
+    aktiv,
     is.true(extern==FALSE),
     pruefung != "se"
   )
