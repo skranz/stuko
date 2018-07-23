@@ -4,7 +4,7 @@ examples.import.db = function() {
 
   create.stukodb("D:/libraries/stuko/ulm/db")
   db = get.stukodb()
-  fill.stukodb.from.csv(db=db)
+  #fill.stukodb.from.csv(db=db)
   #copy.modules.to.semester(175, 160)
   #copy.modules.to.semester(175, 170)
 

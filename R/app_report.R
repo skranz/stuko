@@ -22,6 +22,9 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
 
     downloadButton("repEvalBtn","Evaluierungswuensche"),
     helpText("Eine Liste der Evaluierungswuensche (z.B. nur Vorlesung oder Vorlesung und Uebung) aller Kurse."),
+
+    downloadButton("repSeminarterminBtn","Seminare: Anmelde- und Pruefungstermine"),
+    helpText("Eine Liste der Anmelde- und Pruefungstermine der Seminare."),
     if (!is.null(app$glob$semdb.dir)) {
       tagList(
         downloadButton("repSeminarsBtn","Seminare im Lehrangebot und Matchingsoftware"),
@@ -100,6 +103,16 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     }
   )
 
+  setDownloadHandler("repSeminarterminBtn",
+    filename=function(app = getApp())
+      paste0("Seminartermine_",semester_name(app$sem),".docx"),
+    content = function(file, ...) {
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        seminartermine.report(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets)
+      )
+    }
+  )
 
   setDownloadHandler("repEvalBtn",
     filename=function(app = getApp())

@@ -108,6 +108,8 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
   dupl = duplicated(newku$kursid)
   newku = newku[!dupl, ]
 
+  # Set Seminartermine empty for new semester
+  newku$seminar_termine = ""
 
   sems = unique(newku$semester)
 

@@ -171,6 +171,7 @@ kurs:
     pruefung_selbst: CHARACTER(2) # vs zentral gemanaget
     pruefung_teilnehmer: TEXT # Mindestzahl der Teilnehmer für Raum
     pruefung_anmerkung: TEXT
+    seminar_termine: TEXT
   indexes:
     - "CREATE INDEX kurs1 on kurs (semester, kursid)"
 

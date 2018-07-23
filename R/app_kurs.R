@@ -129,10 +129,6 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
       fieldInput(name=name,form=form, value = kurs[[name]], lang="de",sets = glob$sets)
   })
 
-
-
-
-
   kp = filter(sd$kupe,kursid==kurs$kursid)
   kp.ui = tableform.ui(form=glob$forms$kursperson, data=select(kp,-semester, -kursid, -name), use.delete.btn = TRUE)
 
@@ -150,6 +146,30 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
   form.sel = paste0(c(paste0("#kurseditModul"),paste0("#kurs_",names(form$fields)),".tableform-kursperson-input"), collapse=", ")
 
   nw = length(widgets)
+
+
+  pruef.klausur.div = div(id = "kursPruefungDiv", style=if(isTRUE(kurs$kursform=="se")) "display: none" else "display: block",
+    h4("Zur Pruefungsverwaltung"),
+    layout.widgets.as.fluid.grid(widgets[14:16], 3),
+    layout.widgets.as.fluid.grid(widgets[17:19], 3)
+  )
+
+  pruef.seminar.div = div(id = "kursSeminarTerminDiv", style=if(!isTRUE(kurs$kursform=="se")) "display: none" else "display: block",
+    #h4("Seminar: Anmeldungs- und dieses Semester"),
+    layout.widgets.as.fluid.grid(widgets[20], 2)
+  )
+
+  selectChangeHandler(paste0(form$prefix,"kursform"),function(value,...) {
+    restore.point("kursform.change")
+    if (isTRUE(value=="se")) {
+      setHtmlHide("kursPruefungDiv")
+      setHtmlShow("kursSeminarTerminDiv")
+    } else {
+      setHtmlHide("kursSeminarTerminDiv")
+      setHtmlShow("kursPruefungDiv")
+    }
+  })
+
   ui = tagList(
     h3("Kurs bearbeiten"),
     fluidRow(column(width = 12, widgets[1])),
@@ -162,9 +182,8 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
     fluidRow(column(width = 12, widgets[1])),
     layout.widgets.as.fluid.grid(widgets[c(2:12)], 3),
     fluidRow(column(width = 12, widgets[13])),
-    h4("Zur Pruefungsverwaltung"),
-    layout.widgets.as.fluid.grid(widgets[14:16], 3),
-    layout.widgets.as.fluid.grid(widgets[17:19], 3),
+    pruef.klausur.div,
+    pruef.seminar.div,
 #    layout.widgets.as.fluid.grid(widgets[19], 1),
     uiOutput("saveKursAlert"),
     simpleButton("saveKursBtn","Speichern",form.sel = form.sel)
@@ -326,6 +345,8 @@ save.kurs.click = function(kurs = app$kurs, formValues,..., app=getApp(), glob=a
     }
   }
 
+  # Setze pruefungsform bei Seminaren immer zu "se
+  if (isTRUE(nku$kursform=="se")) nku$pruefung = "se"
 
   kumov = unlist(formValues$kurseditModul)
 

@@ -110,8 +110,20 @@ fields:
         Sie können unterschiedliche Einschätzungen für Haupt- und
         Nachklausuren angeben (Freitext).
         <br>
-        Natürlich können Sie Teilnehmerzahlen im Vorfeld nie exakt wissen,
+        Beachten Sie, dass die Zahl der Hörsäle uniweit begrenzt sind, d.h. bei
+        übertriebenen Sicherheitspuffer gibt es Probleme: Klausuren müssen auf
+        ungünstige Uhrzeiten oder recht weit in die Semesterferien
+        hineingelegt werden. Natürlich können Sie Teilnehmerzahlen im Vorfeld nie exakt wissen,
         aber Ihre Einschätzung kann der Raumplanung helfen.
+  seminar_termine:
+    input: textarea
+    lang_de:
+      label: 'Seminar: Anmeldungs- und Prüfungstermin dieses Semester'
+      help: |
+        Tragen Sie hier bitte den Anmeldungs- und Prüfungstermin
+        für Ihr Seminar dieses Semester als Freitext ein. Diese werden
+        dann so vom WiWi Prüfungsausschuss an das Studiensekretariat
+        weitergeleitet.
 
 
 
