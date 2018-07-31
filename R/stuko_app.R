@@ -213,7 +213,8 @@ update.log.ui = function(app=getApp(), glob=app$glob,...) {
   restore.point("update.log.ui")
 
   start.date = Sys.Date()
-  month(start.date) = month(start.date)-8
+  start.date = start.date - 8*30
+  #month(start.date) = month(start.date)-8
 
 
   sql = paste0("select * from log where logtime >= ", start.date)
