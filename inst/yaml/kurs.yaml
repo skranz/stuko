@@ -94,7 +94,7 @@ fields:
     lang_de:
       label: 'Anmerkungen (Vorleistungen & selbst organisierte Pruefungen)'
       help: |
-        Sie können hier allgemeine Anmerkungen fuer die Pruefungsplanung angeben.
+        Sie koennen hier allgemeine Anmerkungen fuer die Pruefungsplanung angeben.
         <br>Geben Sie bitte an, wenn es Vorleistungen gibt, fuer die
         eine spezielle Frist im Studiensekretariat hinterlegt werden soll.
         <br>Sollen Pruefungen außerhalb des Pruefungszeitraums
@@ -106,7 +106,7 @@ fields:
     lang_de:
       label: 'Klausur: Raumgröße / Teilnehmer'
       help: |
-        Für wie viele potentielle Klausurteilnehmer sollen Raeume reserviert werden?
+        Fuer wie viele potentielle Klausurteilnehmer sollen Raeume reserviert werden?
         Sie koennen unterschiedliche Einschaetzungen fuer Haupt- und
         Nachklausuren angeben (Freitext).
         <br>
