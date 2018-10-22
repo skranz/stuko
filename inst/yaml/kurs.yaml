@@ -86,7 +86,7 @@ fields:
       help: |
         Fuer alle Klausuren im Pruefungszeitraum werden zentral
         Raeume und Termine organisiert.<br>Fuer Klausuren ausserhalb des
-        Pruefungszeitraums, musss das Institut selbst Raeuume und Termine planen.
+        Pruefungszeitraums, musss das Institut selbst Raeume und Termine planen.
         <br>Bei Seminaren, muendlichen
         Pruefungen, usw. organisieren Sie auch stets selbst Raum und Termin.
   pruefung_anmerkung:
@@ -97,7 +97,7 @@ fields:
         Sie koennen hier allgemeine Anmerkungen fuer die Pruefungsplanung angeben.
         <br>Geben Sie bitte an, wenn es Vorleistungen gibt, fuer die
         eine spezielle Frist im Studiensekretariat hinterlegt werden soll.
-        <br>Sollen Pruefungen außerhalb des Pruefungszeitraums
+        <br>Sollen Pruefungen ausserhalb des Pruefungszeitraums
         fuer Sie beim Studiensekretariat angelegt werden, geben Sie bitte
         hier die Termine fuer Haupt- und Nachklausur an. (Raeume muessen sie
         ausserhalb des Pruefungszeitraums aber selbst reservieren.)
@@ -113,7 +113,7 @@ fields:
         Beachten Sie, dass die Zahl der Hoersaele uniweit begrenzt sind, d.h. bei
         uebertriebenen Sicherheitspuffer gibt es Probleme: Klausuren muessen auf
         unguenstige Uhrzeiten oder recht weit in die Semesterferien
-        hineingelegt werden. Natuerlich kiennen Sie Teilnehmerzahlen im Vorfeld nie exakt wissen,
+        hineingelegt werden. Natuerlich koennen Sie Teilnehmerzahlen im Vorfeld nie exakt wissen,
         aber Ihre Einschaetzung kann der Raumplanung helfen.
   seminar_termine:
     input: textarea
