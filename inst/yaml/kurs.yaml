@@ -84,45 +84,45 @@ fields:
       label: 'Prüfungen im Prüfungszeitraum?'
       choice_set: pruefung_selbst
       help: |
-        Für alle Klausuren im Prüfungszeitraum werden zentral
-        Räume und Termine organisiert.<br>Für Klausuren außerhalb des
-        Prüfungszeitraums, musss das Institut selbst Räume und Termine planen.
-        <br>Bei Seminaren, mündlichen
-        Prüfungen, usw. organisieren Sie auch stets selbst Raum und Termin.
+        Fuer alle Klausuren im Pruefungszeitraum werden zentral
+        Raeume und Termine organisiert.<br>Fuer Klausuren ausserhalb des
+        Pruefungszeitraums, musss das Institut selbst Raeuume und Termine planen.
+        <br>Bei Seminaren, muendlichen
+        Pruefungen, usw. organisieren Sie auch stets selbst Raum und Termin.
   pruefung_anmerkung:
     input: textarea
     lang_de:
       label: 'Anmerkungen (Vorleistungen & selbst organisierte Pruefungen)'
       help: |
-        Sie können hier allgemeine Anmerkungen für die Prüfungsplanung angeben.
-        <br>Geben Sie bitte an, wenn es Vorleistungen gibt, für die
+        Sie können hier allgemeine Anmerkungen fuer die Pruefungsplanung angeben.
+        <br>Geben Sie bitte an, wenn es Vorleistungen gibt, fuer die
         eine spezielle Frist im Studiensekretariat hinterlegt werden soll.
-        <br>Sollen Prüfungen außerhalb des Prüfungszeitraums
-        für Sie beim Studiensekretariat angelegt werden, geben Sie bitte
-        hier die Termine für Haupt- und Nachklausur an. (Räume müssen sie
-        außerhalb des Prüfungszeitraums aber selbst reservieren.)
+        <br>Sollen Pruefungen außerhalb des Pruefungszeitraums
+        fuer Sie beim Studiensekretariat angelegt werden, geben Sie bitte
+        hier die Termine fuer Haupt- und Nachklausur an. (Raeume muessen sie
+        ausserhalb des Pruefungszeitraums aber selbst reservieren.)
   pruefung_teilnehmer:
     input: textarea
     lang_de:
       label: 'Klausur: Raumgröße / Teilnehmer'
       help: |
-        Für wie viele potentielle Klausurteilnehmer sollen Räume reserviert werden?
-        Sie können unterschiedliche Einschätzungen für Haupt- und
+        Für wie viele potentielle Klausurteilnehmer sollen Raeume reserviert werden?
+        Sie koennen unterschiedliche Einschaetzungen fuer Haupt- und
         Nachklausuren angeben (Freitext).
         <br>
-        Beachten Sie, dass die Zahl der Hörsäle uniweit begrenzt sind, d.h. bei
-        übertriebenen Sicherheitspuffer gibt es Probleme: Klausuren müssen auf
-        ungünstige Uhrzeiten oder recht weit in die Semesterferien
-        hineingelegt werden. Natürlich können Sie Teilnehmerzahlen im Vorfeld nie exakt wissen,
-        aber Ihre Einschätzung kann der Raumplanung helfen.
+        Beachten Sie, dass die Zahl der Hoersaele uniweit begrenzt sind, d.h. bei
+        uebertriebenen Sicherheitspuffer gibt es Probleme: Klausuren muessen auf
+        unguenstige Uhrzeiten oder recht weit in die Semesterferien
+        hineingelegt werden. Natuerlich kiennen Sie Teilnehmerzahlen im Vorfeld nie exakt wissen,
+        aber Ihre Einschaetzung kann der Raumplanung helfen.
   seminar_termine:
     input: textarea
     lang_de:
-      label: 'Seminar: Anmeldungs- und Prüfungstermin dieses Semester'
+      label: 'Seminar: Anmeldungs- und Pruefungstermin dieses Semester'
       help: |
-        Tragen Sie hier bitte den Anmeldungs- und Prüfungstermin
-        für Ihr Seminar dieses Semester als Freitext ein. Diese werden
-        dann so vom WiWi Prüfungsausschuss an das Studiensekretariat
+        Tragen Sie hier bitte den Anmeldungs- und Pruefungstermin
+        fuer Ihr Seminar dieses Semester als Freitext ein. Diese werden
+        dann so vom WiWi Pruefungsausschuss an das Studiensekretariat
         weitergeleitet.
 
 

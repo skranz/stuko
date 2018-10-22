@@ -168,7 +168,7 @@ delete.module.click = function(formValues, ..., app=getApp()) {
 
 new.modul.click = function(..., app=getApp()) {
   restore.point("new.modul.click")
-  modul = list(modulid="", semester=app$sem,modify_time = Sys.time(), modify_user = app$userid, code="", extern=FALSE, titel="", ects=0, pruefungsform="")
+  modul = list(modulid="", semester=app$sem,modify_time = Sys.time(), modify_user = app$userid, code="", extern=FALSE, titel="", ects=0, pruefungsform="", pruefungsnr="")
   app$new.modul = TRUE
   show.edit.modul(modul)
 }
