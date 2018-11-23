@@ -1,8 +1,9 @@
 examples.lehrangebot.report = function() {
   setwd("D:/libraries/stuko")
   db = get.stukodb("D:/libraries/stuko/ulm/db")
-  semester = 185
-  lehrangebot.report(semester, db)
+  semester = 190
+  tpl.dir = system.file("report_tpl",package="stuko")
+  lehrangebot.report(semester, db, tpl.dir=tpl.dir)
 
 }
 
@@ -28,12 +29,17 @@ lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
     body_replace_at("date_label", date_label)
 
 
-  add.ft = function(key, dat, show.sp=FALSE) {
+  add.ft = function(key, dat, show.sp=FALSE, title="Vorlesung") {
     if (NROW(dat)==0) return(doc)
-    ft = kurse.lehrangebot.word.table(dat, show.sp, strings=strings)
-    doc %>%
-      cursor_bookmark(key) %>%
-      body_add_flextable(ft,align="left", pos = "on")
+    ft = kurse.lehrangebot.word.table(dat, show.sp, strings=strings, title=title)
+    if (!is.null(key)) {
+      doc %>%
+        cursor_bookmark(key) %>%
+        body_add_flextable(ft,align="left", pos = "on")
+    } else {
+      doc %>%
+        body_add_flextable(ft,align="left", pos = "after")
+    }
   }
 
   kurse$sp[is.na(kurse$sp)] = ""
@@ -41,36 +47,40 @@ lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
 
   key = "wiwi_ba_pflicht"
   dat  = filter(vorl,ba_pflicht)
-  doc = add.ft(key,dat, show.sp=FALSE)
+  doc = add.ft(key,dat, show.sp=FALSE, title="Vorlesung (BA Pflicht)")
 
   key = "wiwi_ba_wp"
   dat  = filter(vorl,ba_wp & !bama_wp)
-  doc = add.ft(key,dat, show.sp=TRUE)
+  doc = add.ft(key,dat, show.sp=TRUE, title="Vorlesung (BA WP)")
 
 
   key = "wiwi_bama_wp"
   dat  = filter(vorl,bama_wp)
-  doc = add.ft(key,dat, show.sp=TRUE)
+  doc = add.ft(key,dat, show.sp=TRUE, title="Vorlesung (BA & MA)")
 
   key = "wiwi_ma_wp"
   dat  = filter(vorl,ma_wp & !bama_wp)
-  doc = add.ft(key,dat, show.sp=TRUE)
+  doc = add.ft(key,dat, show.sp=TRUE, title="Vorlesung (MA)")
 
   key = "nuf_pflicht"
   dat  = filter(vorl,nuf_pflicht)
-  doc = add.ft(key,dat, show.sp=FALSE)
+  doc = add.ft(key,dat, show.sp=FALSE, title="Vorlesung (NUF Pflicht)")
 
   key = "nuf_wp"
   dat  = filter(vorl,nuf_wp)
-  doc = add.ft(key,dat, show.sp=FALSE)
+  doc = add.ft(key,dat, show.sp=FALSE, title="Vorlesung (NUF WP)")
 
   key = "sem_ba"
   dat  = filter(kurse,kursform=="se", ba) %>% arrange(kursname)
-  doc = add.ft(key,dat, show.sp=FALSE)
+  doc = add.ft(key,dat, show.sp=FALSE, title="Seminar (BA)")
 
   key = "sem_ma"
   dat  = filter(kurse,kursform=="se", ma) %>% arrange(kursname)
-  doc = add.ft(key,dat, show.sp=FALSE)
+  doc = add.ft(key,dat, show.sp=FALSE, title="Seminar (MA)")
+
+  key = "weitere"
+  dat = filter(kurse,  !kursform %in% c("vu","v","se"), aktiv) %>% arrange(kursname)
+  doc = add.ft(key,dat, show.sp=FALSE, title="Weitere Veranstaltung")
 
   print(doc, target = out.file)
   invisible(doc)
@@ -84,9 +94,10 @@ cursor_bookmark_or_stay = function(x,id) {
   res
 }
 
-kurse.lehrangebot.word.table = function(dat, show.sp=FALSE, strings) {
+kurse.lehrangebot.word.table = function(dat, show.sp=FALSE, strings, title="Vorlesung") {
   restore.point("kurse.lehrangebot.word.table")
   df = adapt.kurse.for.lehrangebot(dat, show.sp=show.sp, strings=strings)
+  colnames(df)[1] = title
 
   ft <- regulartable(data = df) %>% autofit() %>%
     bold(part = "header") %>% bold(j=3) %>%

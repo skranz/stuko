@@ -10,7 +10,7 @@ examples.stuko.app = function() {
   viewApp(app,launch.browser = TRUE)
 }
 
-stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE, semdb.dir = NULL, ...) {
+stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE, semdb.dir = NULL, tpl.dir=system.file("report_tpl",package="stuko"), ...) {
   restore.point("stukoApp")
   app = eventsApp()
   glob = app$glob
@@ -22,7 +22,7 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE,
 
   glob$semdb.dir = semdb.dir
 
-  glob$tpl.dir = file.path(stuko.dir, "report_tpl")
+  glob$tpl.dir = tpl.dir
   glob$snapshot.dir = file.path(stuko.dir, "snapshots")
 
   glob$sem.dat = list()
