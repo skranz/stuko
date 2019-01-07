@@ -4,7 +4,7 @@ examples.stuko.app = function() {
   setwd(stuko.dir)
   userid = ""
   userid = "sebastian.kranz@uni-ulm.de"
-  app = stukoApp(stuko.dir, sem=185, init.userid = userid,need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
+  app = stukoApp(stuko.dir, sem=190, init.userid = userid,need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
   #viewApp(app)
 
   viewApp(app,launch.browser = TRUE)

@@ -3,11 +3,11 @@
 examples.seminar.report = function() {
   setwd("D:/libraries/stuko/")
   db = get.stukodb("D:/libraries/stuko/ulm/db")
-  semdb.dir = "D:/libraries/stuko/semdb"
+  semdb.dir = "D:/libraries/stuko/ulm/semdb"
   semdb = dbConnect(RSQLite::SQLite(), file.path(semdb.dir, "semDB.sqlite"))
 
-  semester = 180
-  seminar.report(semester, db, semdb)
+  semester = 190
+  seminar.report(semester, db, semdb=semdb)
 
 }
 

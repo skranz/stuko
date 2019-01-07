@@ -1,7 +1,8 @@
 examples.lehrauftrag.report = function() {
   setwd("D:/libraries/stuko")
-  db = get.stukodb()
-  semester = 185
+  db = get.stukodb("D:/libraries/stuko/ulm/db")
+
+  semester = 190
   lehrauftrag.report(semester, db)
 
 }
@@ -18,7 +19,8 @@ lehrauftrag.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
   lb = sd$kupe %>% filter(lehrauftrag != '-') %>%
     filter(lehrauftrag != "hp") # keine Honorarprofs
 
-  lbku = inner_join(lb, select(sd$kurse,kursid, semester, kursname, koordinator), by=c("kursid","semester")) %>%
+  lbku = inner_join(lb, select(sd$kurse,aktiv,kursid, semester, kursname, koordinator), by=c("kursid","semester")) %>%
+    filter(aktiv) %>%
     arrange(koordinator, nachname)
 
   tab = transmute(lbku,

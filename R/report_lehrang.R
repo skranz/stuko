@@ -178,7 +178,7 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplica
 
 
   kurse$ba_wp = kurse$kursid %in% intersect(ba.ids, wp.ids)
-  kurse$ba_pflicht = kurse$kursid %in% setdiff(ba.ids, wp.ids)
+  kurse$ba_pflicht = kurse$kursid %in% setdiff(ba.ids, wp.ids) & kurse$kursform != "se"
 
   kurse$ma_wp = kurse$kursid %in% intersect(ma.ids, wp.ids)
 

@@ -2,8 +2,8 @@
 
 examples.lehrangebot.diagnostik.report = function() {
   setwd("D:/libraries/stuko")
-  db = get.stukodb()
-  semester = 160
+  db = get.stukodb("D:/libraries/stuko/db")
+  semester = 190
   lehrangebot.diagnostik.report(semester, db)
 
 }
@@ -18,11 +18,11 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
   date_label = format(Sys.Date(),"%d.%m.%Y")
 
   kup = load.kurse.for.lehrangebot(semester=semp, db=db)
-  kup = mutate(kup, Kurs=kursname, Dozent=dozent, SWS=sws_kurs+sws_uebung)
+  kup = mutate(kup, Kurs=kursname, Dozent=dozent, SWS=sws_kurs+sws_uebung, is_sem=kursform=="se")
   kup = filter(kup, aktiv)
 
   ku = load.kurse.for.lehrangebot(semester=semester, db=db)
-  ku = mutate(ku, Kurs=kursname, Dozent=dozent, SWS=sws_kurs+sws_uebung)
+  ku = mutate(ku, Kurs=kursname, Dozent=dozent, SWS=sws_kurs+sws_uebung, is_sem=kursform=="se")
 
   na_ku = filter(ku, !aktiv)
   ku = filter(ku, aktiv)
@@ -60,11 +60,6 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
   doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent","SWS"))
 
 
-  doc = doc %>% body_add_par("Nichtaktivierte Kurse", style = "heading 1")
-  dat = na_ku
-  doc = add.lad.comments(doc, dat=dat, "Beachten Sie, dass die vorherigen Statistiken nur aktivierte Kurse beruecksichtigt haben.")
-
-  doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent"))
 
 
   doc = doc %>% body_add_par("Kurse mit Kommentaren fuer dieses Semester", style = "heading 1")
@@ -96,6 +91,15 @@ lehrangebot.diagnostik.report = function(semester, db = get.stukodb(), tpl.dir =
   doc = add.lad.diff.table(doc, label="NUF Pflicht", filter="nuf_pflicht", ku, kup, sem, semp)
 
   doc = add.lad.diff.table(doc, label="NUF Wahlpflicht", filter="nuf_pflicht", ku, kup, sem, semp)
+
+  doc = add.lad.diff.table(doc, label="Seminare", filter="is_sem", ku, kup, sem, semp)
+
+
+  doc = doc %>% body_add_par("Nichtaktivierte Kurse", style = "heading 1")
+  dat = na_ku
+  doc = add.lad.comments(doc, dat=dat, "Beachten Sie, dass die vorherigen Statistiken nur aktivierte Kurse beruecksichtigt haben.")
+
+  doc = add.lad.table(doc,dat, cols=c("Kurs","Dozent"))
 
 
   print(doc, target = out.file)
