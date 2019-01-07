@@ -37,7 +37,7 @@ fields:
     lang_de:
       label: 'Pruefungsnummer(n)'
       help: |
-        Angabe nur für nicht importierte Module.
+        Angabe nur fuer nicht importierte Module.
         Pruefungsnummer fuer Vorleistung mit '(Vorleistung)' anmerken.
 #  pruefungsform:
 #    lang_de:
