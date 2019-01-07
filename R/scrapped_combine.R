@@ -371,7 +371,7 @@ make.amatch.table = function(v1, v2, methods=c("lcs","qgram", "osa"), maxDist=In
   })
 
   d.li = lapply(1:n, function(i) {
-    stringdist(v1, v2.li[[i]], method=methods[i], maxDist=maxDist)
+    stringdist(v1, v2.li[[i]], method=methods[i])
   })
   names(v2.li)=paste0(names[2],"_",methods)
   names(d.li)=paste0("dist_", methods)

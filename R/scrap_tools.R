@@ -13,7 +13,7 @@ unify.words.table = function(words, keys, method="qgram", file=NULL) {
   library(stringdist)
   ind = amatch(words, keys, maxDist = Inf, method=method)
   key = keys[ind]
-  df = data_frame(word = words,key=key, dist=stringdist(words,key,maxDist=Inf, method=method))
+  df = data_frame(word = words,key=key, dist=stringdist(words,key,method=method))
 
   if (!is.null(file)) {
     readr::write_csv(df, file)
