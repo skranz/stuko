@@ -56,8 +56,11 @@ get.turnus.kurse.tosem = function(tosem, lags=1:5, db=get.stukodb()) {
   li = lapply(lags, function(lag) {
     ku = dbGet(db, "kurs", list(semester=tosem-lag*5, turnus=lag),empty.as.null = TRUE)
   })
-  bind_rows(li)
-
+  res = bind_rows(li)
+  res
+  #dupl = duplicated(res$kursid)
+  #res = res[!dupl,]
+  #res
 }
 
 update.copy.all.kurse.ui = function(tosem, ..., app=getApp(), db=get.stukodb()) {
@@ -79,7 +82,7 @@ update.copy.all.kurse.ui = function(tosem, ..., app=getApp(), db=get.stukodb()) 
   num.inter = length(intersect(newku$kursid, exku$kursid))
   num.inter.akku = length(intersect(akku$kursid, exku$kursid))
 
-  html = paste0("- Fuer das Semester ", semester_name(tosem), " sind bereits ", NROW(exku), " Kurse eingetragen.<br>- Aus vorherigen Semestern wuerden turnusgemaess noch ", NROW(newku)-num.inter, " Kurse hinzukommen. Hiervon sind ", NROW(akku), " Kurse aktiv.<br>- Wenn bereits angelegte Kurse im ", semester_name(tosem), " ueberschrieben werden sollen, werden ausserdem noch ", num.inter, " Kurse ueberschrieben, bzw. ", num.inter.akku, " Kurse, wenn nur aktive Kurse uebernommen werden.")
+  html = paste0("- Fuer das Semester ", semester_name(tosem), " sind bereits ", NROW(exku), " Kurse eingetragen.<br>- Aus vorherigen Semestern wuerden turnusgemaess noch ", NROW(akku)-num.inter.akku, " aktive Kurse hinzukommen. Wenn auch nicht-aktive Kurse übernommen werden kämen noch ", NROW(newku)-num.inter," Kurse hinzu.<br>- Wenn bereits angelegte Kurse im ", semester_name(tosem), " ueberschrieben werden sollen, werden ", num.inter.akku, " Kurse ueberschrieben, bzw. ", num.inter, " Kurse, wenn auch nicht-aktive Kurse uebernommen werden.")
   setUI("tosemInfo", HTML(html))
 
 }
@@ -88,12 +91,7 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
   restore.point("copy.all.kurse")
 
   newku = get.turnus.kurse.tosem(tosem, db=db)
-
-
-
   tosd = get.sem.data(tosem)
-
-
   if (just.aktiv) {
     newku = filter(newku, aktiv==TRUE)
   }
@@ -118,13 +116,16 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
   ku = kupe= kumo=mo=most=mosp=mozu=NULL
   for (sem in sems) {
     sd = get.sem.data(sem, cache=FALSE)
-    ku   = rbind(ku,filter(newku, semester==sem))
-    kumo = rbind(kumo,filter(sd$kumo, kursid %in% ku$kursid))
-    kupe = rbind(kupe,filter(sd$kupe, kursid %in% ku$kursid))
-    mo   = rbind(mo,filter(sd$mo, modulid %in% kumo$modulid))
-    most = rbind(most,filter(sd$most, modulid %in% kumo$modulid))
-    mosp = rbind(mosp,filter(sd$mosp, modulid %in% kumo$modulid))
-    mozu = rbind(mozu,filter(sd$mozu, modulid %in% kumo$modulid))
+    semku = filter(newku, semester==sem)
+    ku   = rbind(ku,semku)
+    semkumo = filter(sd$kumo, kursid %in% semku$kursid)
+    kumo = rbind(kumo,semkumo)
+    kupe = rbind(kupe,filter(sd$kupe, kursid %in% semku$kursid))
+    semmo = filter(sd$mo, modulid %in% semkumo$modulid)
+    mo   = rbind(mo,semmo)
+    most = rbind(most,filter(sd$most, modulid %in% semmo$modulid))
+    mosp = rbind(mosp,filter(sd$mosp, modulid %in% semmo$modulid))
+    mozu = rbind(mozu,filter(sd$mozu, modulid %in% semmo$modulid))
   }
 
   log = paste0("Automatische Uebertragung von Kursen und Modulen in das ", semester_name(tosem),"\n\n",
@@ -152,7 +153,7 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
         dbDelete(db,"kursperson", list(semester=tosem, kursid=kursid))
         dbDelete(db,"kursmodul", list(semester=tosem, kursid=kursid))
       }
-      for (kursid in ku$kursid) {
+      for (modulid in mo$modulid) {
         dbDelete(db,"modul", list(semester=tosem, modulid=modulid))
         dbDelete(db,"modulzuordnung", list(semester=tosem, modulid=modulid))
         dbDelete(db,"modulschwerpunkt", list(semester=tosem, modulid=modulid))
@@ -211,3 +212,34 @@ make.snapshot.click = function(..., app=getApp(), glob=app$glob, db=glob$db, typ
     footer = tagList(simpleButton("confirmSnapshotBtn","Ok", form.ids = "snapshotDescr"), simpleButton("cancelSnapshotBtn","Abbruch"))
   ))
 }
+
+# Bugfix functions: remove unwanted duplicates
+
+remove.stuko.table.duplicates = function() {
+  restore.point.options(display.restore.point=!TRUE)
+  setwd("D:/libraries/stuko/ulm/db")
+
+
+  tables = c("modul","kurs","modulstudiengang","modulschwerpunkt","modulzuordnung","kursmodul","kursperson")
+
+  for (table in tables) {
+    remove.duplicates.from.table(table)
+  }
+}
+
+
+remove.duplicates.from.table = function(table, db = get.stukodb()) {
+  dat = dbGet(db, table)
+  dupl = duplicated(dat)
+  if (sum(dupl)>0) {
+    dat = dat[!dupl,]
+
+    dbWithTransaction(db,{
+      dbDelete(db,table, params=list())
+      dbInsert(db, table, dat)
+    })
+    cat("\n", sum(dupl), " duplicated rows from table ", table, " removed.")
+  }
+
+}
+

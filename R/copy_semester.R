@@ -22,7 +22,6 @@ examples.copy.semester = function() {
 }
 
 
-
 copy.kurse.to.semester = function(db = get.stukodb(),source.sem, dest.sem, overwrite=FALSE) {
   restore.point("copy.kurse.to.semester")
 
@@ -44,6 +43,11 @@ copy.kurse.to.semester = function(db = get.stukodb(),source.sem, dest.sem, overw
   kumo$semester = dest.sem
 
   dbWithTransaction(db,{
+    dbDelete(db,"kurs", params = list(semester=semester, kursid = ku$kursid), where.in = TRUE)
+    dbDelete(db,"kursperson", params = list(semester=semester, kursid = ku$kursid), where.in = TRUE)
+    dbDelete(db,"kursmodul", params = list(semester=semester, kursid = ku$kursid), where.in = TRUE)
+
+
     dbInsert(db,"kurs", ku)
     dbInsert(db,"kursperson", kupe)
     dbInsert(db,"kursmodul", kumo)
