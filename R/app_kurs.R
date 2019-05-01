@@ -179,7 +179,7 @@ show.edit.kurs = function(kurs,..., app=getApp(), glob=app$glob) {
     kp.ui,
     simpleButton("addKurspersonBtn","Neuer Mitarbeiter."),
     helpText("Wenn kein Koordinator eingetragen wird, verwaltet der Studiendekan den Kurs direkt. Die Spalte SWS ist nur fuer Lehrbeauftragte relevant."),
-    fluidRow(column(width = 12, widgets[1])),
+    #fluidRow(column(width = 12, widgets[1])),
     layout.widgets.as.fluid.grid(widgets[c(2:12)], 3),
     fluidRow(column(width = 12, widgets[13])),
     pruef.klausur.div,
@@ -583,7 +583,7 @@ copy.selected.kurse = function(kursids, tosem, overwrite=FALSE, ...,fromsem = ge
   mozu = filter(sd$mozu, modulid %in% kumo$modulid)
 
 
-  log = paste0("Kopiere ausgew?hlte Kurse und Module von ", semester_name(fromsem), " nach ", semester_name(tosem),"\n\n",
+  log = paste0("Kopiere ausgewaehlte Kurse und Module von ", semester_name(fromsem), " nach ", semester_name(tosem),"\n\n",
     NROW(ku), " Kurse:\n",
     paste0("  - ", ku$kursname, collapse="\n"),
     "\n\n", NROW(mo), " Module:\n",

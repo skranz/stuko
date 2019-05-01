@@ -82,7 +82,7 @@ zuordnung:
    'BA Pflicht',
    'WP Mathe/Info', 'WP Informatik', 'WP Mathematik',
    'WP BWL', 'WP VWL','Seminare', 'WP Recht', 'Sprachen',
-   'NUF WP', 'NUF Pflicht'
+   'NUF WP', 'NUF Pflicht','Lehramt Pflicht'
    ]
 zeitform:
   'Wöchentlich': w
@@ -92,6 +92,7 @@ zeitform:
   'Wöchentlich mit Unterbrechungen': wu
   'Nur Prüfung': np
   'Keine Angabe': '-'
+
 kursform:
   'Vorlesung mit Übung': vu
   'Vorlesung ohne Übung': v
@@ -101,6 +102,7 @@ kursform:
   'Tutorium': tut
   'Kolloquium': kol
   'Begleitseminar': bse
+  'Supplement': sup
 
 pruefungsform:
   'Klausur': k

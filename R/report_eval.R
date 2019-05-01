@@ -4,7 +4,7 @@ examples.seminar.report = function() {
   setwd("D:/libraries/stuko/")
   db = get.stukodb("D:/libraries/stuko/ulm/db")
 
-  semester = 185
+  semester = 190
   evaluierung.report(semester, db)
 
 }
@@ -20,6 +20,7 @@ evaluierung.report = function(semester, db = get.stukodb(), out.dir = getwd(), o
   .semester = semester
   ku = filter(sd$kurse,semester==.semester, kursform !="se",aktiv, extern==FALSE)
 
+  ku$zeitform
   ku = ku %>%
     mutate(do_eval = eval_was != "-" & !is.na(eval_was) & nchar(eval_was)>0) %>%
     mutate(is_stuko = has.substr(koid, "studiendekan_")) %>%
@@ -32,6 +33,9 @@ evaluierung.report = function(semester, db = get.stukodb(), out.dir = getwd(), o
 
   ku$eval_was = to.label(ku$eval_was, sets$eval_was)
 
+  rows = which(ku$zeitform=="b")
+  ku$eval_was[rows] = paste0("Block-",ku$eval_was[rows])
+
   #kue = filter(ku, do_eval)
   #kun = filter(ku, !do_eval)
   kue = ku
@@ -41,8 +45,8 @@ evaluierung.report = function(semester, db = get.stukodb(), out.dir = getwd(), o
   doc = read_docx(tpl.file)
   # Change bookmarks
   doc = doc %>%
-    body_replace_at("sem_label",paste0(sem_label," ")) %>%
-    body_replace_at("date_label", date_label)
+    body_replace_text_at_bkm("sem_label",paste0(sem_label," ")) %>%
+    body_replace_text_at_bkm("date_label", date_label)
 
 
   tab = select(kue, koordinator,kursname,vnum,  dozent, ul, eval_was, sprache)

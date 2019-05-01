@@ -70,6 +70,11 @@ lehrangebot.report = function(semester, db = get.stukodb(), tpl.dir = getwd(), o
   dat  = filter(vorl,nuf_wp)
   doc = add.ft(key,dat, show.sp=FALSE, title="Vorlesung (NUF WP)")
 
+  key = "lehramt_pflicht"
+  dat  = filter(vorl,lehramt_pflicht)
+  doc = add.ft(key,dat, show.sp=FALSE, title="Vorlesung (Lehramt Pflicht)")
+
+
   key = "sem_ba"
   dat  = filter(kurse,kursform=="se", ba) %>% arrange(kursname)
   doc = add.ft(key,dat, show.sp=FALSE, title="Seminar (BA)")
@@ -186,6 +191,9 @@ load.kurse.for.lehrangebot = function(semester, db=get.stukodb(), remove.duplica
   kurse$nuf_pflicht = kurse$kursid %in% nuf.pflicht.ids
   kurse$bama_wp = kurse$ba_wp & kurse$ma_wp
 
+  # Lehramt Pflicht
+  lehramt.ids = kuzu$kursid[kuzu$zuordnung=="Lehramt Pflicht"]
+  kurse$lehramt_pflicht = kurse$kursid %in% lehramt.ids
 
   # Schwerpunkt via paste und dann per left_join an kurse matchen
   kusp = inner_join(kumo, mosp, by=c("semester","modulid"))
