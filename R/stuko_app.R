@@ -213,11 +213,10 @@ update.log.ui = function(app=getApp(), glob=app$glob,...) {
   restore.point("update.log.ui")
 
   start.date = Sys.Date()
-  start.date = start.date - 8*30
-  #month(start.date) = month(start.date)-8
+  start.date = start.date - 8*31
 
-
-  sql = paste0("select * from log where logtime >= ", start.date)
+  start.time = as.numeric(as.POSIXct(paste0(start.date, " 00:00")))
+  sql = paste0("select * from log where logtime >= ", start.time)
   glob$log = dbGet(glob$db,"log", sql=sql) %>%
     arrange(desc(logtime))
 
