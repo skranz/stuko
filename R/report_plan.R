@@ -20,7 +20,7 @@ planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = ge
   li = lapply(sems, function(sem) {
     sd = get.sem.data(sem)
     ku = sd$kurse
-    ku = filter(ku,kursform %in% c("v","vu"),aktiv, extern==FALSE)
+    ku = filter(ku,kursform %in% c("v","vu"),aktiv, extern==FALSE | TRUE)
     ku
   })
 
