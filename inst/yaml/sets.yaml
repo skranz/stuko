@@ -69,12 +69,14 @@ studiengang: [WiWi_BA,WiWi_MA,NUF_MA]
 #  ]
 
 schwerpunkt:
+ - 'BA BuiAn' 
  - 'BA Econ'
  - 'BA Fi&Ver'
  - 'BA Inf'
  - 'BA RW&WP'
  - 'BA TPM'
  - 'BA UF&Co'
+ - 'MA BuiAn'
  - 'MA Econ'
  - 'MA FiWi'
  - 'MA Vers'
