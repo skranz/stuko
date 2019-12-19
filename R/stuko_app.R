@@ -4,7 +4,7 @@ examples.stuko.app = function() {
   setwd(stuko.dir)
   userid = ""
   userid = "sebastian.kranz@uni-ulm.de"
-  app = stukoApp(stuko.dir, sem=190, init.userid = userid,need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
+  app = stukoApp(stuko.dir, init.userid = userid,need.password = FALSE,need.userid = FALSE, semdb.dir = "D:/libraries/stuko/semdb")
   #viewApp(app)
 
   viewApp(app,launch.browser = TRUE)
@@ -164,9 +164,11 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
     tabPanel("Reports", reports.ui()),
     if (app$admin & app$stuko) tabPanel("Admin", admin.ui()),
     if (app$stuko ) tabPanel("Log",
-      HTML("Eintraege der letzten 8 Monate"),
-      actionButton("refreshLogBtn","",icon = icon("refresh")),
-      #dataTableOutput("logTable")
+      br(),
+      shiny::textInput("logDaysInput",label = "Bis wie viele Tage zurueck?",value = 200),
+      downloadButton("downloadLogBtn", "Logdatei downloaden"),
+      actionButton("showLogBtn","Logdatei anzeigen"),
+      br(),
       uiOutput("logUI")
     ),
     if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui())
@@ -189,7 +191,19 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
 
   buttonHandler("refreshKurseBtn", update.kurse.ui)
   buttonHandler("refreshModuleBtn", update.module.ui)
-  buttonHandler("refreshLogBtn", update.log.ui)
+  buttonHandler("showLogBtn", update.log.ui)
+
+  setDownloadHandler("downloadLogBtn",
+    filename=function(...) "stuko_log.txt",
+    content = function(file, ...) {
+      withProgress({
+        txt = sep.lines(make.log.text())
+        writeLines(txt, file)
+      },
+        message="Die Logdatei wird erstellt. Dies dauert einen Moment..."
+      )
+    }
+  )
 
 
   ui
@@ -204,30 +218,41 @@ update.stuko.ui = function(app=getApp()) {
   }
   update.kurse.ui()
   update.module.ui()
-  update.log.ui()
   update.admin.ui()
 
 }
 
-update.log.ui = function(app=getApp(), glob=app$glob,...) {
-  restore.point("update.log.ui")
-
+make.log.text = function(app=getApp(), days=as.numeric(getInputValue("logDaysInput")), as.df=FALSE) {
+  restore.point("make.log.text")
   start.date = Sys.Date()
-  start.date = start.date - 8*31
+  start.date = start.date - days
+  glob = app$glob
+
+  if (isTRUE(is.na(days)) | length(days)==0)
+    days = 200
 
   start.time = as.numeric(as.POSIXct(paste0(start.date, " 00:00")))
   sql = paste0("select * from log where logtime >= ", start.time)
   glob$log = dbGet(glob$db,"log", sql=sql) %>%
     arrange(desc(logtime))
 
+  if (as.df) {
+    return(glob$log)
+  }
+
+
   txt = paste0(strftime(glob$log$logtime,"%Y-%m-%d %H:%M"), " von ", glob$log$userid, "\n\n", glob$log$logtext, collapse="\n\n-------------------------------\n\n")
+  txt
+}
+
+update.log.ui = function(app=getApp(), glob=app$glob,...) {
+  restore.point("update.log.ui")
+
+  txt = make.log.text(app)
 
   setUI("logUI", tags$pre(txt))
   return()
 
-  df = transmute(glob$log,
-    "Datum" =logtime,"Nutzer"=userid,"Eintrag" = paste0("<pre>", logtext,"</pre>")
-  )
 
   dt = datatable(df,selection = 'none',
     #escape=-3,
