@@ -169,7 +169,7 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
       downloadButton("downloadLogBtn", "Logdatei downloaden"),
       actionButton("showLogBtn","Logdatei anzeigen"),
       br(),
-      uiOutput("logUI")
+      div(id="logUIDiv")
     ),
     if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui())
   ))
@@ -224,22 +224,26 @@ update.stuko.ui = function(app=getApp()) {
 
 make.log.text = function(app=getApp(), days=as.numeric(getInputValue("logDaysInput")), as.df=FALSE) {
   restore.point("make.log.text")
+  if (isTRUE(is.na(days)) | length(days)==0)
+    days = 200
   start.date = Sys.Date()
   start.date = start.date - days
   glob = app$glob
 
-  if (isTRUE(is.na(days)) | length(days)==0)
-    days = 200
 
   start.time = as.numeric(as.POSIXct(paste0(start.date, " 00:00")))
   sql = paste0("select * from log where logtime >= ", start.time)
   glob$log = dbGet(glob$db,"log", sql=sql) %>%
     arrange(desc(logtime))
 
+
   if (as.df) {
     return(glob$log)
   }
 
+  if (NROW(glob$log)==0) {
+    return(paste0("Keine Eintraege innerhalb der letzten ", days, " Tage."))
+  }
 
   txt = paste0(strftime(glob$log$logtime,"%Y-%m-%d %H:%M"), " von ", glob$log$userid, "\n\n", glob$log$logtext, collapse="\n\n-------------------------------\n\n")
   txt
@@ -248,9 +252,10 @@ make.log.text = function(app=getApp(), days=as.numeric(getInputValue("logDaysInp
 update.log.ui = function(app=getApp(), glob=app$glob,...) {
   restore.point("update.log.ui")
 
-  txt = make.log.text(app)
+  txt = paste0("<pre>",make.log.text(app),"<pre>")
 
-  setUI("logUI", tags$pre(txt))
+  setInnerHTML("logUIDiv",txt)
+  #setUI("logUI", tags$pre(txt))
   return()
 
 
