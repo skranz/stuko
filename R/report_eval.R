@@ -50,7 +50,8 @@ evaluierung.report = function(semester, db = get.stukodb(), out.dir = getwd(), o
 
 
   tab = select(kue, koordinator,kursname,vnum,  dozent, ul, eval_was, sprache)
-  colnames(tab) = c("Koord.",  "Kurs", "LSF","Dozent", "\u00dcbung", "Evaluation", "Sprache")
+  #colnames(tab) = c("Koord.",  "Kurs", "LSF","Dozent", "\u00dcbung", "Evaluation", "Sprache")
+  colnames(tab) = c("Koord.",  "Kurs", "LSF","Dozent", "Uebung", "Evaluation", "Sprache")
 
   #ft = regulartable(tab)
   doc = doc %>%
