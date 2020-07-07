@@ -176,7 +176,7 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
       div(id="logUIDiv")
     ),
     if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui()),
-    if (app$stuko ) tabPanel("Forschungssemester", fose.ui())
+    tabPanel("Forschungssemester", fose.ui())
   ))
 
   ui = tagList(
