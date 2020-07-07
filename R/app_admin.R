@@ -176,13 +176,15 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
 }
 
 update.snapshot.info = function(app=getApp(), glob=app$glob) {
+  restore.point("update.snapshot.info")
+
   snapshots = glob$snapshots
   if (NROW(snapshots)>0) {
     txt = paste0("Letzte Sicherheitskopie am ", format(max(snapshots$time), "%d.%m.%Y %H:%M"))
   } else {
     txt = "Bislang noch keine Sicherheitskopie erstellt."
   }
-  setUI("snapshotInfoUI", p(txt))
+  setUI("snapshotInfoUI", tags$p(txt))
 
 }
 

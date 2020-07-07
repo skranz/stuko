@@ -15,6 +15,16 @@ job:
     comment: TEXT
     semester: INTEGER
 
+# Forschungssemester
+
+fose:
+  table:
+    personid: VARCHAR(50)
+    semester: INTEGER
+    comment: TEXT
+  indexes:
+    - "CREATE INDEX fose1 on fose (personid, semester)"
+
 # Snapshots are a copy of our database
 snapshot:
   table:
@@ -212,6 +222,9 @@ person:
     koordinator: BOOLEAN
     stuko: BOOLEAN
     admin: BOOLEAN
+    # p = prof m=mitarbeiter pe=professor emeritus
+    # pa= prof assoziert von anderer Fakultaet
+    status: CHARACTER(2)
   indexes:
     - "CREATE UNIQUE INDEX person1 on person (personid)"
 

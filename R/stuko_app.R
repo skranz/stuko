@@ -56,6 +56,10 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE,
   person = c("", person)
   glob$sets[["person"]] = person
 
+  profids = glob$person$personid[glob$person$status=="p"]
+  profs = person[person %in% profids]
+  glob$sets[["prof"]] = profs
+
   glob$snapshots =dbGet(glob$db, "snapshot")
 
   forms = c("kurs","modul")
@@ -66,7 +70,7 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE,
     glob$forms[[form]] = load.and.init.form(form.file, prefix=paste0(form,"_"))
   }
 
-  forms = c("kursperson","modul_table_edit", "vertreter")
+  forms = c("kursperson","modul_table_edit", "vertreter", "fose")
   for (form in forms) {
     fields = rmdtools::read.yaml(paste0(glob$yaml.dir,"/", form, ".yaml"))$fields
     glob$forms[[form]] = tableform(id=form, fields=fields, lang="de",sets=glob$sets)
@@ -171,7 +175,8 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
       br(),
       div(id="logUIDiv")
     ),
-    if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui())
+    if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui()),
+    if (app$stuko ) tabPanel("Forschungssemester", fose.ui())
   ))
 
   ui = tagList(

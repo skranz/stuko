@@ -25,6 +25,10 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
 
     downloadButton("repSeminarterminBtn","Seminare: Anmelde- und Pruefungstermine"),
     helpText("Eine Liste der Anmelde- und Pruefungstermine der Seminare."),
+
+    downloadButton("repFoseBtn","Forschungssemester"),
+    helpText("Planung der Forschungssemester fuer naechste 6 Jahre"),
+
     if (!is.null(app$glob$semdb.dir)) {
       tagList(
         downloadButton("repSeminarsBtn","Seminare im Lehrangebot und Matchingsoftware"),
@@ -65,6 +69,17 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
       app=getApp()
       withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
         planung.schwerpunkt.report(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets)
+      )
+    }
+  )
+
+  setDownloadHandler("repFoseBtn",
+    filename=function(app = getApp())
+      paste0("Forschungssemester.docx"),
+    content = function(file, ...) {
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        fose.report(start.semester=app$sem,end.semester=app$sem+6*10, db=app$glob$db, out.file=file, sets=glob$sets, glob=app$glob)
       )
     }
   )

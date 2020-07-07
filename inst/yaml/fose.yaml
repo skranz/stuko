@@ -1,0 +1,15 @@
+fields:
+  personid:
+    lang_de:
+      size: 12
+      label: 'Prof'
+      choice_set: prof
+  semester:
+    lang_de:
+      size: 12
+      label: 'Semester'
+      choice_set: semester
+  comment:
+    input: textarea
+    lang_de:
+      label: 'Kommentar'
