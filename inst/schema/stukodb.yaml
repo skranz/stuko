@@ -23,7 +23,7 @@ fose:
     semester: INTEGER
     comment: TEXT
   indexes:
-    - "CREATE INDEX fose1 on fose (personid, semester)"
+    - "CREATE UNIQUE INDEX fose1 on fose (personid, semester)"
 
 # Snapshots are a copy of our database
 snapshot:
