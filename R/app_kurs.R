@@ -606,7 +606,7 @@ copy.selected.kurse = function(kursids, tosem, overwrite=FALSE, ...,fromsem = ge
         dbDelete(db,"kursperson", list(semester=tosem, kursid=kursid))
         dbDelete(db,"kursmodul", list(semester=tosem, kursid=kursid))
       }
-      for (kursid in ku$kursid) {
+      for (modulid in mo$modulid) {
         dbDelete(db,"modul", list(semester=tosem, modulid=modulid))
         dbDelete(db,"modulzuordnung", list(semester=tosem, modulid=modulid))
         dbDelete(db,"modulschwerpunkt", list(semester=tosem, modulid=modulid))
