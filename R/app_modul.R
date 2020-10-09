@@ -150,7 +150,7 @@ delete.module.click = function(formValues, ..., app=getApp()) {
         dbDelete(db,"kursmodul",list(semester=semester, modulid=id))
       }
 
-      write.stuko.log(logtext, logtype="del_modul")
+      write.stuko.log(logtext, logtype="del_modul", semester = semester, kursmodulid = paste0(module$modulid,collapse=","))
     })
     setUI("editModulUI","")
     sd = get.sem.data(update=TRUE)
@@ -252,7 +252,7 @@ save.modul.click = function(modul = app$modul, formValues,..., sd = get.sem.data
   timedMessage("saveModulAlert",html=html,millis = 10000)
 }
 
-update.db.modul = function(mo, most,mosp,mozu, db=get.stukodb(),modify_user, modify_time=Sys.time(), log=NULL, write_log = !is.null(log)) {
+update.db.modul = function(mo, most,mosp,mozu, db=get.stukodb(),modify_user, modify_time=Sys.time(), log=paste0("update modul ", mo$modulid), write_log = !is.null(log)) {
   restore.point("update.db.modul")
 
   modulid = mo$modulid
@@ -260,10 +260,6 @@ update.db.modul = function(mo, most,mosp,mozu, db=get.stukodb(),modify_user, mod
 
   mo$modify_user = modify_user
   mo$modify_time = modify_time
-
-  if (!is.list(log) & write_log) {
-    log = list(logtime=modify_time, userid=modify_user,logtype="modul", logtext=log)
-  }
 
   res = dbWithTransaction(db,{
     dbDelete(db,"modul",nlist(modulid, semester))
@@ -280,7 +276,7 @@ update.db.modul = function(mo, most,mosp,mozu, db=get.stukodb(),modify_user, mod
       dbInsert(db,"modulstudiengang", most)
 
     if (write_log)
-      dbInsert(db,"log", log)
+      write.stuko.log(logtext=log,logtime=modify_time,semester=semester, userid=modify_user,logtype="modul",kursmodulid = modulid)
 
   })
   return(!is(res,"try-error"))

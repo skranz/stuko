@@ -168,7 +168,7 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
     dbInsert(db,"modulschwerpunkt",mosp)
     dbInsert(db,"modulstudiengang",most)
 
-    write.stuko.log(log,"uebertragung")
+    write.stuko.log(log,"uebertragung",semester=tosem)
 
   })
   sd = get.sem.data(tosem, update = TRUE)

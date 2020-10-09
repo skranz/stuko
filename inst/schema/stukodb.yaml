@@ -45,11 +45,17 @@ log:
     userid: VARCHAR(50)
     # kurs, modul, person, snapshot, kurs_csv, modul_csv
     logtype: CHARACTER(20)
+    # das relevante semester falls kurs oder modul geaendert sonst NULL
+    semester: INTEGER
+    # kursid oder modulid je nach logtype
+    kursmodulid: TEXT
     logtext: TEXT
   indexes:
     - "CREATE INDEX log1 on log (logtime)"
     - "CREATE INDEX log2 on log (logtype)"
-    - "CREATE INDEX log3 on log (userid)"
+#    - "CREATE INDEX log3 on log (userid)"
+    - "CREATE INDEX log4 on log (semester)"
+
 
 modul:
   descr: |

@@ -1,6 +1,6 @@
 examples.stuko.app = function() {
   restore.point.options(display.restore.point=TRUE)
-  stuko.dir = "D:/libraries/stuko/ulm"
+  stuko.dir = "C:/libraries/stuko/ulm"
   setwd(stuko.dir)
   userid = ""
   userid = "sebastian.kranz@uni-ulm.de"
@@ -167,14 +167,7 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
     tabPanel("Module", module.ui()),
     tabPanel("Reports", reports.ui()),
     if (app$admin & app$stuko) tabPanel("Admin", admin.ui()),
-    if (app$stuko ) tabPanel("Log",
-      br(),
-      shiny::textInput("logDaysInput",label = "Bis wie viele Tage zurueck?",value = 200),
-      downloadButton("downloadLogBtn", "Logdatei downloaden"),
-      actionButton("showLogBtn","Logdatei anzeigen"),
-      br(),
-      div(id="logUIDiv")
-    ),
+    if (app$stuko ) tabPanel("Log", make.log.ui()),
     if (length(app$admin.for)>0) tabPanel("Vertreter", vertreter.ui()),
     tabPanel("Forschungssemester", fose.ui())
   ))
@@ -196,19 +189,6 @@ stuko.ui = function(..., userid=app$userid, app=getApp(), glob=app$glob) {
 
   buttonHandler("refreshKurseBtn", update.kurse.ui)
   buttonHandler("refreshModuleBtn", update.module.ui)
-  buttonHandler("showLogBtn", update.log.ui)
-
-  setDownloadHandler("downloadLogBtn",
-    filename=function(...) "stuko_log.txt",
-    content = function(file, ...) {
-      withProgress({
-        txt = sep.lines(make.log.text())
-        writeLines(txt, file)
-      },
-        message="Die Logdatei wird erstellt. Dies dauert einen Moment..."
-      )
-    }
-  )
 
 
   ui
@@ -227,60 +207,6 @@ update.stuko.ui = function(app=getApp()) {
 
 }
 
-make.log.text = function(app=getApp(), days=as.numeric(getInputValue("logDaysInput")), as.df=FALSE) {
-  restore.point("make.log.text")
-  if (isTRUE(is.na(days)) | length(days)==0)
-    days = 200
-  start.date = Sys.Date()
-  start.date = start.date - days
-  glob = app$glob
-
-
-  start.time = as.numeric(as.POSIXct(paste0(start.date, " 00:00")))
-  sql = paste0("select * from log where logtime >= ", start.time)
-  glob$log = dbGet(glob$db,"log", sql=sql) %>%
-    arrange(desc(logtime))
-
-
-  if (as.df) {
-    return(glob$log)
-  }
-
-  if (NROW(glob$log)==0) {
-    return(paste0("Keine Eintraege innerhalb der letzten ", days, " Tage."))
-  }
-
-  txt = paste0(strftime(glob$log$logtime,"%Y-%m-%d %H:%M"), " von ", glob$log$userid, "\n\n", glob$log$logtext, collapse="\n\n-------------------------------\n\n")
-  txt
-}
-
-update.log.ui = function(app=getApp(), glob=app$glob,...) {
-  restore.point("update.log.ui")
-
-  txt = paste0("<pre>",make.log.text(app),"<pre>")
-
-  setInnerHTML("logUIDiv",txt)
-  #setUI("logUI", tags$pre(txt))
-  return()
-
-
-  dt = datatable(df,selection = 'none',
-    #escape=-3,
-    rownames = FALSE, filter=list(position="top", clear=FALSE, plain=TRUE),
-    class="compact",
-    style="bootstrap",
-    autoHideNavigation = TRUE, extensions = c('Select',"Buttons"),options = list(
-    lengthMenu = c(10, 25, 50, 1000),
-    dom = 'Blfrtip',
-    buttons = c('copy','excel','csv'),
-    select = FALSE,
-    #columnDefs = list(list(width="15em", targets=c(1)),list(width="3em", targets=3)),
-    autoWidth=TRUE,
-    scrollX=TRUE))
-
-  shinyEvents::setDataTable("logTable", dt,server=TRUE)
-
-}
 
 layout.widgets.as.fluid.grid = function(widgets, ncol=2, byrow=TRUE, width=floor(12/ncol)) {
   restore.point("layout.widgets.as.fluid.grid")

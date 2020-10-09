@@ -78,15 +78,9 @@ copy.modules.to.semester = function(src.sem, dest.sem, db=get.stukodb(), schemas
     dat$modify_time = Sys.time()
     try(dbmisc::dbInsert(db, table,dat, schemas=schemas))
   }
-  write.stuko.log(paste0("Copy modules from semester ", src.sem ," to ", dest.sem),"csv_all", db=db)
+  write.stuko.log(paste0("Copy modules from semester ", src.sem ," to ", dest.sem),"csv_all", semester=dest.sem,  db=db)
 }
 
-
-write.stuko.log = function(logtext,logtype, logtime=Sys.time(), userid=first.non.null(app$userid,"unknown"),db=get.stukodb(), app=getApp()) {
-  restore.point("write.stuko.log")
-  log = list(logtime=logtime, userid=userid,logtype=logtype, logtext=logtext)
-  dbInsert(db,"log", log)
-}
 
 delete.stuko.duplicates = function(db = get.stukodb()) {
   ku = dbGet(db,"kurs")
@@ -140,5 +134,5 @@ fill.stukodb.kurse.from.csv = function(db=get.stukodb(), src.sem=165, dest.sem=1
       dbmisc::dbInsert(db, table, dat, schemas=schemas)
     }
   }
-  write.stuko.log("Import kurs tables from csv","csv_all", db=db)
+  write.stuko.log("Import kurs tables from csv","csv_all", semester=dest.sem, db=db)
 }

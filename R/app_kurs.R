@@ -232,7 +232,7 @@ deactivate.kurse.click = function(formValues, ..., app=getApp()) {
       action = if (!aktiv) "aktiviert" else "deaktiviert"
       log = paste0("Kurs ", kurs$kursname , "(", kurs$kursid, ") wurde ", action, ".")
 
-      write.stuko.log(log,action)
+      write.stuko.log(log,action, semester=semester,kursmodulid = id)
 
     }
   })
@@ -262,7 +262,7 @@ delete.kurse.click = function(formValues, ..., app=getApp()) {
         dbDelete(db,"kursmodul",list(semester=semester, kursid=id))
       }
 
-      write.stuko.log(logtext, logtype="del_kurs")
+      write.stuko.log(logtext, logtype="del_kurs", semester = semester, kursmodulid = paste0(kurse$kursid,collapse=","))
     })
     setUI("editKursUI","")
     sd = get.sem.data(update=TRUE)
@@ -422,10 +422,6 @@ update.db.kurs = function(kurs, kursperson, kursmodul, db=get.stukodb(),modify_u
   kurs$modify_user = modify_user
   kurs$modify_time = modify_time
 
-  if (!is.list(log) & write_log) {
-    log = list(logtime=modify_time, userid=modify_user,logtype="kurs", logtext=log)
-  }
-
   res = dbWithTransaction(db,{
     dbDelete(db,"kurs",nlist(kursid, semester))
     dbDelete(db,"kursperson",nlist(kursid, semester))
@@ -438,7 +434,7 @@ update.db.kurs = function(kurs, kursperson, kursmodul, db=get.stukodb(),modify_u
       dbInsert(db,"kursmodul", kursmodul)
 
     if (write_log)
-      dbInsert(db,"log", log)
+      write.stuko.log(logtext=log,logtime=modify_time,semester=semester, userid=modify_user,logtype="kurs",kursmodulid = kursid)
 
   })
   return(!is(res,"try-error"))
@@ -621,7 +617,8 @@ copy.selected.kurse = function(kursids, tosem, overwrite=FALSE, ...,fromsem = ge
     dbInsert(db,"modulschwerpunkt",mosp)
     dbInsert(db,"modulstudiengang",most)
 
-    write.stuko.log(log,"kopiere")
+    write.stuko.log(log,"kopiere", semester=tosem,
+      kursmodulid=paste0(ku$kursid, collapse=","))
 
   })
   sd = get.sem.data(tosem, update = TRUE)
