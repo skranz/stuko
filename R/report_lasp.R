@@ -1,10 +1,10 @@
 # Diagnosen zum Lehrangebot
 
 examples.lasp.report = function() {
-  setwd("D:/libraries/stuko/")
-  db = get.stukodb("D:/libraries/stuko/ulm/db")
+  setwd("C:/libraries/stuko/")
+  db = get.stukodb("C:/libraries/stuko/ulm/db")
 
-  semester = 185
+  semester = 215
   lehrangebot.schwerpunkt.report(semester, db)
 
 }
@@ -20,7 +20,7 @@ lehrangebot.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir 
   li = lapply(sems, function(sem) {
     sd = get.sem.data(sem)
     ku = sd$kurse
-    ku = filter(ku,kursform %in% c("v","vu"),aktiv)
+    ku = filter(ku,kursform %in% c("v","vu","kol"),aktiv)
     ku
   })
 
