@@ -292,7 +292,7 @@ modul.diff.log = function(nmo,nmost,nmosp,nmozu,omo,omost,omosp,omozu,modify_use
   # modul
   cols = colnames(omo)
   diff.cols = setdiff(
-    cols[!is.true(nmo == omo)],
+    cols[!is.true(nmo == first(omo))],
     c("modify_time","modify_user")
   )
 

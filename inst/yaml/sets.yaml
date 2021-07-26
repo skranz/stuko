@@ -69,7 +69,7 @@ studiengang: [WiWi_BA,WiWi_MA,NUF_MA]
 #  ]
 
 schwerpunkt:
- - 'BA BuiAn' 
+ - 'BA BuiAn'
  - 'BA Econ'
  - 'BA Fi&Ver'
  - 'BA Inf'
@@ -87,7 +87,8 @@ schwerpunkt:
 zuordnung:
   #cat(paste0("'",unique(mozu$zuordnung),"'", collapse=", "))
   [
-   'BA Pflicht',
+   'BA Pflicht','BA 1. Sem', 'BA 2. Sem', 'BA 3. Sem', 'BA 4. Sem',
+   'BA WP','MA WP','Nur Export',
    'WP Mathe/Info', 'WP Informatik', 'WP Mathematik',
    'WP BWL', 'WP VWL','Seminare', 'WP Recht', 'Sprachen',
    'NUF WP', 'NUF Pflicht','Lehramt Pflicht'

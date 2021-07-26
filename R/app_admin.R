@@ -128,6 +128,19 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
     mozu = rbind(mozu,filter(sd$mozu, modulid %in% semmo$modulid))
   }
 
+  mo = mo %>% arrange(desc(semester))
+  dupl = which(duplicated(mo$modulid))
+  if (length(dupl)>0) {
+    mo.dupl = mo[dupl,, drop=FALSE]
+    mo = mo[-dupl,,drop=FALSE]
+    most = anti_join(most, mo.dupl, by=c("semester","modulid"))
+    mosp = anti_join(mosp, mo.dupl, by=c("semester","modulid"))
+    mozu = anti_join(mozu, mo.dupl, by=c("semester","modulid"))
+    kumo = anti_join(kumo, mo.dupl, by=c("semester","modulid"))
+
+  }
+
+
   log = paste0("Automatische Uebertragung von Kursen und Modulen in das ", semester_name(tosem),"\n\n",
     NROW(ku), " Kurse:\n",
     paste0("  - ", ku$kursname, " (", semester_name(ku$semester),")", collapse="\n"),
@@ -144,6 +157,7 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
   if (NROW(mozu)>0) mozu$semester = tosem
 
 
+
   #stop()
 
   dbWithTransaction(db, {
@@ -154,6 +168,7 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
         dbDelete(db,"kursmodul", list(semester=tosem, kursid=kursid))
       }
       for (modulid in mo$modulid) {
+        cat("\ndelete modulid ", modulid)
         dbDelete(db,"modul", list(semester=tosem, modulid=modulid))
         dbDelete(db,"modulzuordnung", list(semester=tosem, modulid=modulid))
         dbDelete(db,"modulschwerpunkt", list(semester=tosem, modulid=modulid))

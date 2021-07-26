@@ -1,3 +1,6 @@
+# library(suko);
+# dbCreateSQLiteFromSchema(system.file("schema/stukodb.yaml",package="stuko"),db.dir="C:/libraries/stuko/ulm/db",update=TRUE)
+
 job:
   table:
     jobid: CHARACTER(20)
@@ -74,11 +77,13 @@ modul:
     ects: INTEGER
     # k, m, km, a, -
     pruefungsform: CHARACTER(2)
-    # Falls mehrere Prueungsnr, dann mit Komma getrennt
+    # Falls mehrere Pruefungsnr, dann mit Komma getrennt
     pruefungsnr: TEXT
-  indexes:
-    - "CREATE INDEX modul1 on modul (modulid,semester)"
-    - "CREATE INDEX modul2 on modul (semester, modulid)"
+  unique_index:
+    - [semester, modulid]
+#  indexes:
+#    - "CREATE INDEX modul1 on modul (modulid,semester)"
+#    - "CREATE INDEX modul2 on modul (semester, modulid)"
 
 
 mhb:
@@ -124,8 +129,10 @@ modulstudiengang:
     modulid: CHARACTER(20)
     semester: INTEGER
     studiengang: VARCHAR(50)
-  indexes:
-    - "CREATE INDEX modulstudiengang1 on modulstudiengang (semester, modulid)"
+  unique_index:
+    - [semester, modulid, studiengang]
+#  indexes:
+#    - "CREATE INDEX modulstudiengang1 on modulstudiengang (semester, modulid)"
 
 
 
@@ -136,8 +143,10 @@ modulschwerpunkt:
     modulid: CHARACTER(20)
     semester: INTEGER
     schwerpunkt: VARCHAR(50)
-  indexes:
-    - "CREATE INDEX modulschwerpunkt1 on modulschwerpunkt (semester, modulid)"
+  unique_index:
+    - [semester, modulid, schwerpunkt]
+#  indexes:
+#    - "CREATE INDEX modulschwerpunkt1 on modulschwerpunkt (semester, modulid)"
 
 modulzuordnung:
   descr: |
@@ -147,8 +156,10 @@ modulzuordnung:
     modulid: CHARACTER(20)
     semester: INTEGER
     zuordnung: VARCHAR(50)
-  indexes:
-    - "CREATE INDEX modulzuordnung1 on modulzuordnung (semester, modulid)"
+  unique_index:
+    - [semester, modulid, zuordnung]
+#  indexes:
+#    - "CREATE INDEX modulzuordnung1 on modulzuordnung (semester, modulid)"
 
 kurs:
   descr:
@@ -188,8 +199,10 @@ kurs:
     pruefung_teilnehmer: TEXT # Mindestzahl der Teilnehmer für Raum
     pruefung_anmerkung: TEXT
     seminar_termine: TEXT
-  indexes:
-    - "CREATE INDEX kurs1 on kurs (semester, kursid)"
+  unique_index:
+    - [semester, kursid]
+#  indexes:
+#    - "CREATE INDEX kurs1 on kurs (semester, kursid)"
 
 kursmodul:
   descr:
@@ -197,9 +210,11 @@ kursmodul:
     kursid: CHARACTER(20)
     semester: INTEGER
     modulid: CHARACTER(20)
-  indexes:
-    - "CREATE INDEX kursmodul1 on kursmodul (semester, kursid)"
-    - "CREATE INDEX kursmodul2 on kursmodul (semester, modulid)"
+  unique_index:
+    - [semester, kursid, modulid]
+#  indexes:
+#    - "CREATE INDEX kursmodul1 on kursmodul (semester, kursid)"
+#    - "CREATE INDEX kursmodul2 on kursmodul (semester, modulid)"
 
 
 kursperson:
