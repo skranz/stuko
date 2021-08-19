@@ -1,13 +1,15 @@
 # Diagnosen zum Lehrangebot
 
 examples.plan.report = function() {
-  setwd("D:/libraries/stuko/")
-  db = get.stukodb("D:/libraries/stuko/ulm/db")
+  setwd("C:/libraries/stuko/")
+  db = get.stukodb("C:/libraries/stuko/ulm/db")
 
   semester = 185
   planung.schwerpunkt.report(semester, db)
 
 }
+
+
 
 planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = getwd(), out.file = paste0(out.dir,"/planung_schwerpunkt.docx"), sets=getApp()$glob$sets) {
   restore.point("planung.schwerpunkt.report")
@@ -96,9 +98,68 @@ planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = ge
   }
 
 
+  # Fuege Mathe / Info WP hinzu
+  add.mathe.wp.to.report(li, doc, sems, num.sem)
+
   print(doc, target = out.file)
 
   invisible(doc)
+}
+
+# Zeige 4 Jahresplanung für Mathe / Info WP
+add.mathe.wp.to.report = function(li, doc, sems, num.sem) {
+  ku = do.call(rbind,li)
+  ku$sp = strsplit(ku$zuordnung, ", ", fixed=TRUE)
+
+  ku = tidyr::unnest(ku, sp) %>%
+    filter(sp %in% c("WP Mathe/Info"))
+
+  # Transformiere in Planungstabelle
+
+  xfun = function(semester, findet_statt, ind) {
+    row = which(semester == sems[ind])
+    if (length(row) == 0) return("")
+    if (any(findet_statt[row]=="u")) return("unsicher")
+    return("X")
+  }
+
+  #ku$kursname = paste0(ku$kursname, ", ",ku$dozent)
+  d = ku %>% group_by(kursname, sp, bama) %>%
+    summarize(LP=first(ects),sem1 = xfun(semester, findet_statt, 1) ,sem2=xfun(semester,findet_statt,2),sem3=xfun(semester,findet_statt,3),sem4=xfun(semester,findet_statt,4))
+
+
+
+  d = arrange(d, sp) %>% filter(nchar(sp)>0)
+  sem.labs = sapply(sems, knapp_semester_name)
+  colnames(d)[5:(4+num.sem)] = sem.labs
+  colnames(d)[1] = "Kurs"
+
+  #d$bama = substring(d$sp,1,2)
+  #d$sp = substring(d$sp,4)
+  bm = "BA"
+  for (bm in c("BA","MA")) {
+
+    rows = d$bama %in% bm
+    dbm = d[rows,]
+    doc = doc %>% officer::body_add_break()
+    if (bm == "BA") {
+      doc = doc %>%
+        body_add_par("Wahlpficht Mathe/Info (BA alte PO)", style = "heading 1")
+
+    } else {
+      doc = doc %>%
+        body_add_par("Wahlpficht Mathe/Info (MA)", style = "heading 1")
+
+    }
+    df = dbm %>%
+        ungroup() %>%
+        select(-sp,-bama)
+    doc = doc %>%
+        body_add_table(df, style="Plain Table 1")
+  }
+
+
+
 }
 
 

@@ -1,3 +1,12 @@
+body_replace_at = function(...) {
+
+  res = try(officer::body_replace_at(...),silent = TRUE)
+  if (is(res, "try-error")) {
+    res = officer:::body_replace_text_at_bkm(...)
+  }
+  res
+}
+
 remove.null = function(li) {
   if (length(li)==0) return(li)
   nu = sapply(li, is.null)
