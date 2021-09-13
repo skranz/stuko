@@ -111,8 +111,8 @@ kurse.lehrangebot.word.table = function(dat, show.sp=FALSE, strings, title="Vorl
     align(align="center",j = 2, part="all") %>%
     border(border=fp_border(style="none"), part="body") %>%
     border(border=fp_border(style="none"), border.bottom = fp_border(style="solid", width=1), part="header") %>%
-    padding( padding.top = 2, padding.bottom=0, part = "body" ) %>%
-    rotate(align = "top", part = "body")
+    padding( padding.top = 2, padding.bottom=0, part = "body" ) #%>%
+    #rotate(align = "top", part = "body")
 
 
   if (show.sp) {
