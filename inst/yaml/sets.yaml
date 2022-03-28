@@ -19,12 +19,18 @@ semester:
   WS2324: 235
   SoSe24: 240
   WS2425: 245
-  SoSe25: 240
-  WS2526: 245
-  SoSe26: 240
-  WS2627: 245
-  SoSe27: 240
-  WS2728: 245
+  SoSe25: 250
+  WS2526: 255
+  SoSe26: 260
+  WS2627: 265
+  SoSe27: 270
+  WS2728: 275
+  SoSe28: 280
+  WS2829: 285
+  SoSe29: 290
+  WS2930: 295
+  SoSe30: 300
+  WS3031: 305
 
 sprache:
   Deutsch: de
