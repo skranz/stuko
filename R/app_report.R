@@ -29,6 +29,10 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     downloadButton("repFoseBtn","Forschungssemester"),
     helpText("Planung der Forschungssemester fuer naechste 6 Jahre"),
 
+    downloadButton("repPlanEnBtn", "Englischsprachige Kurse"),
+    helpText("Geplantes englischsprachiges Lehrangebot fuer 4 Semester nach Schwerpunkten."),
+
+
     if (!is.null(app$glob$semdb.dir)) {
       tagList(
         downloadButton("repSeminarsBtn","Seminare im Lehrangebot und Matchingsoftware"),
@@ -69,6 +73,16 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
       app=getApp()
       withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
         planung.schwerpunkt.report(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets)
+      )
+    }
+  )
+  setDownloadHandler("repPlanEnBtn",
+    filename=function(app = getApp())
+      paste0("Plan_English_Courses_",semester_name(app$sem),".docx"),
+    content = function(file, ...) {
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        planung.schwerpunkt.report(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets, just.english = TRUE)
       )
     }
   )

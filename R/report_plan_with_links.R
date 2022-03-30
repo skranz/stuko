@@ -5,7 +5,7 @@ examples.plan.report = function() {
   db = get.stukodb("C:/libraries/stuko/ulm/db")
 
   semester = 185
-  planung.schwerpunkt.report(semester, db, just.english=TRUE)
+  planung.schwerpunkt.report.with.links(semester, db)
 
 }
 
@@ -15,7 +15,23 @@ get.modulhandbuch.url = function(titel) {
   url
 }
 
-planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = getwd(), out.file = paste0(out.dir,"/planung_schwerpunkt.docx"), sets=getApp()$glob$sets, just.english=FALSE) {
+add_plan_table = function(doc, df) {
+  restore.point("add_plan_table")
+  colnames(df) = gsub("_","",colnames(df),fixed=TRUE)
+  tab = flextable(df, col_keys=setdiff(colnames(df),"current")) %>% theme_box() %>% width(1,3.5) %>% width(2,0.35) %>% width(3:6, 0.8) %>% align(j = 1,align="left") %>% align(j = 2:6,align="center") %>% bg(i = seq(1,NROW(df),by=2),bg="#ececec")
+
+  urls = get.modulhandbuch.url(df[[1]])
+  #for (i in seq_along(urls)) {
+  i = 1
+    hyper = hyperlink_text(df[[1]][i],url = urls[[i]])
+    tab <- flextable::compose(tab,i=i, j = 1,value = as_paragraph(hyper) )
+  #}
+
+  body_add_flextable(doc, tab)
+
+}
+
+planung.schwerpunkt.report.with.links = function(semester, db = get.stukodb(), out.dir = getwd(), out.file = paste0(out.dir,"/planung_schwerpunkt.docx"), sets=getApp()$glob$sets) {
   restore.point("planung.schwerpunkt.report")
 
   sem_label = semester_name(semester, kurz=FALSE)
@@ -31,10 +47,6 @@ planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = ge
   })
 
   ku = do.call(rbind,li)
-
-  if (just.english) {
-    ku = filter(ku, sprache %in% c("en","de_en"))
-  }
 
   #test = filter(ku, has.substr(ku$dozent,"Marten"))
 
@@ -65,11 +77,7 @@ planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = ge
   d$bama = substring(d$sp,1,2)
   d$sp = substring(d$sp,4)
 
-  if (just.english) {
-    tpl.file = system.file("report_tpl/plan_en_tpl.docx",package="stuko")
-  } else {
-    tpl.file = system.file("report_tpl/plan_tpl.docx",package="stuko")
-  }
+  tpl.file = system.file("report_tpl/plan_tpl.docx",package="stuko")
   doc = read_docx(tpl.file)
 
   # Change bookmarks
@@ -105,22 +113,21 @@ planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = ge
       df = filter(dbm, sp %in% csp) %>%
         select(-sp,-bama)
       doc = doc %>%
-         body_add_table(df, style="Plain Table 1")
+        add_plan_table(df)
     }
   }
 
 
   # Fuege Mathe / Info WP hinzu
-  if (!just.english) {
-    add.mathe.wp.to.report(li, doc, sems, num.sem)
-  }
+  add.mathe.wp.to.report.with.links(li, doc, sems, num.sem)
+
   print(doc, target = out.file)
 
   invisible(doc)
 }
 
 # Zeige 4 Jahresplanung für Mathe / Info WP
-add.mathe.wp.to.report = function(li, doc, sems, num.sem) {
+add.mathe.wp.to.report.with.links = function(li, doc, sems, num.sem) {
   ku = do.call(rbind,li)
   ku$sp = strsplit(ku$zuordnung, ", ", fixed=TRUE)
 
@@ -168,7 +175,7 @@ add.mathe.wp.to.report = function(li, doc, sems, num.sem) {
         ungroup() %>%
         select(-sp,-bama)
     doc = doc %>%
-        body_add_table(df, style="Plain Table 1")
+        add_plan_table(df)
   }
 
 
