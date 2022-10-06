@@ -33,13 +33,11 @@ semester_name = function(semester, kurz=TRUE) {
   sose = semester %% 10 == 0
   jahr = substring(semester, 1,2)
 
-  if (kurz & sose) {
-    sem = "SoSe"
-  } else if (kurz) {
-    sem = "WiSe"
-    jahr = paste0(jahr, "/", as.integer(jahr)+1)
+  if (kurz) {
+    sem = ifelse(sose,"SoSe","WiSe")
+    jahr = ifelse(sose, jahr, paste0(jahr, "/", as.integer(jahr)+1))
     return(paste0(sem,jahr))
-  } else if (!kurz & sose) {
+  } else if (sose) {
     sem = "Sommersemester"
     jahr = paste0("20",jahr)
   } else {

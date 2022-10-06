@@ -161,7 +161,9 @@ copy.all.kurse = function(tosem, overwrite=FALSE, just.aktiv = FALSE, ..., db=ge
   #stop()
 
   dbWithTransaction(db, {
-    if (overwrite) {
+    # Always delete: overwrite will reduce number of courses
+    # but sometimes modules may still exist.
+    if (TRUE | overwrite) {
       for (kursid in ku$kursid) {
         dbDelete(db,"kurs", list(semester=tosem, kursid=kursid))
         dbDelete(db,"kursperson", list(semester=tosem, kursid=kursid))
