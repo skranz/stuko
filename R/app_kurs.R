@@ -16,7 +16,8 @@ kurse.ui = function(..., app=getApp(), glob=app$glob) {
     div(id="kurseTableDiv",
       dataTableOutput("kurseTable")
     ),
-    actionButton("refreshKurseBtn","",icon = icon("refresh")),
+    #actionButton("refreshKurseBtn","",icon = icon("refresh")),
+    actionButton("refreshKurseBtn","",icon = icon("arrows-rotate")),
     #if (app$stuko)
     simpleButton("addKursBtn","Neuen Kurs anlegen"),
     simpleButton("deactivateKurseBtn","Markierte Kurse (de-)aktivieren",form.sel = ".kursCheck"),
@@ -64,7 +65,8 @@ update.kurse.ui = function(app=getApp(), glob=app$glob,...) {
   dt = datatable(df,selection = 'none',escape=-1,rownames = FALSE, filter=list(position="top", clear=FALSE, plain=FALSE),
     class="display compact",
 #    style="bootstrap",
-    autoHideNavigation = TRUE, extensions = c('FixedColumns','ColReorder','Select',"Buttons"),options = list(
+    #autoHideNavigation = TRUE,
+    extensions = c('FixedColumns','ColReorder','Select',"Buttons"),options = list(
     lengthMenu = c(10, 25, 50, 1000),
     dom = 'Blfrtip',
     buttons = c('copy','excel','csv'),

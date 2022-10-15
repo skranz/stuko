@@ -1,7 +1,8 @@
 module.ui = function(..., app=getApp(), glob=app$glob) {
   ui= tagList(
     dataTableOutput("moduleTable"),
-    actionButton("refreshModuleBtn","",icon = icon("refresh")),
+    #actionButton("refreshModuleBtn","",icon = icon("refresh")),
+    actionButton("refreshModuleBtn","",icon = icon("arrows-rotate")),
     if (app$stuko)
       simpleButton("addModulBtn","Neues Modul anlegen"),
     if (app$stuko)

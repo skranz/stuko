@@ -96,7 +96,9 @@ stukoApp = function(stuko.dir = getwd(),sem = default_semester(),use.jobs=FALSE,
     color: black;
 }'
     ))),
-    htmlDependency("font-awesome", "4.7.0", c(href = "shared/font-awesome"), stylesheet = "css/font-awesome.min.css"),
+    htmlDependency("font-awesome","5.13.0", "www/shared/fontawesome", package = "shiny",
+    stylesheet = c("css/all.min.css", "css/v4-shims.min.css")),
+    #htmlDependency("font-awesome", "4.7.0", c(href = "shared/font-awesome"), stylesheet = "css/font-awesome.min.css"),
     tags$head(tags$style(form.table.default.css())),
     tags$style(HTML(
       ".vector-input-container, .vector-input-container .form-control {margin-bottom: 0px;}")),

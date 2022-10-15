@@ -47,7 +47,7 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     filename=function(app = getApp())
       paste0("Lehrangebot_",semester_name(app$sem),".docx"),
     content = function(file, ...) {
-      restore.point("jsfhshfzgfzzfhvn")
+      restore.point("repLPBtn Downloadhandler")
       app=getApp()
       withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
         lehrangebot.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file, strings=glob$strings)
