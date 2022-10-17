@@ -98,7 +98,7 @@ zuordnung:
    'WP Mathe/Info', 'WP Informatik', 'WP Mathematik',
    'WP BWL', 'WP VWL','Seminare', 'WP Recht', 'Sprachen',
    'NUF WP', 'NUF Pflicht','Lehramt Pflicht',
-   'Kern BWL/Recht','Kern VWL','Kern Datascience'
+   'Kern BWL/Recht','Kern VWL','Kern Data Science'
    ]
 zeitform:
   'Wöchentlich': w
