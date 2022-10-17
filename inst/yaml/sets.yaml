@@ -97,7 +97,8 @@ zuordnung:
    'BA WP','MA WP','Nur Export',
    'WP Mathe/Info', 'WP Informatik', 'WP Mathematik',
    'WP BWL', 'WP VWL','Seminare', 'WP Recht', 'Sprachen',
-   'NUF WP', 'NUF Pflicht','Lehramt Pflicht'
+   'NUF WP', 'NUF Pflicht','Lehramt Pflicht',
+   'Kern BWL/Recht','Kern VWL','Kern Datascience'
    ]
 zeitform:
   'Wöchentlich': w
