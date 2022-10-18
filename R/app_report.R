@@ -14,6 +14,10 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     downloadButton("repPlanBtn", "Zweijahresplanung nach Schwerpunkten"),
     helpText("Geplantes Lehrangebot fuer 4 Semester nach Schwerpunkten."),
 
+    downloadButton("repKernbereichBtn", "Zweijahresplanung Kernbereiche / AQMT"),
+    helpText("Geplantes Lehrangebot MSc: Kernbereiche und AQMT fuer 4 Semester."),
+
+
     downloadButton("repLBBtn","Lehrbeauftragte"),
     helpText("Eine Liste der Lehrbeauftragten mit Kurs, Koordinator und Verguetung."),
 
@@ -76,6 +80,19 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
       )
     }
   )
+
+  setDownloadHandler("repKernbereichBtn",
+    filename=function(app = getApp())
+      paste0("Plan_Kern_AQMT_",semester_name(app$sem),".docx"),
+    content = function(file, ...) {
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        kernbereich.report(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets)
+      )
+    }
+  )
+
+
   setDownloadHandler("repPlanEnBtn",
     filename=function(app = getApp())
       paste0("Plan_English_Courses_",semester_name(app$sem),".docx"),
