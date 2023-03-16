@@ -89,7 +89,7 @@ planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = ge
 
     } else {
       doc = doc %>%
-        body_add_par("Schwerpunkte Master", style = "heading 1")
+        body_add_par("Profile / Schwerpunkte Master", style = "heading 1")
 
     }
 
@@ -99,7 +99,7 @@ planung.schwerpunkt.report = function(semester, db = get.stukodb(), out.dir = ge
           body_add_par(paste0("Profil / Schwerpunkt: ", csp, " (",bm,")"), style = "heading 2")
       } else {
           doc = doc %>%
-            body_add_par(paste0("Schwerpunkt: ", csp, " (",bm,")"), style = "heading 2")
+            body_add_par(paste0("Profil / Schwerpunkt: ", csp, " (",bm,")"), style = "heading 2")
       }
 
       df = filter(dbm, sp %in% csp) %>%

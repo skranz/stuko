@@ -11,10 +11,10 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     downloadButton("repLaspBtn", "Lehrangebot nach Schwerpunkten"),
     helpText("Lehrangebot nach Schwerpunkten und vergleich mit 2 vorherigen Semerstern."),
 
-    downloadButton("repPlanBtn", "Zweijahresplanung nach Schwerpunkten"),
-    helpText("Geplantes Lehrangebot fuer 4 Semester nach Schwerpunkten."),
+    downloadButton("repPlanBtn", "4-Semestersplanung nach Profilen"),
+    helpText("Geplantes Lehrangebot fuer 4 Semester nach Profilen."),
 
-    downloadButton("repKernbereichBtn", "Zweijahresplanung Kernbereiche / AQMT"),
+    downloadButton("repKernbereichBtn", "4-Semesterplanung Kernbereiche / AQMT"),
     helpText("Geplantes Lehrangebot MSc: Kernbereiche und AQMT fuer 4 Semester."),
 
 
@@ -33,7 +33,10 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     downloadButton("repFoseBtn","Forschungssemester"),
     helpText("Planung der Forschungssemester fuer naechste 6 Jahre"),
 
-    downloadButton("repPlanEnBtn", "Englischsprachige Kurse"),
+    downloadButton("repPlanEnBtn", "Plan englische Kurse"),
+    helpText("Geplantes englischsprachiges Lehrangebot fuer 4 Semester, inkl. Kernbereiche und AQMT im Master."),
+
+    downloadButton("repPlanProfileEnBtn", "Plan englische Kurse nach Profilen"),
     helpText("Geplantes englischsprachiges Lehrangebot fuer 4 Semester nach Schwerpunkten."),
 
 
@@ -92,14 +95,23 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     }
   )
 
-
   setDownloadHandler("repPlanEnBtn",
     filename=function(app = getApp())
       paste0("Plan_English_Courses_",semester_name(app$sem),".docx"),
     content = function(file, ...) {
       app=getApp()
       withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
-        planung.schwerpunkt.report(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets, just.english = TRUE)
+        kernbereich.report.engl(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets)
+      )
+    }
+  )
+  setDownloadHandler("repPlanProfileEnBtn",
+    filename=function(app = getApp())
+      paste0("Plan_Profiles_English_Courses_",semester_name(app$sem),".docx"),
+    content = function(file, ...) {
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        planung.profile.report.engl(semester=app$sem, db=app$glob$db, out.file=file, sets=glob$sets)
       )
     }
   )

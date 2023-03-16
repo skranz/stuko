@@ -141,7 +141,7 @@ add.aqmt.to.report = function(org.ku, doc, sems, num.sem) {
     doc = doc %>% officer::body_add_break()
 
     doc = doc %>%
-      body_add_par("Kurse im AQMT", style = "heading 1")
+      body_add_par("Kurse im Advanced Quantitative Methods Track (AQMT)", style = "heading 1")
     df = dbm %>%
         ungroup() %>%
         select(-sp)
