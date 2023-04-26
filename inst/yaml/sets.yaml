@@ -31,6 +31,12 @@ semester:
   WS2930: 295
   SoSe30: 300
   WS3031: 305
+  SoSe31: 310
+  WS3132: 315
+  SoSe32: 320
+  WS3233: 325
+  SoSe33: 330
+  WS3334: 335
 
 sprache:
   Deutsch: de
@@ -90,6 +96,8 @@ schwerpunkt:
  - 'MA RW&WP'
  - 'MA TPM'
  - 'MA UF&Co'
+ - 'MA St&Re'
+
 zuordnung:
   #cat(paste0("'",unique(mozu$zuordnung),"'", collapse=", "))
   [
