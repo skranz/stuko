@@ -106,7 +106,14 @@ zuordnung:
    'WP Mathe/Info', 'WP Informatik', 'WP Mathematik',
    'WP BWL', 'WP VWL','Seminare', 'WP Recht', 'Sprachen',
    'NUF WP', 'NUF Pflicht','Lehramt Pflicht',
-   'Kern BWL/Recht','Kern VWL','Kern Data Science', 'AQMT'
+   'Kern BWL/Recht','Kern VWL','Kern Data Science', 'AQMT',
+   
+   'WI Pflicht', 
+   'WI Aufbau WiWi', 'WI Aufbau Inf',
+   'WI Analytics WiWi', 'WI Analytics Inf',
+   'WI DigBu WiWi', 'WI DigBu Inf',
+   'WI WP'
+
    ]
 zeitform:
   'Wöchentlich': w

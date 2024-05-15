@@ -5,11 +5,17 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
     downloadButton("repLPBtn", "Lehrangebot"),
     helpText("Eine formale Darstellung des Lehrprogramms, wie es in der StuKo und Fakultaetsrat beschlossen wird."),
 
+
+
     downloadButton("repDiagBtn", "Diagnostik des Lehrangebots"),
     helpText("Eine Diagnostik des Lehrprogramms. Vor allem gedacht um noch offene Baustellen in den Daten zu entdecken bevor das Lehrprogramm offiziell beschlossen wird."),
 
     downloadButton("repLaspBtn", "Lehrangebot nach Schwerpunkten"),
     helpText("Lehrangebot nach Schwerpunkten und vergleich mit 2 vorherigen Semerstern."),
+
+    downloadButton("repWinfLABtn", "Lehrangebot Wirtschaftsinformatik"),
+    helpText("Wirtschaftsinformatik Lehrangebot"),
+
 
     downloadButton("repPlanBtn", "4-Semestersplanung nach Profilen"),
     helpText("Geplantes Lehrangebot fuer 4 Semester nach Profilen."),
@@ -61,6 +67,19 @@ reports.ui = function(..., app=getApp(), glob=app$glob) {
       )
     }
   )
+
+  setDownloadHandler("repWinfLABtn",
+    filename=function(app = getApp())
+      paste0("WiInf_Lehrangebot_",semester_name(app$sem),".docx"),
+    content = function(file, ...) {
+      restore.point("repWinfLABtn Downloadhandler")
+      app=getApp()
+      withProgress(message="Der Report wird erstellt. Dies dauert eine Weile...",
+        winf.lehrangebot.report(semester=app$sem, db=app$glob$db, tpl.dir=app$glob$tpl.dir, out.file=file, strings=glob$strings)
+      )
+    }
+  )
+
 
   setDownloadHandler("repDiagBtn",
     filename=function(app = getApp())
