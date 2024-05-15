@@ -3,11 +3,23 @@ admin.ui = function(...) {
     uiOutput("snapshotInfoUI"),
     simpleButton("makeSnapshotBtn", "Sicherheitskopie der Datenbank erstellen"),
     hr(),
-    simpleButton("copyAllKurseBtn", "Kurse und Module fuer ein neues Semester erstellen (kopiere Kurse die gemaess Turnus im neuen Semester stattfinden).")
+    simpleButton("copyAllKurseBtn", "Kurse und Module fuer ein neues Semester erstellen (kopiere Kurse die gemaess Turnus im neuen Semester stattfinden)."),
+    hr(),
+    simpleButton("copyZuordnungenBtn", "Modulzuordnungen kopieren."),
+    helpText("Folgende Situation: neue Zuordnungen (inkl. Schwerpunkte oder Studiengaenge) werden für ein oder mehrere Module in einem Semester vorgenommen. Wenn das Modul bereits fuer zukuenftige Semester erstellt wurde (fuer 4-Semesterplan), muesste man auch in allen zukuenftigen Semestern diese Zuordnungen zuweisen, was nervig ist. Diese Funktion erlaubt alle Modulzuordnungn per Bulk Copy von einem Semester in ein zukuenftiges Semester zu kopieren.
+
+Es werden hierbei keine Kurse oder Module in die Zukunft kopiert, sondern nur bereits im Zielsemester existierende Module angepasst.
+
+Sollte es im Zielsemester mehr Zuordnungen fuer ein Modul, als im Quellsemester geben, werden diese nicht geloescht. Aber alle im Zielsemester nicht existierenden Zuordnungen vom Quellsemester werden im Zielsemester erstellt.
+
+Es mag riskant erscheinen einfach per bulk-copy alle Zuordnungen in die Zukunft zu kopieren. Aber es waere nur problematisch, wenn wir vorher mit Absicht im Zielsemester eine Zuordnung geloescht haetten, die im Quellsemester noch existiert. Aber das Problem sollte bei folgender 'typischer Nutzung' wohl praktisch nicht vorkommen. Typische Nutzung: kopiere vom naechste WiSe oder SoSe in das WiSe oder SoSe noch ein Jahr weiter in der Zukunft (d.h. passe die Semester am Ende der 4-Semesterplanung an).")
   )
   buttonHandler("makeSnapshotBtn", make.snapshot.click)
   buttonHandler("copyAllKurseBtn", function(...) {
     showModal(copy.all.kurse.ui())
+  })
+  buttonHandler("copyZuordnungenBtn", function(...) {
+    showModal(copy.zuordnungen.ui())
   })
   ui
 }
@@ -262,3 +274,70 @@ remove.duplicates.from.table = function(table, db = get.stukodb()) {
 
 }
 
+
+copy.zuordnungen.ui = function(tosem = first.non.null(app$tosem, app$sem+10),..., app=getApp(), glob=app$glob, fromsem = app$sem) {
+  restore.point("copy.zuordnungen.ui")
+
+  ui = modalDialog(size = "l", footer=NULL,
+    tagList(
+      selectInput("fromsemInput","Aus diesem Semester kopieren", choices = glob$sets$semester, selected=fromsem),
+      selectInput("tosemInput","In das folgende Semester kopieren.", choices = glob$sets$semester, selected=tosem),
+      uiOutput("tosemInfo"),
+      hr(),
+      simpleButton("copyZuordnungOkBtn", "Alle Modulzuordnungen (inkl. Schwerpunkte und Studiengaenge) kopieren",form.ids = c("tosemInput","fromsemInput")), simpleButton("cancelModalBtn","Abbruch")
+    )
+  )
+  buttonHandler("cancelModalBtn",function(...) removeModal())
+  buttonHandler("copyZuordnungOkBtn",function(formValues,...) {
+    restore.point("copyZuordnungOkBtn")
+    tosem = as.integer(formValues$tosemInput)
+    fromsem = as.integer(formValues$fromsemInput)
+
+    cat("Copy all Zuordnungen fro ", fromsem," to", tosem,"...")
+    res = copy.all.zuordnungen(tosem=tosem, fromsem=fromsem)
+    removeModal()
+  })
+
+  ui
+}
+
+
+copy.all.zuordnungen = function(tosem,fromsem = getApp()$sem, ..., db=get.stukodb()) {
+  restore.point("copy.all.zuordnungen")
+
+  to_sd = get.sem.data(tosem)
+  from_sd = get.sem.data(fromsem)
+
+  to_mo = to_sd$module
+
+  from_mo = from_sd$module %>%
+    semi_join(tomo, by="modulid")
+
+  add_mozu = from_sd$mozu %>%
+    semi_join(from_mo, by="modulid") %>%
+    anti_join(to_sd$mozu, by=c("modulid","zuordnung")) %>%
+    mutate(semester = tosem)
+
+  add_mosp = from_sd$mosp %>%
+    semi_join(from_mo, by="modulid") %>%
+    anti_join(to_sd$mosp, by=c("modulid","schwerpunkt")) %>%
+    mutate(semester = tosem)
+
+  add_most = from_sd$most %>%
+    semi_join(from_mo, by="modulid") %>%
+    anti_join(to_sd$most, by=c("modulid","studiengang")) %>%
+    mutate(semester = tosem)
+
+  log = paste0("Automatische Uebertragung von ", NROW(add_mozu)," Modulzuordnungen, ", NROW(add_mosp)," Modulschwerpunkten und ", NROW(add_most), " Modulstudiengaengen von ", semester_name(fromsem)," in das ", semester_name(tosem)
+  )
+
+  dbWithTransaction(db, {
+    dbInsert(db,"modulzuordnung",add_mozu)
+    dbInsert(db,"modulschwerpunkt",add_mosp)
+    dbInsert(db,"modulstudiengang",add_most)
+    write.stuko.log(log,"zuordnungen_bulk_copy",semester=tosem)
+
+  })
+  sd = get.sem.data(tosem, update = TRUE)
+  list(sd=sd, add_mozu=add_mozu, add_mosp=add_mosp, add_most=add_most, log=log)
+}
